@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Hero entrance animation */
+@keyframes fadeUp {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.fade-up {
+	opacity: 0;
+	animation-name: fadeUp;
+	animation-duration: 600ms;
+	animation-fill-mode: forwards;
+	animation-timing-function: cubic-bezier(.2,.9,.2,1);
+}
+
+/* Horizontal marquee for testimonials */
+@keyframes marquee {
+	from { transform: translateX(0); }
+	to { transform: translateX(-50%); }
+}
+
+.testimonials-marquee {
+	position: relative;
+}
+
+.testimonials-track {
+	display: flex;
+	gap: 1.5rem;
+	align-items: stretch;
+	/* The track will be at least twice the visible width because we duplicate content in JSX */
+	animation: marquee 24s linear infinite;
+}
+
+.testimonials-marquee:hover .testimonials-track {
+	animation-play-state: paused;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+	.testimonials-track { animation: none; }
+	.fade-up { animation: none; opacity: 1; transform: none; }
+}
+
