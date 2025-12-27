@@ -1,4 +1,4 @@
-# UniVerse (Notion Clone) 🚀
+# UniVerse 🚀
 
 ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
 ![React](https://img.shields.io/badge/React-18-blue)
