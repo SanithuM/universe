@@ -1,35 +1,61 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
+// Import Components
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Problem from './components/Problem';
 import Solution from './components/Solution';
 import PriorityEngine from './components/PriorityEngine';
-import Dashboard from './components/Dashboard';
+import DashboardPreview from './components/Dashboard'; // I renamed this alias to avoid confusion
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import NotionHome from './components/Test';
 
-export default function UniVerseApp() {
-  const [showNotionDemo, setShowNotionDemo] = useState(false);
+// Import Pages
+import UserDashboard from './pages/UserDashboard'; // This is your new REAL dashboard
+import Login from './pages/Login';
 
-  // If the demo state is active, show the Notion clone page
-  if (showNotionDemo) {
-    return <NotionHome />;
-  }
+// 1. Create a "LandingPage" component to group all marketing sections
+const LandingPage = () => {
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased">
-      {/* Pass the state setter to the Navbar */}
-      <Navbar onPricingClick={() => setShowNotionDemo(true)} />
+      {/* Navbar with navigation logic */}
+      <Navbar onPricingClick={() => navigate('/notion-demo')} />
+      
       <Hero />
       <Problem />
       <Solution />
       <PriorityEngine />
-      <Dashboard />
+      <DashboardPreview /> {/* This is the marketing preview, not the real app */}
       <HowItWorks />
       <Testimonials />
       <Footer />
     </div>
+  );
+};
+
+// 2. Main App Component with Routing
+export default function UniVerseApp() {
+  return (
+    <Router>
+      <Routes>
+        {/* Route 1: The Public Landing Page (http://localhost:5173/) */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Route 2: The Real App Dashboard (http://localhost:5173/app) */}
+        <Route path="/app" element={<UserDashboard />} />
+
+        {/* Route 3: Your Notion Demo (http://localhost:5173/notion-demo) */}
+        <Route path="/notion-demo" element={<NotionHome />} />
+
+        {/* Route 4: Login Page (http://localhost:5173/login) */}
+        <Route path="/login" element={<Login />} />
+        
+      </Routes>
+    </Router>
   );
 }
