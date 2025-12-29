@@ -16,6 +16,8 @@ import NotionHome from './components/Test';
 // Import Pages
 import UserDashboard from './pages/UserDashboard'; // This is your new REAL dashboard
 import Login from './pages/Login';
+import Register from './pages/Register';
+import Groups from './pages/Groups';
 
 // 1. Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
@@ -54,7 +56,13 @@ export default function UniVerseApp() {
 
         {/* Route 4: Login Page (http://localhost:5173/login) */}
         <Route path="/login" element={<Login />} />
-        
+
+        {/* Route 5: Register Page (http://localhost:5173/register) */}
+        <Route path="/register" element={<Register />} />
+
+        {/* Route 6: Groups Page (http://localhost:5173/groups) */}
+        <Route path="/groups" element={<Groups />} />
+
       </Routes>
     </Router>
   );
