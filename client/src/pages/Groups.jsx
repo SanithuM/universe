@@ -3,60 +3,60 @@ import { useNavigate } from 'react-router-dom';
 import api from "../api/axios";
 
 const Groups = () => {
-    const [groups, setGroups] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showJoin, setShowJoin] = useState(false);
-    const [showCreate, setShowCreate] = useState(false);
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showJoin, setShowJoin] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
-    // Inputs
-    const [joinCode, setJoinCode] = useState('');
-    const [newGroupName, setNewGroupName] = useState('');
-    const navigate = useNavigate();
+  // Inputs
+  const [joinCode, setJoinCode] = useState('');
+  const [newGroupName, setNewGroupName] = useState('');
+  const navigate = useNavigate();
 
-    // Fetch My Groups
-    useEffect(() => {
-        fetchGroups();
-    }, []);
+  // Fetch My Groups
+  useEffect(() => {
+    fetchGroups();
+  }, []);
 
-    const fetchGroups = async () => {
-        try{
-            const res = await api.get('/groups');
-            setGroups(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
-        }
-    };
+  const fetchGroups = async () => {
+    try {
+      const res = await api.get('/groups');
+      setGroups(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
 
-    // Handle Create group
-    const handleCreate = async (e) => {
-        e.preventDefault();
-        try {
-            await api.post('/groups/create', { name: newGroupName });
-            setShowCreate(false);
-            setNewGroupName('');
-            fetchGroups(); // Refresh list
-        } catch (err) {
-            alert("Failed to create group");
-        }
-    };
+  // Handle Create group
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/groups/create', { name: newGroupName });
+      setShowCreate(false);
+      setNewGroupName('');
+      fetchGroups(); // Refresh list
+    } catch (err) {
+      alert("Failed to create group");
+    }
+  };
 
-    // Handle Join group
-    const handleJoin = async (e) => {
-        e.preventDefault();
-        setError('');
-        try {
-            await api.post('/groups/join' , { inviteCode: joinCode });
-            setShowJoin(false);
-            setJoinCode('');
-            fetchGroups(); // Refresh list
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to join");
-        }
-    };
+  // Handle Join group
+  const handleJoin = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      await api.post('/groups/join', { inviteCode: joinCode });
+      setShowJoin(false);
+      setJoinCode('');
+      fetchGroups(); // Refresh list
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to join");
+    }
+  };
 
-    return (
+  return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
@@ -66,7 +66,7 @@ const Groups = () => {
             <p className="text-gray-500">Manage projects with your friends.</p>
           </div>
           <div className="flex gap-3">
-            <button 
+            <button
               onClick={() => navigate('/app')}
               className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
@@ -77,7 +77,7 @@ const Groups = () => {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          <div 
+          <div
             onClick={() => setShowCreate(true)}
             className="p-6 bg-indigo-600 rounded-xl shadow-lg cursor-pointer transform transition hover:scale-[1.02] text-white flex items-center justify-between"
           >
@@ -88,7 +88,7 @@ const Groups = () => {
             <span className="text-4xl">+</span>
           </div>
 
-          <div 
+          <div
             onClick={() => setShowJoin(true)}
             className="p-6 bg-white border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition flex items-center justify-between"
           >
@@ -103,32 +103,35 @@ const Groups = () => {
         {/* Groups Grid */}
         <h2 className="text-xl font-bold text-gray-800 mb-4">My Teams</h2>
         {loading ? (
-            <div>Loading spaces...</div>
+          <div>Loading spaces...</div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {groups.map((group) => (
-                <div key={group._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+              <div key={group._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
                 <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                     {group.name.charAt(0)}
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono">
+                  </div>
+                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono">
                     {group.inviteCode}
-                    </span>
+                  </span>
                 </div>
                 <h3 className="font-bold text-lg mb-1">{group.name}</h3>
                 <p className="text-sm text-gray-500 mb-4">{group.members.length} Members</p>
-                <button className="w-full py-2 text-indigo-600 bg-indigo-50 rounded-lg text-sm font-semibold hover:bg-indigo-100">
-                    Open Space
+                <button
+                  onClick={() => navigate(`/groups/${group._id}`)}
+                  className="w-full py-2 text-indigo-600 bg-indigo-50 rounded-lg text-sm font-semibold hover:bg-indigo-100"
+                >
+                  Open Space
                 </button>
-                </div>
+              </div>
             ))}
             {groups.length === 0 && (
-                <div className="col-span-full text-center py-10 text-gray-400 bg-white rounded-xl border border-dashed">
+              <div className="col-span-full text-center py-10 text-gray-400 bg-white rounded-xl border border-dashed">
                 You haven't joined any teams yet.
-                </div>
+              </div>
             )}
-            </div>
+          </div>
         )}
 
         {/* MODAL: Create Group */}
@@ -137,10 +140,10 @@ const Groups = () => {
             <div className="bg-white rounded-xl p-6 w-full max-w-md">
               <h3 className="text-xl font-bold mb-4">Name your Team</h3>
               <form onSubmit={handleCreate}>
-                <input 
+                <input
                   autoFocus
-                  type="text" 
-                  placeholder="e.g. Project Alpha" 
+                  type="text"
+                  placeholder="e.g. Project Alpha"
                   className="w-full p-3 border rounded-lg mb-4"
                   value={newGroupName}
                   onChange={e => setNewGroupName(e.target.value)}
@@ -162,10 +165,10 @@ const Groups = () => {
               <h3 className="text-xl font-bold mb-4">Enter Invite Code</h3>
               {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
               <form onSubmit={handleJoin}>
-                <input 
+                <input
                   autoFocus
-                  type="text" 
-                  placeholder="e.g. X7K9P2" 
+                  type="text"
+                  placeholder="e.g. X7K9P2"
                   className="w-full p-3 border rounded-lg mb-4 font-mono uppercase tracking-widest text-center text-xl"
                   maxLength={6}
                   value={joinCode}

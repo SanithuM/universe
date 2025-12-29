@@ -18,6 +18,7 @@ import UserDashboard from './pages/UserDashboard'; // This is your new REAL dash
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Groups from './pages/Groups';
+import GroupRoom from './pages/GroupRoom';
 
 // 1. Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
@@ -62,6 +63,9 @@ export default function UniVerseApp() {
 
         {/* Route 6: Groups Page (http://localhost:5173/groups) */}
         <Route path="/groups" element={<Groups />} />
+
+        {/* Route 7: Specific Group Room (http://localhost:5173/groups/:id) */}
+        <Route path="/groups/:id" element={<GroupRoom />} />
 
       </Routes>
     </Router>
