@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true // We will hash this with Bcrypt later
     },
+    profilePic: {
+        type: String,
+        default: '' // Default to empty string if no profile picture is provided
+    },
     settings: {
         theme: {
             type: String,

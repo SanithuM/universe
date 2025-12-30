@@ -69,8 +69,9 @@ export default function UserDashboard() {
         <div className="flex-1 overflow-y-auto px-1 py-2 space-y-0.5">
           <SidebarItem icon="🔍" label="Search" />
           <SidebarItem icon="🕒" label="Updates" />
+          <div onClick={() => navigate('/settings')}>
           <SidebarItem icon="⚙️" label="Settings" />
-
+          </div>
           {/* Trigger Add Task Modal */}
           <div onClick={() => setShowAddForm(true)}>
             <SidebarItem icon="➕" label="Add New Task" />
