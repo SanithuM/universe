@@ -21,7 +21,7 @@ try {
     const testUser = await User.create({
         username: 'sanithu',
         email: 'sanithu@example.com',
-        passwordHash: 'hashed_secret_password_123',
+        password: 'hashed_secret_password_123',
         settings: { theme: 'dark'}
     });
     console.log('User created:', testUser.username);

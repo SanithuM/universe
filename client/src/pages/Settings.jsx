@@ -62,7 +62,13 @@ const Settings = () => {
             setMessage({ type: 'success', text: 'Password changed successfully!' });
             setPasswords({ current: '', new: '' });
         } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data || 'Failed to change password' });
+            // Extract the specific error message string
+            const errorMsg = err.response?.data?.error || err.response?.data || 'Failed to change password';
+
+            setMessage({
+                type: 'error',
+                text: typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg
+            });
         }
     };
 

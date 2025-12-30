@@ -4,37 +4,34 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
 
-// Register Route
+// 1. REGISTER
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password} = req.body;
+        const { username, email, password } = req.body;
 
-        // 👇 ADD THESE LINES TO DEBUG:
-        console.log("Received Password:", password);
-        console.log("Type of Password:", typeof password);
-
-        // check if user already exists
-        const existingUser = await User.findOne({ email});
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists'});
+            return res.status(400).json({ message: 'User already exists' });
         }
 
-        // hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        // create the new user
+        // Create the new user
         const newUser = new User({
             username,
             email,
-            passwordHash: hashedPassword, // Store the hash, NOT the plain text
+            password: hashedPassword, // FIX: Saving as 'password' to be consistent
         });
         const savedUser = await newUser.save();
 
-        // generate a JWT token
+        // Generate JWT token
         const token = jwt.sign(
-            { id: savedUser._id},
-            process.env.JWT_SECRET || 'fallback_secret_key', // use a fallback for development
-            { expiresIn: '1d'}
+            { id: savedUser._id },
+            process.env.JWT_SECRET || 'fallback_secret_key',
+            { expiresIn: '1d' }
         );
 
         res.status(201).json({
@@ -46,103 +43,120 @@ router.post('/register', async (req, res) => {
                 email: savedUser.email,
             }
         });
-    
-            } catch (err) {
-                res.status(500).json({ error: err.message});
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 2. LOGIN
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Validate Password
+        // FIX: Comparing against 'user.password' (not passwordHash)
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET || 'fallback_secret_key',
+            { expiresIn: '1d' }
+        );
+
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                profilePic: user.profilePic
             }
         });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
-        // Login Route
-        router.post('/login', async (req, res) => {
-            try {
-                const { email, password } = req.body;
-
-                // check if user exists
-                const user = await User.findOne({ email });
-                if (!user) {
-                    return res.status(400). json({ message: 'Invalid credentials' });
+// 3. UPDATE USER DETAILS
+router.put('/update', verify, async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                $set: {
+                    username: req.body.username,
+                    profilePic: req.body.profilePic // Expecting a Base64 string
                 }
+            },
+            { new: true }
+        ).select('-password'); // FIX: Exclude 'password' from result
 
-                // Validate Password
-                const isMatch = await bcrypt.compare(password, user.passwordHash);
-                if (!isMatch) {
-                    return res.status(400).json({ message: 'Invalid credentials' });
-                }
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
-                // Generate JWT Token
-                const token = jwt.sign(
-                    { id: user._id},
-                    process.env.JWT_SECRET,
-                    { expiresIn: '1d'}
-                );
-                res.status(200).json({
-                    message: 'Login successful',
-                    token,
-                    user: {
-                        id: user._id,
-                        username: user.username,
-                        email: user.email
-                    }
-                });
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-            }
-        });
+// 4. CHANGE PASSWORD
+router.put('/change-password', verify, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
 
-        // Update user details (username & Profile pic)
-        router.put('/update', verify, async (req, res) => {
-            try {
-                const updatedUser = await User.findByIdAndUpdate(
-                    req.user.id,
-                    {
-                        $set: {
-                            username: req.body.username,
-                            profilePic: req.body.profilePic // Expecting a Base64 string
-                        }
-                    },
-                    { new: true } // Return the update document
-                ).select('-passwordHash'); // Don't return the password hash
+        // Find user
+        const user = await User.findById(req.user.id);
 
-                res.json(updatedUser);
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-            }
-        });
+        // Safety Check: Does user exist?
+        if (!user) return res.status(404).json({ error: "User not found" });
 
-        // Change Password
-        router.put('/change-password', verify, async (req, res) => {
-            try {
-                const { currentPassword, newPassword } = req.body;
+        // Safety Check: Does this user actually have a password?
+        if (!user.password) {
+            return res.status(400).json({ error: "This account does not have a password set" });
+        }
 
-                // Find user to get the current hashed password
-                const user = await User.findById(req.user.id);
+        // Force strings (Fixes "Illegal arguments: number")
+        const currentPassStr = String(currentPassword);
+        const newPassStr = String(newPassword);
 
-                // Check if current password is correct
-                const validPass = await bcrypt.compare(currentPassword, user.passwordHash);
-                if (!validPass) return res.status(400).send('Invalid current password');
+        // Compare using the stringified variable
+        const validPass = await bcrypt.compare(currentPassStr, user.password);
+        if (!validPass) return res.status(400).send('Invalid current password');
 
-                // Hash the New password
-                const salt = await bcrypt.getSalt(10);
-                const hashedPassword = await bcrypt.hash(newPassword, salt);
+        // Hash the New password
+        // FIX: corrected 'getSalt' to 'genSalt'
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassStr, salt);
 
-                // Update in DB
-                user.passwordHash = hashedPassword;
-                await user.save();
+        // Update in DB
+        user.password = hashedPassword;
+        await user.save();
 
-                res.send( 'Password changed successfully' );
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-            }
-        });
+        res.send('Password changed successfully');
+    } catch (err) {
+        console.error("Change Password Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
-        // Delete Account
-        router.delete('/delete', verify, async (req, res) => {
-            try {
-                await User.findByIdAndDelete(req.user.id);
-                res.json({ message: "Account deleted successfully" });
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-            }
-        });
+// 5. DELETE ACCOUNT
+router.delete('/delete', verify, async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.user.id);
+        res.json({ message: "Account deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
-        module.exports = router;
+module.exports = router;
