@@ -23,7 +23,7 @@ router.post('/create', verify, async (req, res) => {
             admin: req.user.id,
             members: [req.user.id] // Admin is the first member
         });
-        
+
         const savedGroup = await newGroup.save();
         res.status(201).json(savedGroup);
     } catch (err) {
@@ -38,7 +38,7 @@ router.post('/join', verify, async (req, res) => {
 
         // Find group by invite code
         const group = await Group.findOne({ inviteCode });
-        if (!group) return res.status(404). json({ message: "Invalid Invite Code" });
+        if (!group) return res.status(404).json({ message: "Invalid Invite Code" });
 
         // Check if user is already in the group
         if (group.members.includes(req.user.id)) {
@@ -67,7 +67,7 @@ router.get('/', verify, async (req, res) => {
 });
 
 // Get signle group
-router.get('/:id', verify, async (req,res) => {
+router.get('/:id', verify, async (req, res) => {
     try {
         // populate memebers so we get usernames, not just their IDs
         const group = await Group.findById(req.params.id).populate('members', 'username email');
@@ -92,14 +92,14 @@ router.post('/:id/tasks', verify, async (req, res) => {
         const newTask = {
             title: req.body.title,
             assignedTo: req.user.id,
-            status: 'To-Do' 
+            status: 'To-Do'
         };
 
         group.tasks.push(newTask);
         await group.save();
 
         res.status(200).json(group);
-    }catch (err) {
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });

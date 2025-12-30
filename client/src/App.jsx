@@ -28,7 +28,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white text-gray-900 antialiased">
       {/* Navbar with navigation logic */}
       <Navbar onPricingClick={() => navigate('/notion-demo')} />
-      
+
       <Hero />
       <Problem />
       <Solution />
