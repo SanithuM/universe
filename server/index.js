@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoute = require('./routes/auth');
 const assignmentRoute = require('./routes/assignments');
 const groupRoute = require('./routes/groups');
+const eventRoute = require('./routes/events');
 
 // Load environment variales
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(express.json()); //Allow me to parse JSON bodies
 app.use('/api/auth', authRoute);
 app.use('/api/assignments', assignmentRoute);
 app.use('/api/groups', groupRoute);
+app.use('/api/events', eventRoute);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)

@@ -83,7 +83,9 @@ export default function UserDashboard() {
 
           <div className="mt-6 mb-2 px-3 text-xs font-semibold text-gray-500">Private</div>
           <SidebarItem icon="✅" label="Task List" active />
+          <div onClick={() => navigate('/calendar')}>
           <SidebarItem icon="📅" label="Course Schedule" />
+          </div>
         </div>
 
         {/* Sidebar Footer (Logout) */}

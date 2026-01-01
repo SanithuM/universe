@@ -20,6 +20,7 @@ import Register from './pages/Register';
 import Groups from './pages/Groups';
 import GroupRoom from './pages/GroupRoom';
 import Settings from './pages/Settings';
+import Calender from './pages/Calendar';
 
 // 1. Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
@@ -70,6 +71,9 @@ export default function UniVerseApp() {
 
         {/* Route 8: Settings Page (http://localhost:5173/settings) */}
         <Route path="/settings" element={<Settings />} />
+
+        {/* Route 9: Calendar Page (http://localhost:5173/calendar) */}
+        <Route path="/calendar" element={<Calender />} />
 
       </Routes>
     </Router>
