@@ -46,5 +46,24 @@
 @media (prefers-reduced-motion: reduce) {
 	.testimonials-track { animation: none; }
 	.fade-up { animation: none; opacity: 1; transform: none; }
+
+}
+
+/* Custom Scrollbar for Notion-like feel */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  border: 3px solid transparent; 
+  background-clip: content-box;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import AddTaskForm from '../components/AddTaskFrom';
+import { Search, Clock, Settings, Plus, FileText, Users, CheckSquare, Calendar as CalendarIcon, LogOut } from 'lucide-react';
 
 export default function UserDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [assignments, setAssignments] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState([]);
   const navigate = useNavigate();
 
   // 1. Fetch Tasks from Backend
@@ -25,6 +27,30 @@ export default function UserDashboard() {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  // Fetch Notes from backend
+  const fetchNotes = async () => {
+    try {
+      const res = await api.get('/notes');
+      setNotes(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notes", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  // Handle Create New Note
+  const handleCreateNote = async () => {
+    try {
+      const res = await api.post('/notes'); // Creates an empty note
+      navigate(`/notes/${res.data._id}`); // Redirect to the editor
+    } catch (err) {
+      console.error("Failed to create note", err);
+    }
+  };
 
   // 2. Logout Function
   const handleLogout = () => {
@@ -66,32 +92,68 @@ export default function UserDashboard() {
         </div>
 
         {/* Sidebar Menu */}
-        <div className="flex-1 overflow-y-auto px-1 py-2 space-y-0.5">
-          <SidebarItem icon="🔍" label="Search" />
-          <SidebarItem icon="🕒" label="Updates" />
+        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+
+          {/* UI SECTIONS: Use Lucide Icons */}
+          <SidebarItem icon={<Search size={18} />} label="Search" />
+          <SidebarItem icon={<Clock size={18} />} label="Updates" />
+
           <div onClick={() => navigate('/settings')}>
-          <SidebarItem icon="⚙️" label="Settings" />
+            <SidebarItem icon={<Settings size={18} />} label="Settings" />
           </div>
-          {/* Trigger Add Task Modal */}
-          <div onClick={() => setShowAddForm(true)}>
-            <SidebarItem icon="➕" label="Add New Task" />
+
+
+
+          <div onClick={() => navigate('/calendar')}>
+            <SidebarItem icon={<CalendarIcon size={18} />} label="Calendar" />
           </div>
 
           <div onClick={() => navigate('/groups')}>
-            <SidebarItem icon="🤝" label="My Teams" />
+            <SidebarItem icon={<Users size={18} />} label="My Teams" />
           </div>
 
-          <div className="mt-6 mb-2 px-3 text-xs font-semibold text-gray-500">Private</div>
-          <SidebarItem icon="✅" label="Task List" active />
-          <div onClick={() => navigate('/calendar')}>
-          <SidebarItem icon="📅" label="Course Schedule" />
+          {/* Favorites */}
+          <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97]">Favorites</div>
+          {/* Example of a Favorite Page */}
+          <SidebarItem icon="⛩️" label="Best Anime to Watch" />
+
+          {/* Private */}
+          <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97]">Private</div>
+
+          <div onClick={() => setShowAddForm(true)}>
+            <SidebarItem icon={<Plus size={18} />} label="Add New Task" />
           </div>
+
+          <div onClick={() => navigate('/app')}>
+
+            <SidebarItem icon={<CheckSquare size={18} className="text-orange-600" />} label="Task List" />
+          </div>
+
+
+          {/* Private / Notes Section */}
+          <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97]">
+            <span>Private</span>
+            <button onClick={handleCreateNote} className="hover:bg-gray-200 p-0.5 rounded">
+              <Plus size={14} />
+            </button>
+          </div>
+
+          {/* List of Notes */}
+          {notes.map(note => (
+            <div key={note._id} onClick={() => navigate(`/notes/${note._id}`)}>
+              <SidebarItem
+                icon={note.icon || <FileText size={18} />} // Use note icon or default file icon
+                label={note.title || "Untitled"}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Sidebar Footer (Logout) */}
         <div className="p-2 border-t border-[#E9E9E7]">
           <div onClick={handleLogout} className="px-3 py-1 text-xs text-red-500 hover:bg-[#EFEFEF] rounded cursor-pointer flex items-center gap-2">
-            🚪 Log Out
+            <LogOut size={16} />
+            <span>Log Out</span>
           </div>
         </div>
       </aside>
@@ -185,15 +247,30 @@ export default function UserDashboard() {
 
 // --- Sub Components ---
 
-function SidebarItem({ icon, label, active }) {
+const SidebarItem = ({ icon, label, active }) => {
+  // Check if the icon is a string (Emoji) or a Component (SVG)
+  const isEmoji = typeof icon === 'string';
+
   return (
-    <div className={`flex items-center gap-2 px-3 py-1 min-h-[28px] text-sm rounded cursor-pointer select-none transition-colors ${active ? 'bg-[#EFEFEF] text-[#37352f] font-medium' : 'text-gray-600 hover:bg-[#EFEFEF]'
-      }`}>
-      <span className="text-base opacity-80">{icon}</span>
-      <span className="truncate">{label}</span>
+    <div className={`
+      group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm
+      ${active ? 'bg-[#EFEFEF] text-[#37352f] font-medium' : 'text-[#5F5E5B] hover:bg-[#EFEFEF]'}
+    `}>
+      {/* Icon Container */}
+      <div className={`
+        flex items-center justify-center w-5 h-5 flex-shrink-0
+        ${isEmoji ? 'text-lg leading-none' : 'text-gray-500'}
+      `}>
+        {icon}
+      </div>
+
+      {/* Label */}
+      <span className="truncate flex-1">
+        {label}
+      </span>
     </div>
   );
-}
+};
 
 // Updated Row to match your Data Model
 function DatabaseRow({ task, onStatusChange, onDelete }) {
