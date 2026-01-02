@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare } from 'lucide-react';
+import { Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu, Upload, Link as LinkIcon, X } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
+import Sidebar from '../components/Sidebar';
 import api from '../api/axios';
 import debounce from 'lodash.debounce'; // You might need to install this: npm i lodash.debounce
 
@@ -12,13 +14,23 @@ const NoteEditor = () => {
   const navigate = useNavigate();
   const [note, setNote] = useState({ title: '', content: '', icon: null, coverImage: null, isFavorite: false });
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  // Cover Menu State
+  const [showCoverMenu, setShowCoverMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState('link'); // 'upload' | 'link'
+  const [coverInput, setCoverInput] = useState('');
+
+  // Icon Menu State
+  const [showIconMenu, setShowIconMenu] = useState(false);
+  const [activeIconTab, setActiveIconTab] = useState('emoji'); // 'emoji' | 'icons' | 'upload'
 
   // Initialize TipTap Editor
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Type '/' for commands...",
+        placeholder: "Write here ...",
       }),
     ],
     content: '', // Will be updated when data fetches
@@ -45,7 +57,7 @@ const NoteEditor = () => {
       }
     };
     if (id && editor) {
-        fetchNote();
+      fetchNote();
     }
   }, [id, editor]);
 
@@ -74,94 +86,275 @@ const NoteEditor = () => {
     debouncedSave({ isFavorite: newStatus });
   };
 
-  // Placeholders for now - you can implement actual pickers later
   const handleAddIcon = () => {
-    const emoji = prompt("Enter an emoji:");
-    if (emoji) {
-        setNote(prev => ({ ...prev, icon: emoji }));
-        debouncedSave({ icon: emoji });
-    }
+    setShowIconMenu(true);
+  };
+
+  const onEmojiClick = (emojiData) => {
+    setNote(prev => ({ ...prev, icon: emojiData.emoji }));
+    debouncedSave({ icon: emojiData.emoji });
+    setShowIconMenu(false);
+  };
+
+  const removeIcon = () => {
+    setNote(prev => ({ ...prev, icon: null }));
+    debouncedSave({ icon: null });
+    setShowIconMenu(false);
   };
   const handleAddCover = () => {
-      const url = prompt("Enter image URL:");
-      if(url) {
-          setNote(prev => ({...prev, coverImage: url}));
-          debouncedSave({ coverImage: url });
-      }
-  }
+    setShowCoverMenu(true);
+  };
+
+  const handleLinkSubmit = () => {
+    if (coverInput.trim()) {
+      setNote(prev => ({ ...prev, coverImage: coverInput }));
+      debouncedSave({ coverImage: coverInput });
+      setShowCoverMenu(false);
+      setCoverInput('');
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setNote(prev => ({ ...prev, coverImage: base64String }));
+        debouncedSave({ coverImage: base64String });
+        setShowCoverMenu(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeCover = () => {
+    setNote(prev => ({ ...prev, coverImage: null }));
+    debouncedSave({ coverImage: null });
+    setShowCoverMenu(false);
+  };
 
 
   if (loading) return <div className="p-10">Loading...</div>;
 
   return (
-    <div className="flex flex-col h-screen bg-white font-sans text-[#37352f]">
-      {/* === HEADER === */}
-      <header className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span className="truncate max-w-[200px]">{note.title || "Untitled"}</span>
-          <span>/</span>
-          <span className="text-gray-400">Private</span>
-        </div>
-        <div className="flex items-center gap-2 text-gray-500">
-          <button className="hover:bg-gray-100 p-1 rounded">Share</button>
-          <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : ''}`}>
-            <Star size={18} />
-          </button>
-          <button className="hover:bg-gray-100 p-1 rounded">
-            <MoreHorizontal size={18} />
-          </button>
-        </div>
-      </header>
+    <div className="flex h-screen w-full bg-white font-sans text-[#37352f]">
+      <Sidebar isOpen={isSidebarOpen} onAddTask={() => navigate('/app')} />
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+        {/* === HEADER === */}
+        <header className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            {!isSidebarOpen && (
+              <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded mr-2">
+                <Menu size={18} />
+              </button>
+            )}
+            <span className="truncate max-w-[200px]">{note.title || "Untitled"}</span>
+            <span>/</span>
+            <span className="text-gray-400">Private</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-500">
+            <button className="hover:bg-gray-100 p-1 rounded">Share</button>
+            <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : ''}`}>
+              <Star size={18} />
+            </button>
+            <button className="hover:bg-gray-100 p-1 rounded">
+              <MoreHorizontal size={18} />
+            </button>
+          </div>
+        </header>
 
-      {/* === SCROLLABLE CONTENT AREA === */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Cover Image */}
-        {note.coverImage && (
+        {/* === SCROLLABLE CONTENT AREA === */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Cover Image */}
+          {note.coverImage && (
             <div className="h-[20vh] w-full relative group">
-                <img src={note.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                <button className="absolute bottom-2 right-2 bg-white/80 hover:bg-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">Change cover</button>
-            </div>
-        )}
-
-        <div className="max-w-3xl mx-auto px-8 pb-20">
-          {/* Icon */}
-          {note.icon && (
-            <div className="text-[78px] mt-[-40px] mb-4 relative z-10 group">
-                {note.icon}
-                <button className="absolute top-0 left-full ml-2 bg-white/80 hover:bg-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap" onClick={handleAddIcon}>Change icon</button>
+              <img src={note.coverImage} alt="Cover" className="w-full h-full object-cover" />
+              <button
+                onClick={() => setShowCoverMenu(true)}
+                className="absolute bottom-2 right-2 bg-white/80 hover:bg-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                Change cover
+              </button>
             </div>
           )}
 
-          {/* Options Bar (Add icon, cover, comment) */}
-          <div className={`flex items-center gap-1 text-gray-400 text-sm mb-4 ${note.icon && note.coverImage ? 'hidden' : ''} group-hover:flex`}>
-            {!note.icon && (
-                <button onClick={handleAddIcon} className="hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1">
-                <Smile size={16} /> Add icon
+          {/* Cover Menu Popover */}
+          {showCoverMenu && (
+            <div className="absolute top-20 right-10 z-50 bg-white rounded-xl shadow-2xl border border-gray-200 w-[500px] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-[#F7F7F5]">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Cover Image</span>
+                </div>
+                <button onClick={() => setShowCoverMenu(false)} className="text-gray-400 hover:text-gray-600">
+                  <X size={16} />
                 </button>
-            )}
-            {!note.coverImage && (
-                <button onClick={handleAddCover} className="hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1">
-                <ImageIcon size={16} /> Add cover
+              </div>
+
+              <div className="flex border-b border-gray-100">
+                <button
+                  onClick={() => setActiveTab('upload')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'upload' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                >
+                  Upload
                 </button>
+                <button
+                  onClick={() => setActiveTab('link')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'link' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                >
+                  Link
+                </button>
+                <button
+                  onClick={removeCover}
+                  className="ml-auto px-4 py-2 text-sm text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div className="p-4 bg-white">
+                {activeTab === 'link' && (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={coverInput}
+                        onChange={(e) => setCoverInput(e.target.value)}
+                        placeholder="Paste an image link..."
+                        className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleLinkSubmit}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-400">Works with any image from the web.</p>
+                  </div>
+                )}
+
+                {activeTab === 'upload' && (
+                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-8 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="bg-gray-100 p-3 rounded-full mb-3">
+                      <Upload size={20} className="text-gray-500" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-600">Upload file</p>
+                    <p className="text-xs text-gray-400 mt-1">Images up to 5MB</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="max-w-3xl mx-auto px-8 pb-20">
+            {/* Icon */}
+            {note.icon && (
+              <div className="text-[78px] mt-[-40px] mb-4 relative z-10 group w-fit">
+                <div className="cursor-pointer hover:bg-gray-100 rounded px-2 transition-colors" onClick={() => setShowIconMenu(true)}>
+                  {note.icon}
+                </div>
+              </div>
             )}
-            <button className="hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1">
-              <MessageSquare size={16} /> Add comment
-            </button>
+
+            {/* Icon Menu Popover */}
+            {showIconMenu && (
+              <div className="absolute z-50 bg-white rounded-xl shadow-2xl border border-gray-200 w-[350px] overflow-hidden animate-in fade-in zoom-in-95 duration-200" style={{ top: '220px', left: '10%' }}>
+                {/* Tabs Header */}
+                <div className="flex items-center justify-between px-2 py-1 border-b border-gray-100">
+                  <div className="flex">
+                    <button
+                      onClick={() => setActiveIconTab('emoji')}
+                      className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${activeIconTab === 'emoji' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-800'}`}
+                    >
+                      Emoji
+                    </button>
+                    <button
+                      onClick={() => setActiveIconTab('icons')}
+                      className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${activeIconTab === 'icons' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-800'}`}
+                    >
+                      Icons
+                    </button>
+                    <button
+                      onClick={() => setActiveIconTab('upload')}
+                      className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${activeIconTab === 'upload' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:text-gray-800'}`}
+                    >
+                      Upload
+                    </button>
+                  </div>
+                  <button
+                    onClick={removeIcon}
+                    className="text-xs text-gray-400 hover:text-red-500 px-2 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="h-[400px]">
+                  {activeIconTab === 'emoji' && (
+                    <EmojiPicker
+                      onEmojiClick={onEmojiClick}
+                      width="100%"
+                      height="100%"
+                      lazyLoadEmojis={true}
+                      searchDisabled={false}
+                      skinTonesDisabled
+                      previewConfig={{ showPreview: false }}
+                    />
+                  )}
+                  {activeIconTab !== 'emoji' && (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
+                      <span>Coming soon</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Options Bar (Add icon, cover, comment) */}
+            <div className={`flex items-center gap-4 text-gray-400 text-sm mb-8 transition-opacity duration-200`}>
+              {!note.icon && (
+                <button onClick={handleAddIcon} className="hover:bg-gray-100 py-1 rounded flex items-center gap-1.5 transition-colors">
+                  <Smile size={18} className="text-gray-400" />
+                  <span className="text-gray-500 hover:text-gray-700">Add icon</span>
+                </button>
+              )}
+              {!note.coverImage && (
+                <button onClick={handleAddCover} className="hover:bg-gray-100 py-1 rounded flex items-center gap-1.5 transition-colors">
+                  <ImageIcon size={18} className="text-gray-400" />
+                  <span className="text-gray-500 hover:text-gray-700">Add cover</span>
+                </button>
+              )}
+              {!note.icon && !note.coverImage && (
+                <button className="hover:bg-gray-100 py-1 rounded flex items-center gap-1.5 transition-colors">
+                  <MessageSquare size={18} className="text-gray-400" />
+                  <span className="text-gray-500 hover:text-gray-700">Add comment</span>
+                </button>
+              )}
+            </div>
+
+            {/* Title Input */}
+            <input
+              type="text"
+              value={note.title}
+              onChange={handleTitleChange}
+              placeholder="New page"
+              className="text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6"
+            />
+
+            {/* TipTap Editor Content */}
+            <EditorContent editor={editor} className="prose prose-lg max-w-none focus:outline-none" />
           </div>
-
-          {/* Title Input */}
-          <input
-            type="text"
-            value={note.title}
-            onChange={handleTitleChange}
-            placeholder="Untitled"
-            className="text-4xl font-bold w-full outline-none placeholder:text-gray-300 mb-4"
-          />
-
-          {/* TipTap Editor Content */}
-          <EditorContent editor={editor} className="prose prose-lg max-w-none focus:outline-none" />
         </div>
-      </div>
+      </main>
     </div>
   );
 };

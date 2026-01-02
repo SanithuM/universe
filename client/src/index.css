@@ -6,6 +6,7 @@
 		opacity: 0;
 		transform: translateY(12px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -17,13 +18,18 @@
 	animation-name: fadeUp;
 	animation-duration: 600ms;
 	animation-fill-mode: forwards;
-	animation-timing-function: cubic-bezier(.2,.9,.2,1);
+	animation-timing-function: cubic-bezier(.2, .9, .2, 1);
 }
 
 /* Horizontal marquee for testimonials */
 @keyframes marquee {
-	from { transform: translateX(0); }
-	to { transform: translateX(-50%); }
+	from {
+		transform: translateX(0);
+	}
+
+	to {
+		transform: translateX(-50%);
+	}
 }
 
 .testimonials-marquee {
@@ -44,26 +50,54 @@
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-	.testimonials-track { animation: none; }
-	.fade-up { animation: none; opacity: 1; transform: none; }
+	.testimonials-track {
+		animation: none;
+	}
+
+	.fade-up {
+		animation: none;
+		opacity: 1;
+		transform: none;
+	}
 
 }
 
 /* Custom Scrollbar for Notion-like feel */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  border: 3px solid transparent; 
-  background-clip: content-box;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.2);
+	width: 12px;
+	height: 12px;
 }
 
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	border: 3px solid transparent;
+	background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Tiptap Placeholder CSS */
+.tiptap p.is-editor-empty:first-child::before {
+	content: attr(data-placeholder);
+	float: left;
+	color: #adb5bd;
+	pointer-events: none;
+	height: 0;
+	font-style: normal;
+}
+
+/* Base Tiptap Styles */
+.tiptap:focus {
+	outline: none;
+}
+
+.ProseMirror:focus {
+	outline: none;
+}
