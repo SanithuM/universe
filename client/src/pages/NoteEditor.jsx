@@ -80,10 +80,20 @@ const NoteEditor = () => {
     debouncedSave({ title: newTitle });
   };
 
-  const toggleFavorite = () => {
+  const toggleFavorite = async () => {
+    // Optimistically update UI
     const newStatus = !note.isFavorite;
     setNote(prev => ({ ...prev, isFavorite: newStatus }));
-    debouncedSave({ isFavorite: newStatus });
+
+    try {
+      // send request immediately
+      await api.put(`/notes/${id}`, { isFavorite: newStatus });
+    } catch (err) {
+
+      console.error("Failed to toggle favorite", err);
+      // Revert on error if you want, or just log it
+      setNote(prev => ({ ...prev, isFavorite: !newStatus }));
+    }
   };
 
   const handleAddIcon = () => {
@@ -142,7 +152,7 @@ const NoteEditor = () => {
       <Sidebar isOpen={isSidebarOpen} onAddTask={() => navigate('/app')} />
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* === HEADER === */}
-        <header className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10 border-b border-gray-100">
+        <header className="flex items-center justify-between px-4 h-11 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             {!isSidebarOpen && (
               <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded mr-2">
@@ -155,7 +165,7 @@ const NoteEditor = () => {
           </div>
           <div className="flex items-center gap-2 text-gray-500">
             <button className="hover:bg-gray-100 p-1 rounded">Share</button>
-            <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : ''}`}>
+            <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded transition-colors ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}>
               <Star size={18} />
             </button>
             <button className="hover:bg-gray-100 p-1 rounded">
@@ -168,7 +178,7 @@ const NoteEditor = () => {
         <div className="flex-1 overflow-y-auto">
           {/* Cover Image */}
           {note.coverImage && (
-            <div className="h-[20vh] w-full relative group">
+            <div className="h-[30vh] w-full relative group">
               <img src={note.coverImage} alt="Cover" className="w-full h-full object-cover" />
               <button
                 onClick={() => setShowCoverMenu(true)}
@@ -254,10 +264,10 @@ const NoteEditor = () => {
             </div>
           )}
 
-          <div className="max-w-3xl mx-auto px-8 pb-20">
+          <div className="max-w-4xl ml-20 px-8 pb-20">
             {/* Icon */}
             {note.icon && (
-              <div className="text-[78px] mt-[-40px] mb-4 relative z-10 group w-fit">
+              <div className={`text-[78px] mb-4 relative z-10 group w-fit ${note.coverImage ? 'mt-[-40px]' : 'mt-4'}`}>
                 <div className="cursor-pointer hover:bg-gray-100 rounded px-2 transition-colors" onClick={() => setShowIconMenu(true)}>
                   {note.icon}
                 </div>

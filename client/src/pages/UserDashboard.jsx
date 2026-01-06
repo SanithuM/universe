@@ -1,14 +1,16 @@
 import Sidebar from '../components/Sidebar';
+import Settings from './Settings';
+import AddTaskForm from '../components/AddTaskFrom';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import { Search, Clock, Settings, Plus, FileText, Users, CheckSquare, Calendar as CalendarIcon, LogOut } from 'lucide-react';
 
 export default function UserDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [assignments, setAssignments] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
   // 1. Fetch Tasks from Backend
@@ -58,7 +60,11 @@ export default function UserDashboard() {
     <div className="flex h-screen w-full bg-white text-[#37352f] font-sans selection:bg-[#cce9ff]">
       {/* Sidebar */}
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onAddTask={() => setShowAddForm(true)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onAddTask={() => setShowAddForm(true)}
+        onOpenSettings={() => setShowSettings(true)}
+      />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -142,6 +148,7 @@ export default function UserDashboard() {
             }}
           />
         )}
+        {showSettings && <Settings onClose={() => setShowSettings(false)} />}
       </main>
     </div>
   );

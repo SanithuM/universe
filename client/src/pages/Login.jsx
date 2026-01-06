@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
+import { ArrowRight } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -25,52 +27,68 @@ const Login = () => {
         }
     };
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login to UniVerse</h2>
+        return (
+                <div className="min-h-screen bg-white flex flex-col font-sans text-[#37352f]">
 
-                {error && <div className="p-3 mb-4 text-sm text-red-500 bg-red-50 rounded">{error}</div>}
-
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
-                        <input
-                            type="email"
-                            className="w-full p-2 mt-1 border rounded focus:ring-indigo-500 focus:border-indigo-500"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+                    {/* Header (Logo Top Left) */}
+                    <div className="px-6 py-4 flex items-center gap-2">
+                        <img src={logo} alt="UniVerse logo" className="w-8 h-8 rounded object-cover" />
+                        <span className="font-semibold text-lg tracking-tight">UniVerse</span>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
-                        <input
-                            type="password"
-                            className="w-full p-2 mt-1 border rounded focus:ring-indigo-500 focus:border-indigo-500"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <div className="flex-1 flex flex-col items-center justify-start p-4 mt-6">
 
-                    <button
-                        type="submit"
-                        className="w-full py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 font-bold"
-                    >
-                        Sign In
-                    </button>
-                    <p className="mt-6 text-center text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-500 hover:underline">
-                            Sign up for free
-                        </Link>
-                    </p>
-                </form>
-            </div>
-        </div>
-    );
+                        {/* Headlines */}
+                        <div className="text-center mb-8 w-full max-w-4xl">
+                                <h1 className="text-2xl md:text-4xl font-bold mb-4 tracking-tight text-black">Welcome back to UniVerse.</h1>
+                                <p className="text-2xl md:text-3xl text-gray-500 font-medium">Sign in with your student email</p>
+                        </div>
+
+                        <div className="w-full max-w-[380px]">
+                            {error && <div className="p-3 mb-4 text-sm text-red-500 bg-red-50 rounded">{error}</div>}
+
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email</label>
+                                    <input
+                                        type="email"
+                                        className="w-full px-3 py-2.5 border border-gray-300 rounded shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Password</label>
+                                    <input
+                                        type="password"
+                                        className="w-full px-3 py-2.5 border border-gray-300 rounded shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full bg-[#0075D8] hover:bg-[#005FB0] text-white font-medium py-2.5 rounded shadow-sm transition-colors text-sm flex items-center justify-center gap-2"
+                                >
+                                    Sign In
+                                    <ArrowRight size={16} />
+                                </button>
+
+                                <div className="mt-6 text-center text-sm text-gray-500">
+                                    <p>Don't have an account?</p>
+                                    <Link to="/register" className="text-[#0075D8] hover:underline font-medium mt-1 inline-block">
+                                        Sign up here
+                                    </Link>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        );
 };
 
 export default Login;

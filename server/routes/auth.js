@@ -91,22 +91,25 @@ router.post('/login', async (req, res) => {
 
 // 3. UPDATE USER DETAILS
 router.put('/update', verify, async (req, res) => {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user.id,
-            {
-                $set: {
-                    username: req.body.username,
-                    profilePic: req.body.profilePic // Expecting a Base64 string
-                }
-            },
-            { new: true }
-        ).select('-password'); // FIX: Exclude 'password' from result
+  try {
+    const updates = {};
 
-        res.json(updatedUser);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    // Only update fields if they are sent and NOT empty
+    if (req.body.username) updates.username = req.body.username;
+    if (req.body.profilePic) updates.profilePic = req.body.profilePic;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updates },
+      { new: true }
+    ).select('-password');
+
+    res.json(updatedUser);
+  } catch (err) {
+    // Log the actual error to your terminal so you can see what's wrong
+    console.error("Update Error:", err); 
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 4. CHANGE PASSWORD
