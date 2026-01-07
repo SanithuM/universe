@@ -238,7 +238,7 @@ const Calendar = () => {
               setIsEditing(false);
               setShowModal(true);
             }} className="w-full py-2 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded shadow-sm text-sm font-medium hover:bg-gray-50 transition text-gray-700">
-              <span>+</span> Add calendar account
+              <span>+</span> Add new event
             </button>
           </div>
         </aside>

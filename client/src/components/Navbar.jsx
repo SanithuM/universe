@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar({ onPricingClick }) {
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,15 +57,21 @@ export default function Navbar({ onPricingClick }) {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <a href="#" className="hidden md:inline-block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="hidden md:inline-block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
               Sign in
-            </a>
-            <a
-              href="#"
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
               className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white transition-all bg-gray-900 rounded-full hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
             >
               Get Started
-            </a>
+            </button>
           </div>
         </div>
       </div>
