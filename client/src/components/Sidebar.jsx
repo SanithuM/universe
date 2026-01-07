@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Clock, Settings, Plus, FileText, Users, CheckSquare, Calendar as CalendarIcon, LogOut } from 'lucide-react';
+import {
+    Search, Inbox, Settings, Plus, FileText, Users, Brain,
+    Calendar as CalendarIcon, LogOut, MoreHorizontal, Star, Trash, Edit2
+} from 'lucide-react';
 import api from '../api/axios';
 
 const SidebarItem = ({ icon, label, active }) => {
     const isEmoji = typeof icon === 'string';
     return (
         <div className={`
-      group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm
+      group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm w-full
       ${active ? 'bg-[#EFEFEF] text-[#37352f] font-medium' : 'text-[#5F5E5B] hover:bg-[#EFEFEF]'}
     `}>
             <div className={`flex items-center justify-center w-5 h-5 flex-shrink-0 ${isEmoji ? 'text-lg leading-none' : 'text-gray-500'}`}>
                 {icon}
             </div>
-            <span className="truncate flex-1">{label}</span>
+            <span className="truncate flex-1 text-left">{label}</span>
         </div>
     );
 };
@@ -24,6 +27,11 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     const location = useLocation();
     const [notes, setNotes] = useState([]);
     const [user, setUser] = useState(null);
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+    // State for the active dropdown menu (stores the ID of the note being edited)
+    const [activeMenuId, setActiveMenuId] = useState(null);
+    const menuRef = useRef(null);
 
     // Fetch Notes
     const fetchNotes = async () => {
@@ -50,16 +58,71 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
         fetchUser();
     }, []);
 
+    // Close Menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setActiveMenuId(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const handleCreateNote = async () => {
         try {
             const res = await api.post('/notes');
             navigate(`/notes/${res.data._id}`);
+            fetchNotes(); // Refresh list
         } catch (err) {
             console.error("Failed to create note", err);
         }
     };
 
-    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+    // Delete Note
+    const handleDeleteNote = async (e, noteId) => {
+        e.stopPropagation(); // Stop click from opening the note
+        if (window.confirm("Delete this note permanently?")) {
+            try {
+                await api.delete(`/notes/${noteId}`);
+                fetchNotes(); // Refresh list
+                if (location.pathname === `/notes/${noteId}`) {
+                    navigate('/app'); // Redirect if currently viewing deleted note
+                }
+            } catch (err) {
+                console.error("Failed to delete", err);
+            }
+        }
+        setActiveMenuId(null);
+    };
+
+    // Toggle Favorite
+    const handleToggleFavorite = async (e, note) => {
+        e.stopPropagation();
+        try {
+            await api.put(`/notes/${note._id}`, { isFavorite: !note.isFavorite });
+            fetchNotes();
+        } catch (err) {
+            console.error("Failed to toggle favorite", err);
+        }
+        setActiveMenuId(null);
+    };
+
+
+    // Rename Note
+    const handleRenameNote = async (e, note) => {
+        e.stopPropagation();
+        const newTitle = prompt("Enter new name:", note.title);
+        if (newTitle && newTitle.trim() !== "") {
+            try {
+                await api.put(`/notes/${note._id}`, { title: newTitle });
+                fetchNotes();
+            } catch (err) {
+                console.error("Failed to rename", err);
+            }
+        }
+        setActiveMenuId(null);
+    };
 
     const handleLogout = () => {
         setShowLogoutDialog(true);
@@ -72,6 +135,79 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
     // FILTER FAVORITES
     const favoriteNotes = notes.filter(note => note.isFavorite);
+
+    // --- Render Helper for Note List Item ---
+    const renderNoteItem = (note) => {
+        const isActive = location.pathname === `/notes/${note._id}`;
+        const isMenuOpen = activeMenuId === note._id;
+
+        return (
+            <div
+                key={note._id}
+                className="group relative flex items-center"
+            >
+                {/* Clickable Area for Navigation */}
+                <div
+                    className="flex-1 cursor-pointer"
+                    onClick={() => navigate(`/notes/${note._id}`)}
+                >
+                    <SidebarItem
+                        icon={note.icon || <FileText size={18} />}
+                        label={note.title || "Untitled"}
+                        active={isActive}
+                    />
+                </div>
+
+                {/* Three Dots Button (Appears on Hover or if Menu is Open) */}
+                <div className={`absolute right-1 ${isMenuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMenuId(isMenuOpen ? null : note._id);
+                        }}
+                        className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                    >
+                        <MoreHorizontal size={14} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isMenuOpen && (
+                        <div
+                            ref={menuRef}
+                            className="absolute right-0 top-6 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-1 flex flex-col"
+                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside menu
+                        >
+                            <button
+                                onClick={(e) => handleToggleFavorite(e, note)}
+                                className="px-3 py-2 text-xs text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                            >
+                                <Star size={14} className={note.isFavorite ? "text-yellow-400 fill-yellow-400" : ""} />
+                                {note.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                            </button>
+
+                            <button
+                                onClick={(e) => handleRenameNote(e, note)}
+                                className="px-3 py-2 text-xs text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                            >
+                                <Edit2 size={14} />
+                                Rename
+                            </button>
+
+                            <div className="h-px bg-gray-100 my-1"></div>
+
+                            <button
+                                onClick={(e) => handleDeleteNote(e, note._id)}
+                                className="px-3 py-2 text-xs text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            >
+                                <Trash size={14} />
+                                Delete
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <aside className={`${isOpen ? 'w-60' : 'w-0'} bg-[#F7F7F5] border-r border-[#E9E9E7] flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
@@ -95,7 +231,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             {/* Menu */}
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
                 <SidebarItem icon={<Search size={18} />} label="Search" />
-                <SidebarItem icon={<Clock size={18} />} label="Updates" />
+                <SidebarItem icon={<Inbox size={18} />} label="Inbox" />
 
                 <div onClick={() => onOpenSettings ? onOpenSettings() : navigate('/settings')}>
                     <SidebarItem icon={<Settings size={18} />} label="Settings" active={location.pathname === '/settings'} />
@@ -107,7 +243,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     <SidebarItem icon={<Users size={18} />} label="My Teams" active={location.pathname === '/groups'} />
                 </div>
 
-                {/* 👇 FAVORITES SECTION (Dynamic) */}
+                {/* FAVORITES SECTION */}
                 <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97]">Favorites</div>
 
                 {favoriteNotes.length === 0 && (
@@ -137,19 +273,11 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                 </div>
 
                 <div onClick={() => navigate('/app')}>
-                    <SidebarItem icon={<CheckSquare size={18} className="text-orange-600" />} label="Task List" active={location.pathname === '/app'} />
+                    <SidebarItem icon={<Brain size={18} className="text-purple-400" />} label="Priorities" active={location.pathname === '/app'} />
                 </div>
 
                 {/* All Notes List */}
-                {notes.map(note => (
-                    <div key={note._id} onClick={() => navigate(`/notes/${note._id}`)}>
-                        <SidebarItem
-                            icon={note.icon || <FileText size={18} />}
-                            label={note.title || "Untitled"}
-                            active={location.pathname === `/notes/${note._id}`}
-                        />
-                    </div>
-                ))}
+                {notes.map(note => renderNoteItem(note))}
             </div>
 
             {/* Footer */}

@@ -75,8 +75,8 @@ export default function UserDashboard() {
               </button>
             )}
             <span className="flex items-center gap-1 cursor-pointer">
-              <span className="text-lg">✅</span>
-              <span>Task List</span>
+              <span className="text-lg">🧠</span>
+              <span>Priorities</span>
             </span>
           </div>
         </header>
