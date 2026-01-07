@@ -1,9 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Settings from './Settings';
 import AddTaskForm from '../components/AddTaskFrom';
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import api from '../api/axios';
+import SmartNudge from '../components/SmartNudge';
 
 export default function UserDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -28,10 +29,6 @@ export default function UserDashboard() {
   useEffect(() => {
     fetchTasks();
   }, []);
-
-
-
-
 
   // 3. Mark Task as Done/In-Progress
   const handleStatusChange = async (taskId, currentStatus) => {
@@ -58,7 +55,6 @@ export default function UserDashboard() {
 
   return (
     <div className="flex h-screen w-full bg-white text-[#37352f] font-sans selection:bg-[#cce9ff]">
-      {/* Sidebar */}
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -89,6 +85,10 @@ export default function UserDashboard() {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-[900px] mx-auto px-12 pb-32 pt-12">
 
+            {/* 2. INSERT SMART NUDGE HERE 👇 */}
+            {/* Only show if data is loaded. Nudge filters its own tasks. */}
+            {!loading && <SmartNudge assignments={assignments} />}
+
             {/* Title */}
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-4xl font-bold text-[#37352f]">
@@ -105,32 +105,21 @@ export default function UserDashboard() {
             {/* Loading State */}
             {loading && <div className="text-gray-400 italic">Calculating priorities...</div>}
 
-            {/* Real Database Table */}
-            <div className="border border-gray-200 rounded overflow-hidden shadow-sm">
-              <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 text-xs font-semibold text-gray-500 flex uppercase tracking-wide">
-                <div className="w-1/3">Task Name</div>
-                <div className="w-1/4">Course</div>
-                <div className="w-1/6">Due Date</div>
-                <div className="w-1/6">Priority Score</div>
-              </div>
-
-              {assignments.length > 0 ? (
-                assignments.map((task) => (
-                  <DatabaseRow
+            {/* Real Database Grid */}
+            {assignments.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {assignments.map((task) => (
+                  <PriorityCard
                     key={task._id}
-                    name={task.title}
-                    course={task.courseName}
-                    date={new Date(task.dueDate).toLocaleDateString()}
-                    score={task.priorityScore}
-                    task={task} // <--- Pass the whole task object now
-                    onStatusChange={handleStatusChange} // <--- Pass function
-                    onDelete={handleDelete} // <--- Pass function
+                    task={task}
+                    onStatusChange={handleStatusChange}
+                    onDelete={handleDelete}
                   />
-                ))
-              ) : (
-                !loading && <div className="p-4 text-center text-gray-400 text-sm">No tasks found. Add one!</div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              !loading && <div className="p-12 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">No tasks found. Click "+ New" to add one!</div>
+            )}
 
             <div className="mt-12 text-gray-400 text-sm italic">
               * Scores are calculated based on Grade Weight ÷ Days Remaining
@@ -154,66 +143,102 @@ export default function UserDashboard() {
   );
 }
 
-
-
-// Updated Row to match your Data Model
-function DatabaseRow({ task, onStatusChange, onDelete }) {
-  // Dynamic color for Priority Score
-  const getScoreColor = (s) => {
-    if (task.status === 'Done') return "text-gray-400 line-through"; // Grey out if done
-    if (s > 10) return "text-red-600 font-bold";
-    if (s > 5) return "text-orange-600 font-semibold";
-    return "text-green-600";
+// Modern Card Component
+function PriorityCard({ task, onStatusChange, onDelete }) {
+  // Calculate days remaining
+  const calculateDaysRemaining = (dueDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
+  const daysRemaining = calculateDaysRemaining(task.dueDate);
+
+  // Determine Priority Level
+  const getPriority = (score) => {
+    if (score > 10) return { label: 'HIGH', color: 'bg-red-50 text-red-600 border-red-100', progressColor: 'bg-red-500' };
+    if (score > 5) return { label: 'MEDIUM', color: 'bg-orange-50 text-orange-600 border-orange-100', progressColor: 'bg-orange-500' };
+    return { label: 'LOW', color: 'bg-green-50 text-green-600 border-green-100', progressColor: 'bg-green-500' };
+  };
+
+  const priority = getPriority(task.priorityScore);
+  const isDone = task.status === 'Done';
+
   return (
-    <div className="flex px-3 py-3 border-b border-gray-100 text-sm hover:bg-gray-50 transition-colors items-center group">
-      {/* 1. Name Column with Checkbox */}
-      <div className="w-1/3 font-medium text-gray-800 flex items-center gap-3">
-        <button
-          onClick={() => onStatusChange(task._id, task.status)}
-          className={`w-4 h-4 rounded border flex items-center justify-center transition-colors
-                        ${task.status === 'Done' ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-blue-500'}
-                    `}
-        >
-          {task.status === 'Done' && (
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-          )}
-        </button>
-        <span className={task.status === 'Done' ? "line-through text-gray-400" : ""}>
-          {task.title}
-        </span>
+    <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative group ${isDone ? 'opacity-60' : ''}`}>
+      {/* Delete Button (Hover) */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(task._id); }}
+        className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+
+      {/* Header */}
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-start gap-3">
+          <button
+            onClick={() => onStatusChange(task._id, task.status)}
+            className={`mt-1 w-5 h-5 rounded-md border flex items-center justify-center transition-colors
+              ${isDone ? 'bg-blue-500 border-blue-500' : 'border-gray-200 hover:border-blue-500'}
+            `}
+          >
+            {isDone && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+          </button>
+          <div>
+            <h3 className={`font-bold text-lg text-[#37352f] leading-tight mb-1 ${isDone ? 'line-through' : ''}`}>
+              {task.title}
+            </h3>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              {task.courseName}
+            </span>
+          </div>
+        </div>
+        {!isDone && (
+          <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${priority.color}`}>
+            {priority.label}
+          </span>
+        )}
       </div>
 
-      {/* 2. Course Column */}
-      <div className="w-1/4">
-        <span className={`px-1.5 py-0.5 rounded text-xs border ${task.status === 'Done' ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
-          {task.courseName}
-        </span>
-      </div>
-
-      {/* 3. Due Date */}
-      <div className="w-1/6 text-gray-500 text-xs">
-        {new Date(task.dueDate).toLocaleDateString()}
-      </div>
-
-      {/* 4. Priority Score */}
-      <div className={`w-1/6 ${getScoreColor(task.priorityScore)}`}>
-        {task.status === 'Done' ? 'DONE' : task.priorityScore}
-      </div>
-
-      {/* 5. Delete Action (Hidden until hover) */}
-      <div className="w-10 opacity-0 group-hover:opacity-100 transition-opacity text-right">
-        <button
-          onClick={() => onDelete(task._id)}
-          className="text-gray-400 hover:text-red-500 p-1"
-          title="Delete Task"
-        >
+      {/* Row 1: Due Date */}
+      <div className="flex justify-between items-center mb-4 text-sm">
+        <span className="text-gray-500 font-medium">Due Date</span>
+        <div className={`flex items-center gap-1.5 font-semibold ${daysRemaining < 3 && !isDone ? 'text-red-500' : 'text-gray-700'}`}>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        </button>
+          {isDone ? 'Completed' : daysRemaining < 0 ? 'Overdue' : `${daysRemaining} days`}
+        </div>
+      </div>
+
+      {/* Row 2: Weight */}
+      <div className="flex justify-between items-center mb-3 text-sm">
+        <span className="text-gray-500 font-medium">Weight Impact</span>
+        <span className="font-bold text-gray-900">{task.academicWeight || 0}%</span>
+      </div>
+
+      {/* Row 3: Priority Score */}
+      <div className="flex justify-between items-center mb-3 text-sm">
+        <span className="text-gray-500 font-medium">Priority Score</span>
+        <span className={`font-bold ${daysRemaining < 3 && !isDone ? 'text-red-600' : 'text-gray-900'}`}>
+          {typeof task.priorityScore === 'number' ? task.priorityScore.toFixed(1) : task.priorityScore}
+        </span>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full ${priority.progressColor}`}
+          style={{ width: `${Math.min(task.academicWeight || 0, 100)}%` }}
+        />
       </div>
     </div>
-  )
+  );
 }

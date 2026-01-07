@@ -24,73 +24,75 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">📝 Add New Assignment</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all relative">
+        <h2 className="text-lg font-medium leading-6 text-gray-900 mb-6">New Assignment</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Title Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Task Title</label>
-            <input 
+            <input
+              autoFocus
               required
-              type="text" 
-              placeholder="e.g. Final Dissertation"
-              className="w-full p-2 border rounded mt-1"
+              type="text"
+              placeholder="Assignment Title"
+              className="w-full text-xl font-semibold border-b border-gray-200 focus:border-blue-500 outline-none pb-2 placeholder-gray-300 transition-colors"
               value={formData.title}
-              onChange={e => setFormData({...formData, title: e.target.value})}
+              onChange={e => setFormData({ ...formData, title: e.target.value })}
             />
           </div>
 
+          {/* Course Name Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Course Name</label>
-            <input 
+            <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Course</label>
+            <input
               required
-              type="text" 
+              type="text"
               placeholder="e.g. Computer Science"
-              className="w-full p-2 border rounded mt-1"
+              className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-400"
               value={formData.courseName}
-              onChange={e => setFormData({...formData, courseName: e.target.value})}
+              onChange={e => setFormData({ ...formData, courseName: e.target.value })}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Due Date</label>
-              <input 
+              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Due Date</label>
+              <input
                 required
-                type="date" 
-                className="w-full p-2 border rounded mt-1"
+                type="date"
+                className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700"
                 value={formData.dueDate}
-                onChange={e => setFormData({...formData, dueDate: e.target.value})}
+                onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Weight (%)</label>
-              <input 
+              <label className="text-[10px] uppercase font-bold text-gray-400 mb-1 block">Weight (%)</label>
+              <input
                 required
-                type="number" 
+                type="number"
                 min="1" max="100"
-                className="w-full p-2 border rounded mt-1"
+                className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700"
                 value={formData.academicWeight}
-                onChange={e => setFormData({...formData, academicWeight: e.target.value})}
+                onChange={e => setFormData({ ...formData, academicWeight: e.target.value })}
               />
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6">
-            <button 
-              type="button" 
+          <div className="flex justify-end gap-3 mt-8 pt-2">
+            <button
+              type="button"
               onClick={onCancel}
-              className="flex-1 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+              className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors font-medium"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
-              className="flex-1 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 font-semibold"
+              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Adding...' : 'Add Task'}
+              {loading ? 'Adding...' : 'Save Assignment'}
             </button>
           </div>
         </form>

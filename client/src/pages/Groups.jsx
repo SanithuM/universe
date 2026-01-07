@@ -11,6 +11,7 @@ const Groups = () => {
   // Inputs
   const [joinCode, setJoinCode] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   // Fetch My Groups
@@ -52,7 +53,9 @@ const Groups = () => {
       setJoinCode('');
       fetchGroups(); // Refresh list
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to join");
+    console.error(err);
+    const message = err.response?.data?.message || "Failed to join group";
+    alert(message);
     }
   };
 
