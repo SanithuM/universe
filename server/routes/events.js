@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Event = require('../models/Event');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
+const Notification = require('../models/Notification');
 
 // 1. CREATE an Event (Study Plan OR Meeting)
 router.post('/', verify, async (req, res) => {
@@ -29,6 +30,31 @@ router.post('/', verify, async (req, res) => {
     });
 
     const savedEvent = await newEvent.save();
+
+    // TRIGGER NOTIFICATIONS
+    // If there are other participants, send them a notification
+    if (participantsList.length > 1) {
+        // 1. Get creator details for the message
+        const creator = await User.findById(req.user.id);
+        
+        // 2. Identify who needs to be notified (everyone except the creator)
+        const recipients = participantsList.filter(pId => pId.toString() !== req.user.id);
+        
+        // 3. Create the notification objects
+        const notifications = recipients.map(recipientId => ({
+            recipient: recipientId,
+            sender: req.user.id,
+            type: 'meeting',
+            title: '📅 New Meeting Invite',
+            message: `${creator.username} invited you to '${savedEvent.title}' on ${new Date(savedEvent.startTime).toLocaleDateString()}`,
+            link: '/calendar', // Clicking it takes them to calendar
+            isRead: false
+        }));
+
+        // 4. Save to Database
+        await Notification.insertMany(notifications);
+    }
+
     // Populate participants so frontend gets names immediately
     await savedEvent.populate('participants', 'username email profilePic');
     res.status(201).json(savedEvent);
