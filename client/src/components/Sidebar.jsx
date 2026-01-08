@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../api/axios';
 
-const SidebarItem = ({ icon, label, active }) => {
+const SidebarItem = ({ icon, label, active, count }) => {
     const isEmoji = typeof icon === 'string';
     return (
         <div className={`
@@ -18,6 +18,11 @@ const SidebarItem = ({ icon, label, active }) => {
                 {icon}
             </div>
             <span className="truncate flex-1 text-left">{label}</span>
+            {count > 0 && (
+                <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                    {count > 99 ? '99+' : count}
+                </span>
+            )}
         </div>
     );
 };
@@ -27,6 +32,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     const location = useLocation();
     const [notes, setNotes] = useState([]);
     const [user, setUser] = useState(null);
+    const [unreadCount, setUnreadCount] = useState(0);
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     // State for the active dropdown menu (stores the ID of the note being edited)
@@ -53,9 +59,21 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
         }
     };
 
+    // Fetch Unread Notifications
+    const fetchUnreadCount = async () => {
+        try {
+            const res = await api.get('/notifications');
+            const unread = res.data.filter(n => !n.isRead).length;
+            setUnreadCount(unread);
+        } catch (err) {
+            console.error("Failed to fetch notifications", err);
+        }
+    };
+
     useEffect(() => {
         fetchNotes();
         fetchUser();
+        fetchUnreadCount();
     }, []);
 
     // Close Menu when clicking outside
@@ -174,32 +192,32 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     {isMenuOpen && (
                         <div
                             ref={menuRef}
-                            className="absolute right-0 top-6 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-1 flex flex-col"
+                            className="absolute right-0 top-6 w-48 bg-white border border-gray-100 rounded-lg shadow-xl z-50 p-1 flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right"
                             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside menu
                         >
                             <button
                                 onClick={(e) => handleToggleFavorite(e, note)}
-                                className="px-3 py-2 text-xs text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] hover:bg-gray-100 rounded-md flex items-center gap-2.5 transition-colors"
                             >
-                                <Star size={14} className={note.isFavorite ? "text-yellow-400 fill-yellow-400" : ""} />
+                                <Star size={15} className={`transition-colors ${note.isFavorite ? "text-yellow-400 fill-yellow-400" : "text-gray-400 group-hover/btn:text-gray-600"}`} />
                                 {note.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
                             </button>
 
                             <button
                                 onClick={(e) => handleRenameNote(e, note)}
-                                className="px-3 py-2 text-xs text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] hover:bg-gray-100 rounded-md flex items-center gap-2.5 transition-colors"
                             >
-                                <Edit2 size={14} />
+                                <Edit2 size={15} className="text-gray-400 group-hover/btn:text-gray-600" />
                                 Rename
                             </button>
 
-                            <div className="h-px bg-gray-100 my-1"></div>
+                            <div className="h-px bg-gray-100 my-1 mx-1"></div>
 
                             <button
                                 onClick={(e) => handleDeleteNote(e, note._id)}
-                                className="px-3 py-2 text-xs text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                className="w-full px-2 py-1.5 text-[13px] text-left font-medium text-red-600 hover:bg-red-50 rounded-md flex items-center gap-2.5 transition-colors"
                             >
-                                <Trash size={14} />
+                                <Trash size={15} />
                                 Delete
                             </button>
                         </div>
@@ -231,7 +249,10 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             {/* Menu */}
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
                 <SidebarItem icon={<Search size={18} />} label="Search" />
-                <SidebarItem icon={<Inbox size={18} />} label="Inbox" />
+
+                <div onClick={() => navigate('/inbox')}>
+                    <SidebarItem icon={<Inbox size={18} />} label="Inbox" count={unreadCount} />
+                </div>
 
                 <div onClick={() => onOpenSettings ? onOpenSettings() : navigate('/settings')}>
                     <SidebarItem icon={<Settings size={18} />} label="Settings" active={location.pathname === '/settings'} />

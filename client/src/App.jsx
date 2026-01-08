@@ -22,6 +22,7 @@ import GroupRoom from './pages/GroupRoom';
 import Settings from './pages/Settings';
 import Calender from './pages/Calendar';
 import NoteEditor from './pages/NoteEditor';
+import Inbox from './pages/Inbox';
 
 // 1. Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
@@ -78,6 +79,9 @@ export default function UniVerseApp() {
 
         {/* Route 10: Note Editor Page (http://localhost:5173/notes/:id) */}
         <Route path="/notes/:id" element={<NoteEditor />} />
+
+        {/* Route 11: Inbox Page (http://localhost:5173/inbox) */}
+        <Route path="/inbox" element={<Inbox />} />
 
       </Routes>
     </Router>
