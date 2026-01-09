@@ -7,7 +7,7 @@ import { Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu, Upl
 import EmojiPicker from 'emoji-picker-react';
 import Sidebar from '../components/Sidebar';
 import api from '../api/axios';
-import debounce from 'lodash.debounce'; // You might need to install this: npm i lodash.debounce
+import debounce from 'lodash.debounce';
 
 const NoteEditor = () => {
   const { id } = useParams();
