@@ -8,6 +8,7 @@ const groupRoute = require('./routes/groups');
 const eventRoute = require('./routes/events');
 const noteRoute = require('./routes/notes');
 const notificationRoute = require('./routes/notifications');
+const groupTaskRoute = require('./routes/groupTasks');
 
 // Load environment variales
 dotenv.config();
@@ -29,6 +30,7 @@ app.use('/api/groups', groupRoute);
 app.use('/api/events', eventRoute);
 app.use('/api/notes', noteRoute);
 app.use('/api/notifications', notificationRoute);
+app.use('/api/group-tasks', groupTaskRoute);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
