@@ -83,21 +83,14 @@
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Tiptap Placeholder CSS */
-.tiptap p.is-editor-empty:first-child::before {
-	content: attr(data-placeholder);
-	float: left;
-	color: #adb5bd;
-	pointer-events: none;
-	height: 0;
-	font-style: normal;
-}
-
-/* Base Tiptap Styles */
-.tiptap:focus {
-	outline: none;
-}
-
+/* Remove default focus outline/box-shadow from TipTap editor */
 .ProseMirror:focus {
 	outline: none;
+	box-shadow: none;
+}
+
+/* Ensure focus-visible also doesn't show a strong ring */
+.ProseMirror:focus-visible {
+	outline: none;
+	box-shadow: none;
 }

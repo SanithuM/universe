@@ -1,9 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu, Upload, Link as LinkIcon, X } from 'lucide-react';
+import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import {
+  Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu,
+  Upload, Link as LinkIcon, X, Bold, Italic, Underline as UnderlineIcon,
+  Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette
+} from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import Sidebar from '../components/Sidebar';
 import api from '../api/axios';
@@ -28,10 +36,16 @@ const NoteEditor = () => {
   // Initialize TipTap Editor
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: { openOnClick: false }
+      }),
       Placeholder.configure({
         placeholder: "Write here ...",
       }),
+      BubbleMenuExtension,
+      
+      TextStyle,
+      Color,
     ],
     content: '', // Will be updated when data fetches
     onUpdate: ({ editor }) => {
@@ -361,6 +375,105 @@ const NoteEditor = () => {
             />
 
             {/* TipTap Editor Content */}
+            {editor && (
+              <BubbleMenu editor={editor} options={{ duration: 100 }} className="flex items-center gap-1 bg-white shadow-xl border border-gray-200 rounded-lg px-2 py-1.5 animate-in fade-in zoom-in-95 duration-200">
+
+                {/* AI / Comment Group */}
+                <div className="flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
+                  <button className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-600 hover:bg-purple-50 rounded transition-colors">
+                    <Sparkles size={14} />
+                    Ask AI
+                  </button>
+                  <button className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                    <MessageSquarePlus size={14} />
+                    Comment
+                  </button>
+                </div>
+
+                {/* Node Type Selector (Simplified) */}
+                <div className="flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
+                  <button
+                    className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                    onClick={() => {
+                      const isHeading = editor.isActive('heading');
+                      if (isHeading) editor.chain().focus().setParagraph().run();
+                      else editor.chain().focus().toggleHeading({ level: 2 }).run();
+                    }}
+                  >
+                    {editor.isActive('heading', { level: 1 }) ? 'H1' :
+                      editor.isActive('heading', { level: 2 }) ? 'H2' :
+                        editor.isActive('heading', { level: 3 }) ? 'H3' : 'Text'}
+                    <ChevronDown size={12} className="text-gray-400" />
+                  </button>
+                </div>
+
+                {/* Formatting Group */}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <Bold size={15} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <Italic size={15} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('underline') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <UnderlineIcon size={15} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().toggleStrike().run()}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('strike') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <Strikethrough size={15} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('code') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <Code size={15} />
+                  </button>
+
+                  {/* Link */}
+                  <button
+                    onClick={() => {
+                      const previousUrl = editor.getAttributes('link').href;
+                      const url = window.prompt('URL', previousUrl);
+                      if (url === null) return;
+                      if (url === '') {
+                        editor.chain().focus().extendMarkRange('link').unsetLink().run();
+                        return;
+                      }
+                      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+                    }}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                  >
+                    <LinkIcon size={15} />
+                  </button>
+
+                  {/* Color (Simplified toggle to Red for demo) */}
+                  <button
+                    onClick={() => {
+                      if (editor.isActive('textStyle', { color: '#E03E3E' })) {
+                        editor.chain().focus().unsetColor().run();
+                      } else {
+                        editor.chain().focus().setColor('#E03E3E').run();
+                      }
+                    }}
+                    className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${editor.isActive('textStyle', { color: '#E03E3E' }) ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
+                  >
+                    <span className="text-sm font-serif font-bold">A</span>
+                    <ChevronDown size={10} className="opacity-50" />
+                  </button>
+                </div>
+              </BubbleMenu>
+            )}
             <EditorContent editor={editor} className="prose prose-lg max-w-none focus:outline-none" />
           </div>
         </div>
