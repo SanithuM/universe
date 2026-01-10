@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Hero entrance animation */
 @keyframes fadeUp {
@@ -93,4 +94,80 @@
 .ProseMirror:focus-visible {
 	outline: none;
 	box-shadow: none;
+}
+
+/* TipTap Task List (Checkboxes) Styling */
+ul[data-type="taskList"] {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+ul[data-type="taskList"] li {
+	display: flex;
+	align-items: flex-start;
+	/* Align with top of text line */
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+	margin-bottom: 0.25rem;
+}
+
+/* Hide the default list marker if it's showing up */
+ul[data-type="taskList"] li::before {
+	content: none !important;
+}
+
+/* The label wrapper for the checkbox */
+ul[data-type="taskList"] li>label {
+	flex: 0 0 auto;
+	margin-right: 0.5rem;
+	user-select: none;
+	margin-top: 0.55rem;
+	/* Slight adjustment to center with text line height */
+}
+
+/* The actual checkbox content container */
+ul[data-type="taskList"] li>div {
+	flex: 1 1 auto;
+	margin: 0;
+	/* Reset prose margins */
+}
+
+/* Checkbox Appearance */
+ul[data-type="taskList"] input[type="checkbox"] {
+	appearance: none;
+	background-color: transparent;
+	margin: 0;
+	cursor: pointer;
+	width: 1.1em;
+	height: 1.1em;
+	position: relative;
+	border: 1.5px solid #37352f;
+	/* Dark gray border */
+	border-radius: 2px;
+	/* Slight rounded corners like Notion */
+	display: grid;
+	place-content: center;
+}
+
+ul[data-type="taskList"] input[type="checkbox"]::before {
+	content: "";
+	width: 0.65em;
+	height: 0.65em;
+	transform: scale(0);
+	transition: 120ms transform ease-in-out;
+	box-shadow: inset 1em 1em white;
+	/* Checkmark color */
+	transform-origin: center;
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+ul[data-type="taskList"] input[type="checkbox"]:checked {
+	background-color: #2eaadc;
+	/* Notion-like Blue */
+	border-color: #2eaadc;
+}
+
+ul[data-type="taskList"] input[type="checkbox"]:checked::before {
+	transform: scale(1);
 }

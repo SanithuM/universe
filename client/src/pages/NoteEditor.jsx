@@ -5,12 +5,18 @@ import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 import {
   Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu,
   Upload, Link as LinkIcon, X, Bold, Italic, Underline as UnderlineIcon,
-  Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette
+  Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette,
+  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote, CheckSquare
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import Sidebar from '../components/Sidebar';
@@ -26,6 +32,8 @@ const NoteEditor = () => {
 
   // Cover Menu State
   const [showCoverMenu, setShowCoverMenu] = useState(false);
+  const [showColorMenu, setShowColorMenu] = useState(false);
+  const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('link'); // 'upload' | 'link'
   const [coverInput, setCoverInput] = useState('');
 
@@ -33,19 +41,41 @@ const NoteEditor = () => {
   const [showIconMenu, setShowIconMenu] = useState(false);
   const [activeIconTab, setActiveIconTab] = useState('emoji'); // 'emoji' | 'icons' | 'upload'
 
+  // Colors Configuration
+  const colors = [
+    { name: 'Default', color: '#37352f', bg: null },
+    { name: 'Gray', color: '#9B9A97', bg: '#EBECED' },
+    { name: 'Brown', color: '#64473A', bg: '#E9E5E3' },
+    { name: 'Orange', color: '#D9730D', bg: '#FAEBDD' },
+    { name: 'Yellow', color: '#DFAB01', bg: '#FBF3DB' },
+    { name: 'Green', color: '#0F7B6C', bg: '#DDEDEA' },
+    { name: 'Blue', color: '#0B6E99', bg: '#DDEBF1' },
+    { name: 'Purple', color: '#6940A5', bg: '#EAE4F2' },
+    { name: 'Pink', color: '#AD1A72', bg: '#F4DFEB' },
+    { name: 'Red', color: '#E03E3E', bg: '#FBE4E4' },
+  ];
+
   // Initialize TipTap Editor
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        link: { openOnClick: false }
-      }),
+      StarterKit,
       Placeholder.configure({
         placeholder: "Write here ...",
       }),
       BubbleMenuExtension,
-      
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
       TextStyle,
       Color,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+      }),
     ],
     content: '', // Will be updated when data fetches
     onUpdate: ({ editor }) => {
@@ -390,21 +420,57 @@ const NoteEditor = () => {
                   </button>
                 </div>
 
-                {/* Node Type Selector (Simplified) */}
-                <div className="flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
+                {/* Node Type Selector */}
+                <div className="relative flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
                   <button
-                    className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
-                    onClick={() => {
-                      const isHeading = editor.isActive('heading');
-                      if (isHeading) editor.chain().focus().setParagraph().run();
-                      else editor.chain().focus().toggleHeading({ level: 2 }).run();
-                    }}
+                    className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded min-w-[80px] justify-between"
+                    onClick={() => setShowTypeMenu(!showTypeMenu)}
                   >
-                    {editor.isActive('heading', { level: 1 }) ? 'H1' :
-                      editor.isActive('heading', { level: 2 }) ? 'H2' :
-                        editor.isActive('heading', { level: 3 }) ? 'H3' : 'Text'}
-                    <ChevronDown size={12} className="text-gray-400" />
+                    <span className="truncate">
+                      {editor.isActive('heading', { level: 1 }) ? 'Heading 1' :
+                        editor.isActive('heading', { level: 2 }) ? 'Heading 2' :
+                          editor.isActive('heading', { level: 3 }) ? 'Heading 3' :
+                            editor.isActive('bulletList') ? 'Bulleted List' :
+                              editor.isActive('orderedList') ? 'Numbered List' :
+                                editor.isActive('blockquote') ? 'Quote' :
+                                  editor.isActive('codeBlock') ? 'Code' :
+                                    editor.isActive('taskList') ? 'To-do' : 'Text'}
+                    </span>
+                    <ChevronDown size={12} className="text-gray-400 flex-shrink-0" />
                   </button>
+
+                  {/* Type Menu Dropdown */}
+                  {showTypeMenu && (
+                    <div className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                      <div className="px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-50 bg-gray-50/50">Turn into</div>
+                      <div className="p-1.5 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto">
+                        {[
+                          { label: 'Text', icon: <Type size={14} />, isActive: () => editor.isActive('paragraph'), action: () => editor.chain().focus().setParagraph().run() },
+                          { label: 'Heading 1', icon: <Heading1 size={14} />, isActive: () => editor.isActive('heading', { level: 1 }), action: () => editor.chain().focus().toggleHeading({ level: 1 }).run() },
+                          { label: 'Heading 2', icon: <Heading2 size={14} />, isActive: () => editor.isActive('heading', { level: 2 }), action: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
+                          { label: 'Heading 3', icon: <Heading3 size={14} />, isActive: () => editor.isActive('heading', { level: 3 }), action: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
+                          { label: 'Bulleted list', icon: <List size={14} />, isActive: () => editor.isActive('bulletList'), action: () => editor.chain().focus().toggleBulletList().run() },
+                          { label: 'Numbered list', icon: <ListOrdered size={14} />, isActive: () => editor.isActive('orderedList'), action: () => editor.chain().focus().toggleOrderedList().run() },
+                          { label: 'To-do list', icon: <CheckSquare size={14} />, isActive: () => editor.isActive('taskList'), action: () => editor.chain().focus().toggleTaskList().run() }, // Requires extension-task-list
+                          { label: 'Quote', icon: <Quote size={14} />, isActive: () => editor.isActive('blockquote'), action: () => editor.chain().focus().toggleBlockquote().run() },
+                          { label: 'Code', icon: <Code size={14} />, isActive: () => editor.isActive('codeBlock'), action: () => editor.chain().focus().toggleCodeBlock().run() },
+                        ].map((type) => (
+                          <button
+                            key={type.label}
+                            onClick={() => {
+                              type.action();
+                              setShowTypeMenu(false);
+                            }}
+                            className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-left"
+                          >
+                            <div className="text-gray-400">{type.icon}</div>
+                            <span className="flex-1">{type.label}</span>
+                            {type.isActive() && <Check size={14} className="text-blue-600" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Formatting Group */}
@@ -457,24 +523,80 @@ const NoteEditor = () => {
                     <LinkIcon size={15} />
                   </button>
 
-                  {/* Color (Simplified toggle to Red for demo) */}
-                  <button
-                    onClick={() => {
-                      if (editor.isActive('textStyle', { color: '#E03E3E' })) {
-                        editor.chain().focus().unsetColor().run();
-                      } else {
-                        editor.chain().focus().setColor('#E03E3E').run();
-                      }
-                    }}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${editor.isActive('textStyle', { color: '#E03E3E' }) ? 'text-red-500 bg-red-50' : 'text-gray-600'}`}
-                  >
-                    <span className="text-sm font-serif font-bold">A</span>
-                    <ChevronDown size={10} className="opacity-50" />
-                  </button>
+                  {/* Color Picker Container */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowColorMenu(!showColorMenu)}
+                      className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${showColorMenu ? 'bg-gray-100 text-black' : 'text-gray-600'}`}
+                    >
+                      <span className="text-sm font-serif font-bold">A</span>
+                      <ChevronDown size={10} className="opacity-50" />
+                    </button>
+
+                    {/* Color Dropdown */}
+                    {showColorMenu && (
+                      <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-3 max-h-[400px] overflow-y-auto">
+
+                        {/* Recently Used (Placeholder) */}
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Recently used</div>
+                          <div className="flex gap-2">
+                            <button className="w-7 h-7 rounded-md border border-gray-200 bg-[#FBF3DB] hover:opacity-90 transition-opacity"></button>
+                          </div>
+                        </div>
+
+                        {/* Text Color Section */}
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Text color</div>
+                          <div className="grid grid-cols-5 gap-1.5">
+                            {colors.map((c) => (
+                              <button
+                                key={`text-${c.name}`}
+                                onClick={() => {
+                                  editor.chain().focus().setColor(c.color).run();
+                                  setShowColorMenu(false);
+                                }}
+                                className="w-7 h-7 mx-auto rounded-md border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-base font-serif font-bold"
+                                style={{ color: c.color }}
+                                title={c.name}
+                              >
+                                A
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Background Color Section */}
+                        <div>
+                          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Background color</div>
+                          <div className="grid grid-cols-5 gap-1.5">
+                            {colors.map((c) => (
+                              <button
+                                key={`bg-${c.name}`}
+                                onClick={() => {
+                                  if (c.bg) {
+                                    editor.chain().focus().toggleHighlight({ color: c.bg }).run();
+                                  } else {
+                                    editor.chain().focus().unsetHighlight().run();
+                                  }
+                                  setShowColorMenu(false);
+                                }}
+                                className={`w-7 h-7 mx-auto rounded-md border border-gray-200 flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`}
+                                style={{ backgroundColor: c.bg || 'transparent' }}
+                                title={`${c.name} Background`}
+                              >
+                                {!c.bg && <div className="w-full h-px bg-red-400 rotate-45 transform scale-110"></div>}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </BubbleMenu>
             )}
-            <EditorContent editor={editor} className="prose prose-lg max-w-none focus:outline-none" />
+            <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f]" />
           </div>
         </div>
       </main>
