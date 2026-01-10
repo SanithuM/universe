@@ -408,18 +408,6 @@ const NoteEditor = () => {
             {editor && (
               <BubbleMenu editor={editor} options={{ duration: 100 }} className="flex items-center gap-1 bg-white shadow-xl border border-gray-200 rounded-lg px-2 py-1.5 animate-in fade-in zoom-in-95 duration-200">
 
-                {/* AI / Comment Group */}
-                <div className="flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
-                  <button className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-purple-600 hover:bg-purple-50 rounded transition-colors">
-                    <Sparkles size={14} />
-                    Ask AI
-                  </button>
-                  <button className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                    <MessageSquarePlus size={14} />
-                    Comment
-                  </button>
-                </div>
-
                 {/* Node Type Selector */}
                 <div className="relative flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
                   <button
