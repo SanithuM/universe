@@ -15,7 +15,7 @@ const SidebarItem = ({ icon, label, active, count }) => {
       group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm w-full
       ${active ? 'bg-[#EFEFEF] text-[#37352f] font-medium' : 'text-[#5F5E5B] hover:bg-[#EFEFEF]'}
     `}>
-            <div className={`flex items-center justify-center w-5 h-5 flex-shrink-0 ${isEmoji ? 'text-lg leading-none' : 'text-gray-500'}`}>
+            <div className={`flex items-center justify-center w-5 h-5 shrink-0 ${isEmoji ? 'text-lg leading-none' : 'text-gray-500'}`}>
                 {icon}
             </div>
             <span className="truncate flex-1 text-left">{label}</span>
@@ -230,7 +230,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     };
 
     return (
-        <aside className={`${isOpen ? 'w-60' : 'w-0'} bg-[#F7F7F5] border-r border-[#E9E9E7] flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
+        <aside className={`${isOpen ? 'w-60' : 'w-0'} bg-[#F7F7F5] border-r border-[#E9E9E7] shrink-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
 
             {/* Header */}
             <div className="p-3 hover:bg-[#EFEFEF] cursor-pointer transition-colors flex items-center gap-2 m-1 rounded-md">
@@ -306,7 +306,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             </div>
 
             {/* Footer */}
-            
+
             <SearchModal 
                 isOpen={isSearchOpen} 
                 onClose={() => setIsSearchOpen(false)} 
@@ -320,7 +320,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             </div>
 
             {showLogoutDialog && ReactDOM.createPortal(
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]">
+                <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-[2px]">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-[320px] overflow-hidden flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
                         <div className="p-6 pb-2 flex flex-col items-center text-center">
                             <div className="w-12 h-12 mb-3 relative">

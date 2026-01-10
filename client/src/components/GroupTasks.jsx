@@ -105,7 +105,7 @@ const GroupTasks = ({ groupId, members }) => {
                     </div>
 
                     {/* Assignee Avatar */}
-                    <div className="flex-shrink-0" title={`Assigned to ${task.assignedTo?.username}`}>
+                    <div className="shrink-0" title={`Assigned to ${task.assignedTo?.username}`}>
                         {task.assignedTo?.profilePic ? (
                             <img src={task.assignedTo.profilePic} alt="User" className="w-6 h-6 rounded-full object-cover border border-gray-200" />
                         ) : (

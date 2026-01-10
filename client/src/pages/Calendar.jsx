@@ -206,7 +206,7 @@ const Calendar = () => {
       <div className="flex-1 flex overflow-hidden">
 
         {/* --- LEFT SIDEBAR --- */}
-        <aside className="w-[260px] flex-shrink-0 bg-[#F7F7F5] flex flex-col border-r border-gray-200 hidden md:flex">
+        <aside className="w-[260px] shrink-0 bg-[#F7F7F5] flex flex-col border-r border-gray-200 md:flex">
           <div className="p-4">
             <MiniCalendar
               currentMonth={currentMonth}
@@ -272,7 +272,7 @@ const Calendar = () => {
         </main>
 
         {/* --- RIGHT SIDEBAR (UPDATED) --- */}
-        <aside className="w-[300px] flex-shrink-0 bg-white border-l border-gray-200 hidden lg:flex flex-col">
+        <aside className="w-[300px] shrink-0 bg-white border-l border-gray-200 hidden lg:flex flex-col">
           {/* Search Bar */}
           <div className="p-4 pb-2 border-b border-transparent focus-within:border-gray-100 transition">
             <div className="relative group">
@@ -349,7 +349,7 @@ const Calendar = () => {
                       <div className="flex flex-col gap-3">
                         {selectedEvent.participants.map((p, i) => (
                           <div key={p._id || i} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 border border-gray-200 overflow-hidden shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-100 to-blue-100 border border-gray-200 overflow-hidden shrink-0">
                               {p.profilePic ? (
                                 <img src={p.profilePic} alt={p.username} className="w-full h-full object-cover" />
                               ) : (

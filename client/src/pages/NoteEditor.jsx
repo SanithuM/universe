@@ -469,7 +469,7 @@ const NoteEditor = () => {
           <div className="max-w-4xl ml-20 px-8 pb-20">
             {/* Icon */}
             {note.icon && (
-              <div className={`text-[78px] mb-4 relative z-10 group w-fit ${note.coverImage ? 'mt-[-40px]' : 'mt-4'}`}>
+              <div className={`text-[78px] mb-4 relative z-10 group w-fit ${note.coverImage ? '-mt-10' : 'mt-4'}`}>
                 <div className="cursor-pointer hover:bg-gray-100 rounded px-2 transition-colors" onClick={() => setShowIconMenu(true)}>
                   {note.icon}
                 </div>
@@ -582,7 +582,7 @@ const NoteEditor = () => {
                                   editor.isActive('codeBlock') ? 'Code' :
                                     editor.isActive('taskList') ? 'To-do' : 'Text'}
                     </span>
-                    <ChevronDown size={12} className="text-gray-400 flex-shrink-0" />
+                    <ChevronDown size={12} className="text-gray-400 shrink-0" />
                   </button>
 
                   {/* Type Menu Dropdown */}
