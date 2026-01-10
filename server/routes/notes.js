@@ -26,6 +26,51 @@ router.get('/', verify, async (req, res) => {
   }
 });
 
+// SEARCH NOTES
+router.get('/search', verify, async (req, res) => {
+  try {
+    const { query, sort, date } = req.query;
+    
+    // 1. Build the Search Filter
+    let filter = { userId: req.user.id };
+
+    // Text Search (Case insensitive regex)
+    if (query) {
+      filter.title = { $regex: query, $options: 'i' };
+    }
+
+    // Date Filter (Specific Day)
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      filter.createdAt = {
+        $gte: startOfDay,
+        $lte: endOfDay
+      };
+    }
+
+    // 2. Define Sorting
+    let sortOption = { updatedAt: -1 }; // Default: Newest first
+    if (sort === 'oldest') {
+      sortOption = { createdAt: 1 };
+    }
+
+    // 3. Execute Query
+    const notes = await Note.find(filter)
+      .sort(sortOption)
+      .select('title icon createdAt updatedAt'); // Only fetch what we need
+
+    res.json(notes);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 3. GET a single Note by ID
 router.get('/:id', verify, async (req, res) => {
   try {

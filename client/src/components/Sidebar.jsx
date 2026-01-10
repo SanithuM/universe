@@ -6,6 +6,7 @@ import {
     Calendar as CalendarIcon, LogOut, MoreHorizontal, Star, Trash, Edit2
 } from 'lucide-react';
 import api from '../api/axios';
+import SearchModal from './SearchModal';
 
 const SidebarItem = ({ icon, label, active, count }) => {
     const isEmoji = typeof icon === 'string';
@@ -34,6 +35,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     const [user, setUser] = useState(null);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     // State for the active dropdown menu (stores the ID of the note being edited)
     const [activeMenuId, setActiveMenuId] = useState(null);
@@ -248,7 +250,9 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
             {/* Menu */}
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+                <div onClick={() => setIsSearchOpen(true)}>
                 <SidebarItem icon={<Search size={18} />} label="Search" />
+                </div>
 
                 <div onClick={() => navigate('/inbox')}>
                     <SidebarItem icon={<Inbox size={18} />} label="Inbox" count={unreadCount} />
@@ -302,6 +306,12 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             </div>
 
             {/* Footer */}
+            
+            <SearchModal 
+                isOpen={isSearchOpen} 
+                onClose={() => setIsSearchOpen(false)} 
+            />
+
             <div className="p-2 border-t border-[#E9E9E7]">
                 <div onClick={handleLogout} className="px-3 py-1 text-xs text-red-500 hover:bg-[#EFEFEF] rounded cursor-pointer flex items-center gap-2">
                     <LogOut size={16} />

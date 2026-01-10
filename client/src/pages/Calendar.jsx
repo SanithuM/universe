@@ -219,9 +219,9 @@ const Calendar = () => {
           <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
             <div className="space-y-2">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider pl-1">Calendars</p>
-              <SidebarItem color="bg-blue-500" label="Work" active />
-              <SidebarItem color="bg-purple-500" label="Data Science Team" active />
-              <SidebarItem color="bg-green-500" label="Data Science Core" active />
+              <SidebarItem color="bg-blue-500" label="Study" active />
+              <SidebarItem color="bg-purple-500" label="Meeting" active />
+              <SidebarItem color="bg-red-500" label="Assignment Due" active />
             </div>
 
             <div className="space-y-2">

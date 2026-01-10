@@ -16,7 +16,9 @@ import {
   Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu,
   Upload, Link as LinkIcon, X, Bold, Italic, Underline as UnderlineIcon,
   Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette,
-  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote, CheckSquare
+  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote, CheckSquare,
+  Search, Copy, FilePlus, CornerUpRight, Trash2, ArrowLeftRight, Sliders, Lock,
+  Languages, Download, FileDown, AlignLeft, AlignJustify, MoveHorizontal
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import Sidebar from '../components/Sidebar';
@@ -40,6 +42,14 @@ const NoteEditor = () => {
   // Icon Menu State
   const [showIconMenu, setShowIconMenu] = useState(false);
   const [activeIconTab, setActiveIconTab] = useState('emoji'); // 'emoji' | 'icons' | 'upload'
+
+  // Options Menu State
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [fontFactory, setFontFactory] = useState('default'); // 'default', 'serif', 'mono'
+  const [isSmallText, setIsSmallText] = useState(false);
+  const [isFullWidth, setIsFullWidth] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+
 
   // Colors Configuration
   const colors = [
@@ -212,11 +222,159 @@ const NoteEditor = () => {
             <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded transition-colors ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}>
               <Star size={18} />
             </button>
-            <button className="hover:bg-gray-100 p-1 rounded">
+            <button
+              onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+              className={`hover:bg-gray-100 p-1 rounded transition-colors ${showOptionsMenu ? 'bg-gray-100 text-black' : ''}`}
+            >
               <MoreHorizontal size={18} />
             </button>
           </div>
         </header>
+
+        {/* === OPTIONS MENU === */}
+        {showOptionsMenu && (
+          <div className="absolute top-12 right-4 z-[100] bg-white rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
+
+            {/* Search */}
+            <div className="px-3 pt-3 pb-2">
+              <div className="relative">
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search actions..."
+                  className="w-full pl-8 pr-3 py-1 bg-white border border-gray-200 rounded text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-normal"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Typography Selection */}
+            <div className="flex justify-between px-3 py-1.5 my-1">
+              {[
+                { name: 'Default', font: 'font-sans', id: 'default', label: 'Ag' },
+                { name: 'Serif', font: 'font-serif', id: 'serif', label: 'Ag' },
+                { name: 'Mono', font: 'font-mono', id: 'mono', label: 'Ag' }
+              ].map((font) => (
+                <button
+                  key={font.id}
+                  onClick={() => setFontFactory(font.id)}
+                  className={`flex flex-col items-center gap-1 p-1.5 rounded hover:bg-gray-100 transition-colors ${fontFactory === font.id ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
+                >
+                  <span className={`text-xl ${font.font}`}>{font.label}</span>
+                  <span className="text-[10px] text-gray-400 font-medium">{font.name}</span>
+                </button>
+              ))}
+            </div>
+
+
+            {/* Actions Group 1 */}
+            <div className="flex flex-col text-[14px]">
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <LinkIcon size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Copy link</span>
+                </div>
+                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Alt+L</span>
+              </button>
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <FilePlus size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Duplicate</span>
+                </div>
+                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+D</span>
+              </button>
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <CornerUpRight size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Move to</span>
+                </div>
+                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Shift+P</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-red-600 hover:text-red-700">
+                <Trash2 size={16} strokeWidth={1.5} className="text-red-500" />
+                <span className="">Move to Trash</span>
+              </button>
+            </div>
+
+            <div className="w-full border-t border-gray-300 my-1 mx-2" />
+
+            {/* Page Settings */}
+            <div className="flex flex-col text-[14px]">
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsSmallText(!isSmallText)}>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Type size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Small text</span>
+                </div>
+                {/* Toggle Switch */}
+                <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isSmallText ? 'bg-blue-500' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isSmallText ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsFullWidth(!isFullWidth)}>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <MoveHorizontal size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Full width</span>
+                </div>
+                <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isFullWidth ? 'bg-blue-500' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isFullWidth ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                </div>
+              </div>
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+                <Sliders size={16} strokeWidth={1.5} className="text-gray-600" />
+                <span className="">Customize page</span>
+              </button>
+            </div>
+
+            <div className="w-full border-t border-gray-300 my-1 mx-2" />
+
+            {/* Advanced & Import/Export */}
+            <div className="flex flex-col text-[14px]">
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsLocked(!isLocked)}>
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Lock size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Lock page</span>
+                </div>
+                <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isLocked ? 'bg-blue-500' : 'bg-gray-200'}`}>
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isLocked ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                </div>
+              </div>
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+                <MessageSquarePlus size={16} strokeWidth={1.5} className="text-gray-600" />
+                <span className="">Suggest edits</span>
+              </button>
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+                <div className="flex items-center gap-3">
+                  <Languages size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <span className="">Translate</span>
+                </div>
+                <ChevronDown size={14} className="text-gray-400 -rotate-90" />
+              </button>
+
+              <div className="w-full border-t border-gray-300 my-1 mx-2" />
+
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+                <FileDown size={16} strokeWidth={1.5} className="text-gray-600" />
+                <span className="">Import</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+                <Upload size={16} strokeWidth={1.5} className="text-gray-600" />
+                <span className="">Export</span>
+              </button>
+            </div>
+
+            {/* Footer Info */}
+            <div className="flex flex-col px-4 py-2 text-xs text-gray-400 border-t border-gray-100 mt-1">
+              <div className="flex justify-between">
+                <span>Last edited by you</span>
+                <span>Today 15:46</span>
+              </div>
+              <div className="mt-1">
+                <span>Word count: 124</span>
+              </div>
+            </div>
+
+          </div>
+        )}
 
         {/* === SCROLLABLE CONTENT AREA === */}
         <div className="flex-1 overflow-y-auto">
