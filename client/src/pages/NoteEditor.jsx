@@ -70,7 +70,9 @@ const NoteEditor = () => {
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Write here ...",
+        placeholder: "Start writing here — your private note is saved automatically.",
+        includeChildren: true,
+        showOnlyWhenEditable: true,
       }),
       BubbleMenuExtension,
       TaskList,
@@ -197,6 +199,7 @@ const NoteEditor = () => {
     debouncedSave({ coverImage: null });
     setShowCoverMenu(false);
   };
+
 
 
   if (loading) return <div className="p-10">Loading...</div>;
@@ -562,6 +565,8 @@ const NoteEditor = () => {
               className="text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6"
             />
 
+            
+
             {/* TipTap Editor Content */}
             {editor && (
               <BubbleMenu editor={editor} options={{ duration: 100 }} className="flex items-center gap-1 bg-white shadow-xl border border-gray-200 rounded-lg px-2 py-1.5 animate-in fade-in zoom-in-95 duration-200">
@@ -742,7 +747,10 @@ const NoteEditor = () => {
                 </div>
               </BubbleMenu>
             )}
-            <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f]" />
+            <>
+              <style>{`.ProseMirror p.is-empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; height: 0; display: block; } .ProseMirror p.is-empty { position: relative; }`}</style>
+              <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f]" />
+            </>
           </div>
         </div>
       </main>

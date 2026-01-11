@@ -293,10 +293,6 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     </button>
                 </div>
 
-                <div onClick={onAddTask}>
-                    <SidebarItem icon={<Plus size={18} />} label="Add New Task" />
-                </div>
-
                 <div onClick={() => navigate('/app')}>
                     <SidebarItem icon={<Brain size={18} className="text-purple-400" />} label="Priorities" active={location.pathname === '/app'} />
                 </div>
@@ -307,10 +303,12 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
             {/* Footer */}
 
-            <SearchModal 
-                isOpen={isSearchOpen} 
-                onClose={() => setIsSearchOpen(false)} 
-            />
+            {isSearchOpen && (
+                <SearchModal
+                    isOpen={isSearchOpen}
+                    onClose={() => setIsSearchOpen(false)}
+                />
+            )}
 
             <div className="p-2 border-t border-[#E9E9E7]">
                 <div onClick={handleLogout} className="px-3 py-1 text-xs text-red-500 hover:bg-[#EFEFEF] rounded cursor-pointer flex items-center gap-2">
