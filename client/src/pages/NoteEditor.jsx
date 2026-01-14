@@ -12,13 +12,19 @@ import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+
 import {
   Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu,
   Upload, Link as LinkIcon, X, Bold, Italic, Underline as UnderlineIcon,
   Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette,
-  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote, CheckSquare,
+  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote,
   Search, Copy, FilePlus, CornerUpRight, Trash2, ArrowLeftRight, Sliders, Lock,
-  Languages, Download, FileDown, AlignLeft, AlignJustify, MoveHorizontal
+  Languages, Download, FileDown, AlignLeft, AlignJustify, MoveHorizontal,
+  Table as TableIcon, Columns, Rows, CheckSquare, PlusSquare, GripVertical
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import Sidebar from '../components/Sidebar';
@@ -36,6 +42,9 @@ const NoteEditor = () => {
   const [showCoverMenu, setShowCoverMenu] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
+  // NEW: Table Menu State
+  const [showTableMenu, setShowTableMenu] = useState(false);
+
   const [activeTab, setActiveTab] = useState('link'); // 'upload' | 'link'
   const [coverInput, setCoverInput] = useState('');
 
@@ -70,8 +79,13 @@ const NoteEditor = () => {
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Start writing here — your private note is saved automatically.",
-        includeChildren: true,
+        placeholder: ({ editor, node }) => {
+          if (!editor) return '';
+          const isEmpty = typeof editor.isEmpty === 'function' ? editor.isEmpty() : (editor.state?.doc?.content?.size <= 2);
+          const isFirstParagraph = node.type.name === 'paragraph' && editor.state?.doc?.firstChild === node;
+          return isEmpty && isFirstParagraph ? "Start writing here — your private note is saved automatically." : '';
+        },
+        includeChildren: false,
         showOnlyWhenEditable: true,
       }),
       BubbleMenuExtension,
@@ -88,6 +102,16 @@ const NoteEditor = () => {
       Link.configure({
         openOnClick: false,
       }),
+      // --- Table Extensions ---
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: 'my-table',
+        },
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: '', // Will be updated when data fetches
     onUpdate: ({ editor }) => {
@@ -565,7 +589,7 @@ const NoteEditor = () => {
               className="text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6"
             />
 
-            
+
 
             {/* TipTap Editor Content */}
             {editor && (
@@ -602,9 +626,11 @@ const NoteEditor = () => {
                           { label: 'Heading 3', icon: <Heading3 size={14} />, isActive: () => editor.isActive('heading', { level: 3 }), action: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
                           { label: 'Bulleted list', icon: <List size={14} />, isActive: () => editor.isActive('bulletList'), action: () => editor.chain().focus().toggleBulletList().run() },
                           { label: 'Numbered list', icon: <ListOrdered size={14} />, isActive: () => editor.isActive('orderedList'), action: () => editor.chain().focus().toggleOrderedList().run() },
-                          { label: 'To-do list', icon: <CheckSquare size={14} />, isActive: () => editor.isActive('taskList'), action: () => editor.chain().focus().toggleTaskList().run() }, // Requires extension-task-list
+                          { label: 'To-do list', icon: <CheckSquare size={14} />, isActive: () => editor.isActive('taskList'), action: () => editor.chain().focus().toggleTaskList().run() },
                           { label: 'Quote', icon: <Quote size={14} />, isActive: () => editor.isActive('blockquote'), action: () => editor.chain().focus().toggleBlockquote().run() },
                           { label: 'Code', icon: <Code size={14} />, isActive: () => editor.isActive('codeBlock'), action: () => editor.chain().focus().toggleCodeBlock().run() },
+                          // --- NEW: Table Option ---
+                          { label: 'Table', icon: <TableIcon size={14} />, isActive: () => editor.isActive('table'), action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
                         ].map((type) => (
                           <button
                             key={type.label}
@@ -626,130 +652,81 @@ const NoteEditor = () => {
 
                 {/* Formatting Group */}
                 <div className="flex items-center gap-0.5">
-                  <button
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <Bold size={15} />
-                  </button>
-                  <button
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <Italic size={15} />
-                  </button>
-                  <button
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('underline') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <UnderlineIcon size={15} />
-                  </button>
-                  <button
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('strike') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <Strikethrough size={15} />
-                  </button>
-                  <button
-                    onClick={() => editor.chain().focus().toggleCode().run()}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('code') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <Code size={15} />
-                  </button>
-
-                  {/* Link */}
-                  <button
-                    onClick={() => {
-                      const previousUrl = editor.getAttributes('link').href;
-                      const url = window.prompt('URL', previousUrl);
-                      if (url === null) return;
-                      if (url === '') {
-                        editor.chain().focus().extendMarkRange('link').unsetLink().run();
-                        return;
-                      }
-                      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-                    }}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    <LinkIcon size={15} />
-                  </button>
+                  <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Bold size={15} /></button>
+                  <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Italic size={15} /></button>
+                  <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('underline') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><UnderlineIcon size={15} /></button>
+                  <button onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('strike') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Strikethrough size={15} /></button>
+                  <button onClick={() => editor.chain().focus().toggleCode().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('code') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Code size={15} /></button>
+                  <button onClick={() => {
+                    const previousUrl = editor.getAttributes('link').href;
+                    const url = window.prompt('URL', previousUrl);
+                    if (url === null) return;
+                    if (url === '') { editor.chain().focus().extendMarkRange('link').unsetLink().run(); return; }
+                    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+                  }} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><LinkIcon size={15} /></button>
 
                   {/* Color Picker Container */}
                   <div className="relative">
-                    <button
-                      onClick={() => setShowColorMenu(!showColorMenu)}
-                      className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${showColorMenu ? 'bg-gray-100 text-black' : 'text-gray-600'}`}
-                    >
+                    <button onClick={() => setShowColorMenu(!showColorMenu)} className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${showColorMenu ? 'bg-gray-100 text-black' : 'text-gray-600'}`}>
                       <span className="text-sm font-serif font-bold">A</span>
                       <ChevronDown size={10} className="opacity-50" />
                     </button>
-
-                    {/* Color Dropdown */}
                     {showColorMenu && (
                       <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-3 max-h-[400px] overflow-y-auto">
-
-                        {/* Recently Used (Placeholder) */}
-                        <div>
-                          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Recently used</div>
-                          <div className="flex gap-2">
-                            <button className="w-7 h-7 rounded-md border border-gray-200 bg-[#FBF3DB] hover:opacity-90 transition-opacity"></button>
-                          </div>
-                        </div>
-
-                        {/* Text Color Section */}
                         <div>
                           <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Text color</div>
                           <div className="grid grid-cols-5 gap-1.5">
                             {colors.map((c) => (
-                              <button
-                                key={`text-${c.name}`}
-                                onClick={() => {
-                                  editor.chain().focus().setColor(c.color).run();
-                                  setShowColorMenu(false);
-                                }}
-                                className="w-7 h-7 mx-auto rounded-md border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-base font-serif font-bold"
-                                style={{ color: c.color }}
-                                title={c.name}
-                              >
-                                A
-                              </button>
+                              <button key={`text-${c.name}`} onClick={() => { editor.chain().focus().setColor(c.color).run(); setShowColorMenu(false); }} className="w-7 h-7 mx-auto rounded-md border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-base font-serif font-bold" style={{ color: c.color }} title={c.name}>A</button>
                             ))}
                           </div>
                         </div>
-
-                        {/* Background Color Section */}
                         <div>
                           <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Background color</div>
                           <div className="grid grid-cols-5 gap-1.5">
                             {colors.map((c) => (
-                              <button
-                                key={`bg-${c.name}`}
-                                onClick={() => {
-                                  if (c.bg) {
-                                    editor.chain().focus().toggleHighlight({ color: c.bg }).run();
-                                  } else {
-                                    editor.chain().focus().unsetHighlight().run();
-                                  }
-                                  setShowColorMenu(false);
-                                }}
-                                className={`w-7 h-7 mx-auto rounded-md border border-gray-200 flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`}
-                                style={{ backgroundColor: c.bg || 'transparent' }}
-                                title={`${c.name} Background`}
-                              >
-                                {!c.bg && <div className="w-full h-px bg-red-400 rotate-45 transform scale-110"></div>}
-                              </button>
+                              <button key={`bg-${c.name}`} onClick={() => { if (c.bg) { editor.chain().focus().toggleHighlight({ color: c.bg }).run(); } else { editor.chain().focus().unsetHighlight().run(); } setShowColorMenu(false); }} className={`w-7 h-7 mx-auto rounded-md border border-gray-200 flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`} style={{ backgroundColor: c.bg || 'transparent' }} title={`${c.name} Background`}>{!c.bg && <div className="w-full h-px bg-red-400 rotate-45 transform scale-110"></div>}</button>
                             ))}
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
+
+                  {/* --- NEW: TABLE OPTIONS MENU (Only shows when in a table) --- */}
+                  {editor.isActive('table') && (
+                    <div className="relative ml-1 pl-1 border-l border-gray-200">
+                      <button
+                        onClick={() => setShowTableMenu(!showTableMenu)}
+                        className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${showTableMenu ? 'bg-gray-100 text-black' : 'text-gray-600'}`}
+                      >
+                        <TableIcon size={15} />
+                        <ChevronDown size={10} className="opacity-50" />
+                      </button>
+
+                      {showTableMenu && (
+                        <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-[180px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden py-1">
+                          <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-b border-gray-100">Table Controls</div>
+                          <div className="flex flex-col p-1 gap-0.5">
+                            <button onClick={() => { editor.chain().focus().addColumnAfter().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded text-left"><Columns size={14} /><span className="flex-1">Add Column</span><PlusSquare size={10} className="text-blue-500" /></button>
+                            <button onClick={() => { editor.chain().focus().addRowAfter().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded text-left"><Rows size={14} /><span className="flex-1">Add Row</span><PlusSquare size={10} className="text-blue-500" /></button>
+                            <button onClick={() => { editor.chain().focus().deleteColumn().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded text-left"><Columns size={14} /><span className="flex-1">Delete Column</span><Trash2 size={10} className="text-red-500" /></button>
+                            <button onClick={() => { editor.chain().focus().deleteRow().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded text-left"><Rows size={14} /><span className="flex-1">Delete Row</span><Trash2 size={10} className="text-red-500" /></button>
+                            <div className="h-px bg-gray-100 my-1"></div>
+                            <button onClick={() => { editor.chain().focus().toggleHeaderCell().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded text-left"><TableIcon size={14} /><span>Toggle Header</span></button>
+                            <button onClick={() => { editor.chain().focus().deleteTable().run(); setShowTableMenu(false); }} className="flex items-center gap-2 px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded text-left"><Trash2 size={14} /><span>Delete Table</span></button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
               </BubbleMenu>
             )}
             <>
               <style>{`.ProseMirror p.is-empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; height: 0; display: block; } .ProseMirror p.is-empty { position: relative; }`}</style>
-              <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f]" />
+              <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f] pb-32" />
             </>
           </div>
         </div>

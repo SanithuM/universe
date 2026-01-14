@@ -171,3 +171,82 @@ ul[data-type="taskList"] input[type="checkbox"]:checked {
 ul[data-type="taskList"] input[type="checkbox"]:checked::before {
 	transform: scale(1);
 }
+
+/* Notion-style Tables */
+.ProseMirror table {
+	border-collapse: collapse;
+	table-layout: fixed;
+	width: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+.ProseMirror td,
+.ProseMirror th {
+	min-width: 1em;
+	border: 2px solid #e5e7eb; /* Light gray border */
+	padding: 8px 10px;
+	vertical-align: top;
+	box-sizing: border-box;
+	position: relative;
+}
+
+/* Header styling for tables */
+.ProseMirror th{
+	font-weight: 600;
+	text-align: left;
+	background-color: #f9fafb; /* Very light gray background */
+	color: #6b7280; /* Gray text color */
+}
+
+/* Cell selection highlight */
+.ProseMirror .selectedCell:after {
+	z-index: 2;
+	position: absolute;
+	content: "";
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: rgba(200, 200, 255, 0.4);
+	pointer-events: none;
+}
+
+/* Column Resizer styling */
+.ProseMirror .column-resize-handle {
+	position: absolute;
+	right: -2px;
+	top: 0;
+	bottom: -2px;
+	width: 4px;
+	background-color: #adf;
+	pointer-events: none;
+}
+
+.ProseMirror .resize-cursor {
+	cursor: col-resize;
+}
+
+/* --- Task Lists (Checkboxes inside tables) --- */
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li[data-type="taskItem"] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.2rem;
+}
+
+li[data-type="taskItem"] input[type="checkbox"] {
+  margin-top: 0.3rem;
+  cursor: pointer;
+}
+
+li[data-type="taskItem"][data-checked="true"] div {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
