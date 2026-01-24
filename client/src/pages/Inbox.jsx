@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Bell, CheckCheck, Trash2, Mail, Calendar, Users, AlertCircle, Menu, Clock, ExternalLink } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, Mail, Calendar, Users, AlertCircle, Menu, Clock, ExternalLink, X } from 'lucide-react';
 import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 
@@ -29,6 +29,17 @@ const Inbox = () => {
 
   useEffect(() => {
     fetchNotifications();
+  }, []);
+
+  // Initialize sidebar visibility based on screen size and update on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setSidebarOpen(true);
+      else setSidebarOpen(false);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Actions
@@ -86,11 +97,9 @@ const Inbox = () => {
         {/* Header - Matches NoteEditor style */}
         <header className="flex items-center justify-between px-4 h-12 sticky top-0 bg-white/80 backdrop-blur-sm z-10 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            {!isSidebarOpen && (
-              <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded text-gray-500">
-                <Menu size={18} />
-              </button>
-            )}
+            <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded text-gray-500 md:hidden">
+              {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
             <div className="flex items-center gap-2 font-medium text-gray-700">
               <Mail size={18} />
               <span>Inbox</span>

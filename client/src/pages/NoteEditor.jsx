@@ -141,6 +141,21 @@ const NoteEditor = () => {
     }
   }, [id, editor]);
 
+  // Initialize sidebar visibility based on screen size and update on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Auto-save function (debounced to prevent too many API calls)
   const debouncedSave = useCallback(
     debounce(async (dataToUpdate) => {
@@ -235,14 +250,13 @@ const NoteEditor = () => {
         {/* === HEADER === */}
         <header className="flex items-center justify-between px-4 h-11 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            {!isSidebarOpen && (
-              <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded mr-2">
-                <Menu size={18} />
-              </button>
-            )}
-            <span className="truncate max-w-[200px]">{note.title || "Untitled"}</span>
-            <span>/</span>
-            <span className="text-gray-400">Private</span>
+            {/* Mobile: always show toggle */}
+            <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded mr-2 md:hidden">
+              {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <span className="truncate max-w-[200px] text-sm">{note.title || "Untitled"}</span>
+            <span className="hidden sm:inline">/</span>
+            <span className="text-gray-400 hidden sm:inline">Private</span>
           </div>
           <div className="flex items-center gap-2 text-gray-500">
             <button className="hover:bg-gray-100 p-1 rounded">Share</button>
@@ -493,7 +507,7 @@ const NoteEditor = () => {
             </div>
           )}
 
-          <div className="max-w-4xl ml-20 px-8 pb-20">
+          <div className="max-w-4xl w-full md:ml-20 px-4 md:px-8 pb-20">
             {/* Icon */}
             {note.icon && (
               <div className={`text-[78px] mb-4 relative z-10 group w-fit ${note.coverImage ? '-mt-10' : 'mt-4'}`}>
@@ -586,7 +600,7 @@ const NoteEditor = () => {
               value={note.title}
               onChange={handleTitleChange}
               placeholder="New page"
-              className="text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6"
+              className="text-3xl md:text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6"
             />
 
 

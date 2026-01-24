@@ -23,12 +23,12 @@ router.post('/', verify, async (req, res) => {
 // 2. GET All Assignments (Sorted by Priority Engine)
 router.get('/', verify, async (req, res) => {
   try {
-    // A. Fetch assignments from DB
+    // Fetch assignments from DB
     const assignments = await Assignment.find({ userId: req.user.id });
 
-    // B. The Priority Engine Algorithm 🧠
+    // The Priority Engine Algorithm
     const scoredAssignments = assignments.map((task) => {
-      // 1. Calculate Days Remaining
+      // Calculate Days Remaining
       const now = new Date();
       const due = new Date(task.dueDate);
       const diffTime = due - now;
@@ -37,8 +37,8 @@ router.get('/', verify, async (req, res) => {
       // Handle "Overdue" or "Due Today" (Avoid division by zero)
       if (daysRemaining <= 0) daysRemaining = 0.1; // Treated as "Due in moments"
 
-      // 2. Apply Formula: Weight / Days
-      // We convert the Mongoose object to a plain JS object first
+      // Apply Formula: Weight / Days
+      // convert the Mongoose object to a plain JS object first
       let taskObj = task.toObject();
       taskObj.priorityScore = (task.academicWeight / daysRemaining).toFixed(2);
 

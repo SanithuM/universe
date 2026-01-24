@@ -30,6 +30,21 @@ export default function UserDashboard() {
     fetchTasks();
   }, []);
 
+  // Initialize sidebar visibility based on screen size and update on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // 3. Mark Task as Done/In-Progress
   const handleStatusChange = async (taskId, currentStatus) => {
     const newStatus = currentStatus === 'Done' ? 'To-Do' : 'Done';
@@ -67,13 +82,19 @@ export default function UserDashboard() {
         {/* Top Bar */}
         <header className="h-11 flex items-center justify-between px-3 flex-shrink-0 hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            {!isSidebarOpen && (
-              <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded">
+            {/* Mobile: toggle sidebar */}
+            <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded md:hidden">
+              {isSidebarOpen ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-              </button>
-            )}
+              )}
+            </button>
+
             <span className="flex items-center gap-1 cursor-pointer">
               <span className="text-lg">🧠</span>
               <span>Priorities</span>
@@ -83,7 +104,7 @@ export default function UserDashboard() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-[900px] mx-auto px-12 pb-32 pt-12">
+          <div className="max-w-[900px] mx-auto px-4 md:px-12 pb-32 pt-12">
 
             {/* 2. INSERT SMART NUDGE HERE 👇 */}
             {/* Only show if data is loaded. Nudge filters its own tasks. */}
@@ -91,7 +112,7 @@ export default function UserDashboard() {
 
             {/* Title */}
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-4xl font-bold text-[#37352f]">
+              <h1 className="text-2xl md:text-4xl font-bold text-[#37352f]">
                 Academic Priorities
               </h1>
               <button

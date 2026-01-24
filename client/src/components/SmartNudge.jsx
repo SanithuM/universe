@@ -71,27 +71,27 @@ const SmartNudge = ({ assignments }) => {
 
   // 5. Render the Urgent Nudge
   return (
-    <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-8 shadow-sm relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+    <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 md:p-4 mb-8 shadow-sm relative overflow-hidden">
+      <div className="hidden md:block absolute top-0 right-0 w-32 h-32 bg-orange-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
 
       <div className="relative z-10 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         
-        <div className="flex items-start gap-4">
-          <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600 shrink-0">
-             <TrendingUp size={24} />
+        <div className="flex items-start gap-3 md:gap-4 flex-1">
+          <div className="bg-orange-100 p-2 rounded-lg text-orange-600 shrink-0">
+             <TrendingUp size={22} />
           </div>
           
-          <div>
-            <h3 className="font-bold text-orange-900 text-lg flex items-center gap-2">
+          <div className="flex-1">
+            <h3 className="font-bold text-orange-900 text-base md:text-lg flex items-center gap-2">
               Focus Recommendation
               <span className="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">High Priority</span>
             </h3>
             
-            <p className="text-orange-800 mt-1 max-w-xl text-sm leading-relaxed">
+            <p className="text-orange-800 mt-1 max-w-full md:max-w-xl text-sm leading-relaxed">
               Based on deadlines & weight, focus on <span className="font-bold">"{criticalTask.title}"</span> ({criticalTask.courseName}).
             </p>
             
-            <div className="flex gap-4 mt-3 text-xs font-semibold text-orange-700">
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4 mt-3 text-xs font-semibold text-orange-700">
                <div className="flex items-center gap-1">
                  <Calendar size={14} /> 
                  {daysRemaining <= 0 ? "Due Today!" : `Due in ${daysRemaining} days`}
@@ -104,7 +104,7 @@ const SmartNudge = ({ assignments }) => {
           </div>
         </div>
 
-        <button className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap">
+        <button className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap w-full md:w-auto mt-3 md:mt-0 justify-center">
           Start Task <ArrowRight size={16} />
         </button>
 

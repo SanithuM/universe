@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../api/axios";
 import Sidebar from "../components/Sidebar";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const Groups = () => {
   const [groups, setGroups] = useState([]);
@@ -20,6 +20,21 @@ const Groups = () => {
   // Fetch My Groups
   useEffect(() => {
     fetchGroups();
+  }, []);
+
+  // Initialize sidebar visibility based on screen size and update on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const fetchGroups = async () => {
@@ -69,13 +84,11 @@ const Groups = () => {
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Header Mobile Toggle */}
-        {!isSidebarOpen && (
-          <div className="absolute top-4 left-4 z-10">
-            <button onClick={() => setSidebarOpen(true)} className="p-1 hover:bg-gray-200 rounded">
-              <Menu size={18} />
-            </button>
-          </div>
-        )}
+        <div className="absolute top-4 left-4 z-10 md:hidden">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded text-gray-500">
+            {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
 
         <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
           <div className="max-w-5xl mx-auto">

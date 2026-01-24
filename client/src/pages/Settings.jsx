@@ -10,7 +10,8 @@ import {
     Users,
     Monitor,
     Globe,
-    X
+    X,
+    Menu
 } from 'lucide-react';
 
 const Settings = ({ onClose }) => {
@@ -28,6 +29,7 @@ const Settings = ({ onClose }) => {
     const [user, setUser] = useState({ username: '', email: '', profilePic: '' });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('my-account');
+    const [isSidebarOpen, setSidebarOpen] = useState(true);
 
     // Password State
     const [passwords, setPasswords] = useState({ current: '', new: '' });
@@ -53,6 +55,17 @@ const Settings = ({ onClose }) => {
             }
         };
         fetchUser();
+    }, []);
+
+    // Initialize sidebar visibility based on screen size
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) setSidebarOpen(true);
+            else setSidebarOpen(false);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // 2. Handle File Upload (Convert to Base64)
@@ -145,6 +158,11 @@ const Settings = ({ onClose }) => {
             {/* Modal Container */}
             <div className="bg-white w-full max-w-[1000px] h-[85vh] rounded-xl shadow-2xl flex overflow-hidden ring-1 ring-black/5 relative">
 
+                {/* Mobile toggle (left) */}
+                <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="absolute top-4 left-4 p-1 rounded hover:bg-gray-100 text-gray-600 md:hidden z-20">
+                    <Menu size={20} />
+                </button>
+
                 {/* Close Button */}
                 <button
                     onClick={handleClose}
@@ -154,52 +172,58 @@ const Settings = ({ onClose }) => {
                 </button>
 
                 {/* Left Sidebar */}
-                <div className="w-64 bg-[#F7F7F5] border-r border-[#EBEBEB] flex flex-col overflow-y-auto p-3">
+                {isSidebarOpen && (
+                    <div className="w-64 bg-[#F7F7F5] border-r border-[#EBEBEB] flex flex-col overflow-y-auto p-3 md:relative md:block fixed top-0 left-0 bottom-0 z-40">
 
-                    {/* User Profile Summary */}
-                    <div className="px-3 py-3 mb-2 flex items-center gap-3">
-                        <div className="w-6 h-6 rounded bg-gray-300 overflow-hidden flex-shrink-0">
-                            {user.profilePic ? (
-                                <img src={user.profilePic} alt="User" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500">
-                                    {user.username ? user.username[0].toUpperCase() : 'U'}
-                                </div>
-                            )}
+                        <div className="md:hidden p-2 flex justify-end">
+                            <button onClick={() => setSidebarOpen(false)} className="text-sm text-gray-500">Close</button>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                                {user.username || 'Current User'}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">
-                                {user.email || 'user@example.com'}
-                            </p>
+
+                        {/* User Profile Summary */}
+                        <div className="px-3 py-3 mb-2 flex items-center gap-3">
+                            <div className="w-6 h-6 rounded bg-gray-300 overflow-hidden flex-shrink-0">
+                                {user.profilePic ? (
+                                    <img src={user.profilePic} alt="User" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500">
+                                        {user.username ? user.username[0].toUpperCase() : 'U'}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                    {user.username || 'Current User'}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                    {user.email || 'user@example.com'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Account Section */}
+                        <div className="mb-6">
+                            <h3 className="px-3 text-xs font-semibold text-gray-500 mb-2 mt-2">Account</h3>
+                            <SidebarItem id="my-account" label="My account" icon={User} />
+                            <SidebarItem id="notifications" label="Notifications" icon={Bell} />
+                            <SidebarItem id="connections" label="Connections" icon={Link} />
+                            <SidebarItem id="language" label="Language & region" icon={Globe} />
+                        </div>
+
+                        {/* Workspace Section */}
+                        <div className="mb-6">
+                            <h3 className="px-3 text-xs font-semibold text-gray-500 mb-2">Workspace</h3>
+                            <SidebarItem id="settings" label="Settings" icon={SettingsIcon} />
+                            <SidebarItem id="members" label="Members" icon={Users} />
+                            <SidebarItem id="upgrade" label="Upgrade plan" icon={CreditCard} />
+                            <SidebarItem id="sites" label="Sites" icon={Monitor} />
+                            <SidebarItem id="security" label="Security & SAML" icon={SettingsIcon} />
                         </div>
                     </div>
-
-                    {/* Account Section */}
-                    <div className="mb-6">
-                        <h3 className="px-3 text-xs font-semibold text-gray-500 mb-2 mt-2">Account</h3>
-                        <SidebarItem id="my-account" label="My account" icon={User} />
-                        <SidebarItem id="notifications" label="Notifications" icon={Bell} />
-                        <SidebarItem id="connections" label="Connections" icon={Link} />
-                        <SidebarItem id="language" label="Language & region" icon={Globe} />
-                    </div>
-
-                    {/* Workspace Section */}
-                    <div className="mb-6">
-                        <h3 className="px-3 text-xs font-semibold text-gray-500 mb-2">Workspace</h3>
-                        <SidebarItem id="settings" label="Settings" icon={SettingsIcon} />
-                        <SidebarItem id="members" label="Members" icon={Users} />
-                        <SidebarItem id="upgrade" label="Upgrade plan" icon={CreditCard} />
-                        <SidebarItem id="sites" label="Sites" icon={Monitor} />
-                        <SidebarItem id="security" label="Security & SAML" icon={SettingsIcon} />
-                    </div>
-                </div>
+                )}
 
                 {/* Right Content Area */}
                 <div className="flex-1 overflow-y-auto min-w-0">
-                    <div className="max-w-[640px] mx-auto py-12 px-12">
+                    <div className="max-w-[640px] mx-auto py-12 px-4 md:px-12">
 
                         {message.text && (
                             <div className={`mb-6 p-3 rounded-md text-sm border ${message.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
