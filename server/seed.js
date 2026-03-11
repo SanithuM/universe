@@ -10,7 +10,7 @@ const testDatabase = async () => {
 try {
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoD for testing...');
+    console.log('Connected to MongoDB for testing...');
 
     // Clear existing data
     await User.deleteMany({});

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
+const sendWelcomeEmail = require('../utils/sendEmail');
 
 // 1. REGISTER
 router.post('/register', async (req, res) => {
@@ -26,6 +27,9 @@ router.post('/register', async (req, res) => {
             password: hashedPassword, // FIX: Saving as 'password' to be consistent
         });
         const savedUser = await newUser.save();
+
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(newUser.email, newUser.username);
 
         // Generate JWT token
         const token = jwt.sign(

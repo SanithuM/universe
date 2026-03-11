@@ -7,14 +7,14 @@ import Hero from './components/Hero';
 import Problem from './components/Problem';
 import Solution from './components/Solution';
 import PriorityEngine from './components/PriorityEngine';
-import DashboardPreview from './components/Dashboard'; // I renamed this alias to avoid confusion
+import DashboardPreview from './components/Dashboard';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import NotionHome from './components/Test';
 
 // Import Pages
-import UserDashboard from './pages/UserDashboard'; // This is your new REAL dashboard
+import UserDashboard from './pages/UserDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Groups from './pages/Groups';

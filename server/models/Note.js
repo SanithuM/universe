@@ -10,7 +10,7 @@ const noteSchema = new mongoose.Schema({
     type: String,
     default: 'Untitled'
   },
-  // We'll store the editor content as an HTML string for simplicity
+  // Stor the editor content as an HTML string for simplicity
   content: {
     type: String,
     default: ''
