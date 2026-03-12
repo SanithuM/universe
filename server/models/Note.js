@@ -26,7 +26,11 @@ const noteSchema = new mongoose.Schema({
   isFavorite: {
     type: Boolean,
     default: false
-  }
+  },
+  sharedWith: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    access: { type: String, enum: ['editor', 'viewer'], default: 'editor' }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Note', noteSchema);

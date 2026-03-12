@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Search, Inbox, Settings, Plus, FileText, Users, Brain,
-    Calendar as CalendarIcon, LogOut, MoreHorizontal, Star, Trash, Edit2
+    Calendar as CalendarIcon, LogOut, MoreHorizontal, Star, Trash, Edit2, Share2
 } from 'lucide-react';
 import api from '../api/axios';
 import SearchModal from './SearchModal';
@@ -37,7 +37,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-    // State for the active dropdown menu (stores the ID of the note being edited)
+    // State for the active dropdown menu
     const [activeMenuId, setActiveMenuId] = useState(null);
     const menuRef = useRef(null);
 
@@ -101,16 +101,17 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
     // Delete Note
     const handleDeleteNote = async (e, noteId) => {
-        e.stopPropagation(); // Stop click from opening the note
+        e.stopPropagation();
         if (window.confirm("Delete this note permanently?")) {
             try {
                 await api.delete(`/notes/${noteId}`);
-                fetchNotes(); // Refresh list
+                fetchNotes();
                 if (location.pathname === `/notes/${noteId}`) {
-                    navigate('/app'); // Redirect if currently viewing deleted note
+                    navigate('/app');
                 }
             } catch (err) {
                 console.error("Failed to delete", err);
+                alert(err.response?.data?.message || "Failed to delete note");
             }
         }
         setActiveMenuId(null);
@@ -127,7 +128,6 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
         }
         setActiveMenuId(null);
     };
-
 
     // Rename Note
     const handleRenameNote = async (e, note) => {
@@ -153,13 +153,28 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
         navigate('/login');
     };
 
-    // FILTER FAVORITES
+    // FILTERING LOGIC
+    // Safely get the user ID as a string
+    const currentUserId = String(user?._id || user?.id || ""); 
+
     const favoriteNotes = notes.filter(note => note.isFavorite);
+    
+    // Safely compare strings
+    const privateNotes = notes.filter(note => {
+        if (!user) return false; // Don't show until user loads
+        return String(note.userId) === currentUserId;
+    });
+    
+    const sharedNotes = notes.filter(note => {
+        if (!user) return false;
+        return String(note.userId) !== currentUserId;
+    });
 
     // --- Render Helper for Note List Item ---
     const renderNoteItem = (note) => {
         const isActive = location.pathname === `/notes/${note._id}`;
         const isMenuOpen = activeMenuId === note._id;
+        const isOwner = note.userId === currentUserId; // Check ownership
 
         return (
             <div
@@ -178,7 +193,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     />
                 </div>
 
-                {/* Three Dots Button (Appears on Hover or if Menu is Open) */}
+                {/* Three Dots Button */}
                 <div className={`absolute right-1 ${isMenuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                     <button
                         onClick={(e) => {
@@ -195,7 +210,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                         <div
                             ref={menuRef}
                             className="absolute right-0 top-6 w-48 bg-white border border-gray-100 rounded-lg shadow-xl z-50 p-1 flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right"
-                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside menu
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 onClick={(e) => handleToggleFavorite(e, note)}
@@ -213,15 +228,19 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                                 Rename
                             </button>
 
-                            <div className="h-px bg-gray-100 my-1 mx-1"></div>
-
-                            <button
-                                onClick={(e) => handleDeleteNote(e, note._id)}
-                                className="w-full px-2 py-1.5 text-[13px] text-left font-medium text-red-600 hover:bg-red-50 rounded-md flex items-center gap-2.5 transition-colors"
-                            >
-                                <Trash size={15} />
-                                Delete
-                            </button>
+                            {/* ONLY SHOW DELETE IF THE USER IS THE OWNER */}
+                            {isOwner && (
+                                <>
+                                    <div className="h-px bg-gray-100 my-1 mx-1"></div>
+                                    <button
+                                        onClick={(e) => handleDeleteNote(e, note._id)}
+                                        className="w-full px-2 py-1.5 text-[13px] text-left font-medium text-red-600 hover:bg-red-50 rounded-md flex items-center gap-2.5 transition-colors"
+                                    >
+                                        <Trash size={15} />
+                                        Delete
+                                    </button>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
@@ -251,7 +270,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
             {/* Menu */}
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
                 <div onClick={() => setIsSearchOpen(true)}>
-                <SidebarItem icon={<Search size={18} />} label="Search" />
+                    <SidebarItem icon={<Search size={18} />} label="Search" />
                 </div>
 
                 <div onClick={() => navigate('/inbox')}>
@@ -270,22 +289,25 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
                 {/* FAVORITES SECTION */}
                 <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97]">Favorites</div>
-
                 {favoriteNotes.length === 0 && (
                     <div className="px-3 text-xs text-gray-400 italic mb-2">No favorites yet</div>
                 )}
+                {favoriteNotes.map(note => renderNoteItem(note))}
 
-                {favoriteNotes.map(note => (
-                    <div key={note._id} onClick={() => navigate(`/notes/${note._id}`)}>
-                        <SidebarItem
-                            icon={note.icon || <FileText size={18} />} // Default icon if none set
-                            label={note.title || "Untitled"}
-                            active={location.pathname === `/notes/${note._id}`}
-                        />
-                    </div>
-                ))}
+                {/* SHARED SECTION */}
+                {sharedNotes.length > 0 && (
+                    <>
+                        <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97]">
+                            <div className="flex items-center gap-1.5">
+                                <Share2 size={12} />
+                                <span>Shared</span>
+                            </div>
+                        </div>
+                        {sharedNotes.map(note => renderNoteItem(note))}
+                    </>
+                )}
 
-                {/* Private Section */}
+                {/* PRIVATE SECTION */}
                 <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97]">
                     <span>Private</span>
                     <button onClick={handleCreateNote} className="hover:bg-gray-200 p-0.5 rounded transition-colors">
@@ -297,12 +319,11 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     <SidebarItem icon={<Brain size={18} className="text-purple-400" />} label="Priorities" active={location.pathname === '/app'} />
                 </div>
 
-                {/* All Notes List */}
-                {notes.map(note => renderNoteItem(note))}
+                {/* Render Private Notes */}
+                {privateNotes.map(note => renderNoteItem(note))}
             </div>
 
             {/* Footer */}
-
             {isSearchOpen && (
                 <SearchModal
                     isOpen={isSearchOpen}
