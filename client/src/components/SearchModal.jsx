@@ -101,7 +101,7 @@ const SearchModal = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-[2px] flex items-start justify-center pt-[15vh] px-4 font-sans animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-9999g-black/20 backdrop-blur-[2px] flex items-start justify-center pt-[15vh] px-4 font-sans animate-in fade-in duration-200">
 
       {/* Modal Box */}
       <div className="bg-[#FBFAF9] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] ring-1 ring-black/5">
@@ -298,7 +298,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                               className={`
                                 h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200
                                 ${c.inCurrent ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-300'}
-                                ${selected ? '!bg-[#EB5757] !text-white shadow-sm font-medium hover:!bg-[#D94545]' : ''}
+                                ${selected ? 'bg-[#EB5757]! text-white! shadow-sm font-medium hover:bg-[#D94545]!' : ''}
                               `}
                             >
                               {c.day}

@@ -62,13 +62,13 @@ const GroupRoom = () => {
         <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans text-[#37352f]">
 
             {/* SIDEBAR: Info & Members */}
-            <aside className="w-full md:w-64 bg-gray-50 border-r border-gray-200 p-6 flex-shrink-0 h-auto md:h-screen overflow-y-auto">
+            <aside className="w-full md:w-64 bg-gray-50 border-r border-gray-200 p-6 shrink-0to md:h-screen overflow-y-auto">
                 <button onClick={() => navigate('/groups')} className="text-sm text-gray-500 hover:text-black mb-6 flex items-center gap-2 transition-colors">
                     ← Back to Lobby
                 </button>
 
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800 break-words leading-tight mb-4">{group.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 wrap-break-word leading-tight mb-4">{group.name}</h1>
                     
                     <div className="bg-white border border-gray-200 p-3 rounded-lg text-center shadow-sm">
                         <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Invite Code</p>
@@ -92,7 +92,7 @@ const GroupRoom = () => {
                                     
                                     {/* Left Side: Avatar and Name */}
                                     <div className="flex items-center gap-3 text-sm text-gray-700">
-                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-gray-100 flex items-center justify-center font-bold text-gray-500 shadow-sm">
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-100 flex items-center justify-center font-bold text-gray-500 shadow-sm">
                                             {member.profilePic ? (
                                                 <img src={member.profilePic} alt={member.username} className="w-full h-full object-cover" />
                                             ) : (

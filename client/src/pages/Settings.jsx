@@ -202,7 +202,7 @@ const Settings = ({ onClose }) => {
 
                         {/* User Profile Summary */}
                         <div className="px-3 py-3 mb-2 flex items-center gap-3">
-                            <div className="w-6 h-6 rounded bg-gray-300 overflow-hidden flex-shrink-0">
+                            <div className="w-6 h-6 rounded bg-gray-300 overflow-hidden shrink-0">
                                 {user.profilePic ? (
                                     <img src={user.profilePic} alt="User" className="w-full h-full object-cover" />
                                 ) : (

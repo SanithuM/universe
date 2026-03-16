@@ -380,7 +380,7 @@ const NoteEditor = () => {
               {isShareOpen && (
                 <div
                   ref={menuRef}
-                  className="absolute top-10 right-0 w-[380px] bg-white rounded-lg shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] z-[100] overflow-hidden flex flex-col text-[#37352f] animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute top-10 right-0 w-[380px] bg-white rounded-lg shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] z-100 overflow-hidden flex flex-col text-[#37352f] animate-in fade-in zoom-in-95 duration-100"
                 >
                   <div className="flex px-4 border-b border-gray-100">
                     <button className="px-2 py-3 text-sm font-medium border-b-2 border-black text-black">Share</button>
@@ -459,7 +459,7 @@ const NoteEditor = () => {
                               )}
 
                               {openAccessMenuId === sharedUser._id && isOwner && (
-                                <div className="absolute right-0 top-8 w-36 bg-white border border-gray-100 rounded-lg shadow-xl z-[150] py-1 flex flex-col animate-in fade-in zoom-in-95 duration-100">
+                                <div className="absolute right-0 top-8 w-36 bg-white border border-gray-100 rounded-lg shadow-xl z-150 py-1 flex flex-col animate-in fade-in zoom-in-95 duration-100">
                                   <button
                                     onClick={() => handleUpdateAccess(sharedUser._id, 'editor')}
                                     className="px-3 py-1.5 text-sm text-left text-gray-700 hover:bg-gray-100 flex justify-between items-center"
@@ -534,7 +534,7 @@ const NoteEditor = () => {
 
         {/* OPTIONS MENU */}
         {showOptionsMenu && (
-          <div className="absolute top-12 right-4 z-[100] bg-white rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <div className="absolute top-12 right-4 z-100 bg-white rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
 
             {/* Search */}
             <div className="px-3 pt-3 pb-2">
@@ -606,7 +606,7 @@ const NoteEditor = () => {
                   <span className="">Small text</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isSmallText ? 'bg-blue-500' : 'bg-gray-200'}`}>
-                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isSmallText ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isSmallText ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
               <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsFullWidth(!isFullWidth)}>
@@ -615,7 +615,7 @@ const NoteEditor = () => {
                   <span className="">Full width</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isFullWidth ? 'bg-blue-500' : 'bg-gray-200'}`}>
-                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isFullWidth ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isFullWidth ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
               <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
@@ -634,7 +634,7 @@ const NoteEditor = () => {
                   <span className="">Lock page</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isLocked ? 'bg-blue-500' : 'bg-gray-200'}`}>
-                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isLocked ? 'translate-x-[14px]' : 'translate-x-0.5'}`} />
+                  <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isLocked ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
               <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
@@ -869,7 +869,7 @@ const NoteEditor = () => {
                 {/* Node Type Selector */}
                 <div className="relative flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
                   <button
-                    className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded min-w-[80px] justify-between"
+                    className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded min-w-20 justify-between"
                     onClick={() => setShowTypeMenu(!showTypeMenu)}
                   >
                     <span className="truncate">

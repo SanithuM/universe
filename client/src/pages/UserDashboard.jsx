@@ -117,7 +117,7 @@ export default function UserDashboard() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Bar */}
-        <header className="h-11 flex items-center justify-between px-3 flex-shrink-0 hover:bg-gray-50 transition-colors">
+        <header className="h-11 flex items-center justify-between px-3 shrink-0 hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             {/* Mobile: toggle sidebar */}
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded md:hidden">

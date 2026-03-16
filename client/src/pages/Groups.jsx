@@ -134,7 +134,7 @@ const Groups = () => {
                 {groups.map((group) => (
                   <div key={group._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
                     <div className="flex justify-between items-start mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                         {group.name.charAt(0)}
                       </div>
                       <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono">
