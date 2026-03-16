@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Group = require('../models/Group');
 const verify = require('../middleware/verifyToken');
+const Notification = require('../models/Notification'); 
 
 // Helper to generate a 6-character code
 const generateCode = () => {
@@ -20,8 +21,8 @@ router.post('/create', verify, async (req, res) => {
         const newGroup = new Group({
             name: req.body.name,
             inviteCode: code,
-            admin: req.user.id,
-            members: [req.user.id] // Admin is the first member
+            creator: req.user.id,
+            members: [req.user.id] // Creator is the first member
         });
 
         const savedGroup = await newGroup.save();
@@ -66,11 +67,11 @@ router.get('/', verify, async (req, res) => {
     }
 });
 
-// Get signle group
+// Get single group
 router.get('/:id', verify, async (req, res) => {
     try {
-        // populate memebers so we get usernames, not just their IDs
-        const group = await Group.findById(req.params.id).populate('members', 'username email');
+        
+        const group = await Group.findById(req.params.id).populate('members', 'username email profilePic');
 
         if (!group) return res.status(404).json({ message: "Group not found" });
 
@@ -79,6 +80,44 @@ router.get('/:id', verify, async (req, res) => {
         if (!isMember) return res.status(403).json({ message: "Access Denied" });
 
         res.status(200).json(group);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Remove a member from the group (Only creator can do this!)
+router.delete('/:groupId/members/:memberId', verify, async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+        if (!group) return res.status(404).json({ error: "Group not found" });
+
+        // SECURITY CHECK: Is the person making the request the creator?
+        if (group.creator.toString() !== req.user.id) {
+            return res.status(403).json({ error: "Only the group creator can remove members." });
+        }
+
+        // LOGIC CHECK: The creator shouldn't be able to kick themselves
+        if (req.params.memberId === req.user.id) {
+            return res.status(400).json({ error: "You cannot remove yourself." });
+        }
+
+        // Filter the user out of the members array
+        group.members = group.members.filter(
+            memberId => memberId.toString() !== req.params.memberId
+        );
+
+        await group.save();
+
+        // Fire a notification so they know they got the boot
+        await new Notification({
+            recipient: req.params.memberId,
+            sender: req.user.id,
+            type: 'group',
+            title: '🚪 Removed from Group',
+            message: `You were removed from the group "${group.name}".`,
+        }).save();
+
+        res.json({ message: "Member removed successfully", group });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

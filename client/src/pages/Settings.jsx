@@ -37,11 +37,13 @@ const Settings = ({ onClose }) => {
     // Feedback Messages
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    // 1. Fetch Current User Data (THE FIX IS HERE)
+    const [imageFile, setImageFile] = useState(null);
+
+    // Fetch Current User Data (THE FIX IS HERE)
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // We fetch the current data so inputs aren't empty
+                // Fetch the current data so inputs aren't empty
                 const res = await api.get('/auth/me');
                 setUser({
                     username: res.data.username || '',
@@ -68,27 +70,45 @@ const Settings = ({ onClose }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // 2. Handle File Upload (Convert to Base64)
+    // Handle File Selection (Instant Local Preview, No Lag!)
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                // Update state immediately to show preview
-                setUser(prev => ({ ...prev, profilePic: reader.result }));
-            };
-            reader.readAsDataURL(file);
+            // Store the actual file in state for later upload, but show the preview immediately
+            setImageFile(file); 
+            
+            // Create a temporary local URL so the user sees the picture instantly!
+            setUser(prev => ({ ...prev, profilePic: URL.createObjectURL(file) }));
         }
     };
 
-    // 3. Save Profile Changes
+    // Save Profile Changes (Uploads to Cloudinary, then saves to DB)
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
+        
+        // Let the user know it's working since uploads take a second
+        setMessage({ type: 'info', text: 'Uploading and saving...' }); 
+
         try {
-            // Send the data currently in state (which includes existing data + changes)
+            let finalProfilePicUrl = user.profilePic;
+
+            // If they picked a new image, send it to Cloudinary first
+            if (imageFile) {
+                const formData = new FormData();
+                formData.append('image', imageFile);
+
+                const uploadRes = await api.post('/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                
+                // Grab the tiny Cloudinary URL from the backend
+                finalProfilePicUrl = uploadRes.data.imageUrl;
+            }
+
+            // Send the final data to the Auth route
             await api.put('/auth/update', {
                 username: user.username,
-                profilePic: user.profilePic
+                profilePic: finalProfilePicUrl // This is a clean Cloudinary URL
             });
             
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
@@ -100,11 +120,12 @@ const Settings = ({ onClose }) => {
             }, 1000);
             
         } catch (err) {
+            console.error("Profile update error:", err);
             setMessage({ type: 'error', text: 'Failed to update profile.' });
         }
     };
 
-    // 4. Change Password
+    // Change Password
     const handleChangePassword = async (e) => {
         e.preventDefault();
         try {
@@ -124,7 +145,7 @@ const Settings = ({ onClose }) => {
         }
     };
 
-    // 5. Delete Account
+    // Delete Account
     const handleDeleteAccount = async () => {
         if (window.confirm("Are you sure? This action cannot be undone!")) {
             try {
@@ -151,7 +172,7 @@ const Settings = ({ onClose }) => {
         </button>
     );
 
-    if (loading) return null; // Or a loading spinner
+    if (loading) return null; 
 
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200">

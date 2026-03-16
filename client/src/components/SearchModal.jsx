@@ -27,7 +27,8 @@ const SearchModal = ({ isOpen, onClose }) => {
   // Filters
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
 
-  // 1. Focus Input on Open
+
+  // Focus Input on Open
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -38,7 +39,7 @@ const SearchModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  // 2. Search Logic (Debounced in effect)
+  // Search Logic (Debounced in effect)
   useEffect(() => {
     const timer = setTimeout(() => {
       performSearch();
@@ -154,7 +155,7 @@ const SearchModal = ({ isOpen, onClose }) => {
               </Listbox>
             </div>
 
-            {/* Visual-only Filters (Mocked for UI Match) */}
+            {/* Visual-only Filters */}
             <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 transition-colors">
               <Type size={14} />
               <span>Title only</span>
@@ -214,7 +215,7 @@ const SearchModal = ({ isOpen, onClose }) => {
 
                     {[
                       { label: 'Today', val: new Date() },
-                      { label: 'Last 7 days', val: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // Approximate logic for demo
+                      { label: 'Last 7 days', val: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
                       { label: 'Last 30 days', val: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
                     ].map((opt) => (
                       <button

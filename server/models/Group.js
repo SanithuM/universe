@@ -8,15 +8,15 @@ const groupSchema = new Schema({
     min: 3,
     max: 255
   },
-  // This is the "Secret Code" users will share (e.g., "AB12CD")
+  // This is the "Secret Code" users will share
   inviteCode: {
     type: String,
     required: true,
     unique: true
   },
   // Who is the boss?
-  admin: {
-    type: Schema.Types.ObjectId, // Use Schema.Types explicitly
+  creator: {
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },

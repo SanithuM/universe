@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -20,11 +21,10 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import {
   Star, Share, MoreHorizontal, Smile, ImageIcon, MessageSquare, Menu,
   Upload, Link as LinkIcon, X, Bold, Italic, Underline as UnderlineIcon,
-  Strikethrough, Code, Sparkles, ChevronDown, MessageSquarePlus, Palette,
-  Check, Type, Heading1, Heading2, Heading3, List, ListOrdered, Quote,
-  Search, Copy, FilePlus, CornerUpRight, Trash2, ArrowLeftRight, Sliders, Lock,
-  Languages, Download, FileDown, AlignLeft, AlignJustify, MoveHorizontal,
-  Table as TableIcon, Columns, Rows, CheckSquare, PlusSquare, GripVertical,
+  Strikethrough, Code, ChevronDown, MessageSquarePlus, Check, Type, 
+  Heading1, Heading2, Heading3, List, ListOrdered, Quote, Search, 
+  FilePlus, CornerUpRight, Trash2, Sliders, Lock, Languages, FileDown, 
+  MoveHorizontal, Table as TableIcon, Columns, Rows, CheckSquare, PlusSquare, 
   HelpCircle
 } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
@@ -36,50 +36,51 @@ const NoteEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 1. ALL STATE VARIABLES FIRST
+  // STATE VARIABLES
   const [note, setNote] = useState({ title: '', content: '', icon: null, coverImage: null, isFavorite: false });
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Menus & Modals
   const [showCoverMenu, setShowCoverMenu] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [showTableMenu, setShowTableMenu] = useState(false);
-
   const [activeTab, setActiveTab] = useState('link');
   const [coverInput, setCoverInput] = useState('');
-
   const [showIconMenu, setShowIconMenu] = useState(false);
   const [activeIconTab, setActiveIconTab] = useState('emoji');
-
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  
+  // Editor Settings
   const [fontFactory, setFontFactory] = useState('default');
   const [isSmallText, setIsSmallText] = useState(false);
   const [isFullWidth, setIsFullWidth] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
 
+  // Sharing
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [openAccessMenuId, setOpenAccessMenuId] = useState(null);
+  
   const menuRef = useRef(null);
 
-  const [openAccessMenuId, setOpenAccessMenuId] = useState(null);
-
-  // 2. FETCH CURRENT USER
+  // FETCH CURRENT USER
   useEffect(() => {
-    api.get('/auth/me').then(res => setCurrentUser(res.data)).catch(console.error);
+    api.get('/auth/me')
+      .then(res => setCurrentUser(res.data))
+      .catch(console.error);
   }, []);
 
-  // 3. CALCULATE PERMISSIONS (Must be evaluated before useEditor)
+  // CALCULATE PERMISSIONS
   const currentUserId = currentUser?._id || currentUser?.id;
   const isOwner = currentUser && note.userId && (currentUserId === (note.userId._id || note.userId));
-
   const myShareRecord = note.sharedWith?.find(s =>
     s.user && (s.user._id === currentUserId || s.user === currentUserId)
   );
 
-  // You can edit if: it's a new note, you are the owner, or you are explicitly an 'editor'
   const canEdit = !note._id || isOwner || (myShareRecord && myShareRecord.access === 'editor');
 
   // Colors Configuration
@@ -96,11 +97,11 @@ const NoteEditor = () => {
     { name: 'Red', color: '#E03E3E', bg: '#FBE4E4' },
   ];
 
-  // 4. INITIALIZE TIPTAP EDITOR
+  // INITIALIZE ROCK-SOLID TIPTAP EDITOR
   const editor = useEditor({
     editable: canEdit,
     extensions: [
-      StarterKit,
+      StarterKit, // Standard history is back!
       Placeholder.configure({
         placeholder: ({ editor, node }) => {
           if (!editor) return '';
@@ -119,15 +120,11 @@ const NoteEditor = () => {
       Highlight.configure({ multicolor: true }),
       Underline,
       Link.configure({ openOnClick: false }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: { class: 'my-table' },
-      }),
+      Table.configure({ resizable: true, HTMLAttributes: { class: 'my-table' } }),
       TableRow,
       TableHeader,
       TableCell,
     ],
-    content: '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       setNote(prev => ({ ...prev, content: html }));
@@ -135,11 +132,9 @@ const NoteEditor = () => {
     },
   });
 
-  // 5. DYNAMICALLY UPDATE EDITOR PERMISSIONS
+  // Dynamically update permissions
   useEffect(() => {
-    if (editor) {
-      editor.setEditable(canEdit);
-    }
+    if (editor) editor.setEditable(canEdit);
   }, [canEdit, editor]);
 
   // Fetch Note Data
@@ -148,7 +143,7 @@ const NoteEditor = () => {
       try {
         const res = await api.get(`/notes/${id}`);
         setNote(res.data);
-        if (editor) {
+        if (editor && res.data.content && editor.isEmpty) {
           editor.commands.setContent(res.data.content);
         }
         setLoading(false);
@@ -157,17 +152,12 @@ const NoteEditor = () => {
         navigate('/app');
       }
     };
-    if (id && editor) {
-      fetchNote();
-    }
-  }, [id, editor]);
+    if (id && editor) fetchNote();
+  }, [id, editor, navigate]);
 
-  // UI Resizing & Menu Closers
+  // UI Listeners
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) setSidebarOpen(true);
-      else setSidebarOpen(false);
-    };
+    const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -183,10 +173,9 @@ const NoteEditor = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Interactions
+  // Actions
   const handleCopyLink = () => {
-    const noteUrl = window.location.href;
-    navigator.clipboard.writeText(noteUrl).then(() => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     });
@@ -197,16 +186,12 @@ const NoteEditor = () => {
     if (!inviteEmail.trim()) return;
     try {
       const response = await api.post(`/notes/${id}/share`, { email: inviteEmail });
-      console.log(response.data.message);
       setInviteEmail('');
-      alert(`Successfully shared with ${response.data.sharedUser.username}!`);
-      // Optionally refresh the note to show the newly added user instantly
+      toast.success(`Successfully shared with ${response.data.sharedUser.username}!`);
       const res = await api.get(`/notes/${id}`);
       setNote(res.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to share note.";
-      console.error("Share error:", errorMessage);
-      alert(errorMessage);
+      toast.error(error.response?.data?.message || "Failed to share note.");
     }
   };
 
@@ -214,6 +199,12 @@ const NoteEditor = () => {
     debounce(async (dataToUpdate) => {
       try {
         await api.put(`/notes/${id}`, dataToUpdate);
+        toast.success("Saved to cloud", {
+          id: 'auto-save-toast', 
+          duration: 2000,
+          position: 'top-center',
+          style: { borderRadius: '20px', background: 'white', color: 'black', fontSize: '12px', padding: '4px 12px' },
+        });
       } catch (err) {
         console.error("Auto-save failed", err);
       }
@@ -238,9 +229,9 @@ const NoteEditor = () => {
         })
       }));
       setOpenAccessMenuId(null);
+      toast.success("User access removed.");
     } catch (err) {
-      console.error("Failed to remove user", err);
-      alert("Failed to remove user.");
+      toast.error("Failed to remove user.");
     }
   };
 
@@ -259,12 +250,13 @@ const NoteEditor = () => {
     setNote(prev => ({ ...prev, isFavorite: newStatus }));
     try {
       await api.put(`/notes/${id}`, { isFavorite: newStatus });
+      toast.success(`${newStatus ? 'Added to' : 'Removed from'} favorites.`);
     } catch (err) {
-      console.error("Failed to toggle favorite", err);
       setNote(prev => ({ ...prev, isFavorite: !newStatus }));
     }
   };
 
+  // Media Handlers
   const handleAddIcon = () => setShowIconMenu(true);
   const onEmojiClick = (emojiData) => {
     setNote(prev => ({ ...prev, icon: emojiData.emoji }));
@@ -286,32 +278,52 @@ const NoteEditor = () => {
       setCoverInput('');
     }
   };
-  const handleFileUpload = (e) => {
+  
+ const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setNote(prev => ({ ...prev, coverImage: base64String }));
-        debouncedSave({ coverImage: base64String });
-        setShowCoverMenu(false);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Put up a loading toast so the user knows it's working
+    const loadingToast = toast.loading('Uploading cover...');
+
+    try {
+      // Pack the file into a FormData object
+      const formData = new FormData();
+      formData.append('image', file);
+
+      // Send it to the backend route
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      const fastImageUrl = res.data.imageUrl;
+
+      // Save the new URL to state and the database!
+      setNote(prev => ({ ...prev, coverImage: fastImageUrl }));
+      debouncedSave({ coverImage: fastImageUrl });
+      
+      setShowCoverMenu(false);
+      toast.success('Cover updated!', { id: loadingToast }); // Replaces the loading toast
+      
+    } catch (error) {
+      console.error("Upload failed", error);
+      toast.error('Failed to upload image', { id: loadingToast });
     }
   };
+  
   const removeCover = () => {
     setNote(prev => ({ ...prev, coverImage: null }));
     debouncedSave({ coverImage: null });
     setShowCoverMenu(false);
   };
 
-  if (loading) return <div className="p-10">Loading...</div>;
+  if (loading) return <div className="p-10 text-gray-400 flex items-center justify-center h-screen">Loading workspace...</div>;
 
   return (
     <div className="flex h-screen w-full bg-white font-sans text-[#37352f]">
       <Sidebar isOpen={isSidebarOpen} onAddTask={() => navigate('/app')} />
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        {/* === HEADER === */}
+        {/* HEADER */}
         <header className="flex items-center justify-between px-4 h-11 sticky top-0 bg-white z-10 border-b border-gray-100">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded mr-2 md:hidden">
@@ -325,7 +337,6 @@ const NoteEditor = () => {
           <div className="flex items-center gap-2 text-gray-500">
             {/* Avatar Bubbles Group */}
             <div className="flex items-center mr-2">
-              {/* Show owner avatar */}
               {note.userId && (
                 <div
                   className="w-7 h-7 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center text-white text-[11px] font-bold z-10 shadow-sm"
@@ -338,12 +349,11 @@ const NoteEditor = () => {
                   )}
                 </div>
               )}
-              {/* Show shared users avatars (overlapping) */}
               {note.sharedWith && note.sharedWith.map((shareItem, index) => {
                 const sharedUser = shareItem?.user || shareItem;
                 return (
                   <div
-                    key={sharedUser._id}
+                    key={`avatar-${sharedUser._id || index}`}
                     className="w-7 h-7 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-[11px] font-bold -ml-2 shadow-sm relative"
                     style={{ zIndex: 10 + index + 1 }}
                     title={sharedUser.username}
@@ -372,13 +382,11 @@ const NoteEditor = () => {
                   ref={menuRef}
                   className="absolute top-10 right-0 w-[380px] bg-white rounded-lg shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] z-[100] overflow-hidden flex flex-col text-[#37352f] animate-in fade-in zoom-in-95 duration-100"
                 >
-                  {/* Tabs */}
                   <div className="flex px-4 border-b border-gray-100">
                     <button className="px-2 py-3 text-sm font-medium border-b-2 border-black text-black">Share</button>
                   </div>
 
                   <div className="p-4">
-                    {/* Invite Input Row */}
                     <form onSubmit={handleInvite} className="flex gap-2 mb-4">
                       <input
                         type="email"
@@ -395,10 +403,7 @@ const NoteEditor = () => {
                       </button>
                     </form>
 
-                    {/* === DYNAMIC USERS LIST === */}
                     <div className="flex flex-col gap-4 mb-6 max-h-48 overflow-y-auto custom-scrollbar">
-
-                      {/* 1. Owner Info Row */}
                       {note.userId && typeof note.userId === 'object' && (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -422,12 +427,11 @@ const NoteEditor = () => {
                         </div>
                       )}
 
-                      {/* 2. Shared Users Rows */}
-                      {note.sharedWith && note.sharedWith.map((shareItem) => {
+                      {note.sharedWith && note.sharedWith.map((shareItem, index) => {
                         const sharedUser = shareItem?.user || shareItem;
                         const userAccess = shareItem?.access || shareItem?.userAccess || sharedUser?.access;
                         return (
-                          <div key={sharedUser._id} className="flex items-center justify-between">
+                          <div key={`row-${sharedUser._id || index}`} className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm font-bold text-white shadow-sm">
                                 {sharedUser.profilePic ? (
@@ -442,7 +446,6 @@ const NoteEditor = () => {
                               </div>
                             </div>
 
-                            {/* === ACCESS DROPDOWN MENU === */}
                             <div className="flex items-center relative">
                               {isOwner ? (
                                 <button
@@ -455,7 +458,6 @@ const NoteEditor = () => {
                                 <span className="text-sm text-gray-400 capitalize pr-2">{userAccess || 'Editor'}</span>
                               )}
 
-                              {/* The Dropdown Popover */}
                               {openAccessMenuId === sharedUser._id && isOwner && (
                                 <div className="absolute right-0 top-8 w-36 bg-white border border-gray-100 rounded-lg shadow-xl z-[150] py-1 flex flex-col animate-in fade-in zoom-in-95 duration-100">
                                   <button
@@ -480,15 +482,11 @@ const NoteEditor = () => {
                                 </div>
                               )}
                             </div>
-                            {/* === END ACCESS DROPDOWN === */}
-
                           </div>
                         );
                       })}
                     </div>
-                    {/* === END DYNAMIC USERS LIST === */}
 
-                    {/* General Access Row */}
                     <div className="mb-4">
                       <h4 className="text-xs font-semibold text-gray-500 mb-2">General access</h4>
                       <div className="flex items-center justify-between">
@@ -505,7 +503,6 @@ const NoteEditor = () => {
                     </div>
                   </div>
 
-                  {/* Bottom Action Bar */}
                   <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
                     <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
                       <HelpCircle size={14} /> Learn about sharing
@@ -521,7 +518,7 @@ const NoteEditor = () => {
                 </div>
               )}
             </div>
-            {/* === END SHARE BUTTON === */}
+            {/* END SHARE BUTTON */}
 
             <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded transition-colors ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}>
               <Star size={18} />
@@ -535,7 +532,7 @@ const NoteEditor = () => {
           </div>
         </header>
 
-        {/* === OPTIONS MENU === */}
+        {/* OPTIONS MENU */}
         {showOptionsMenu && (
           <div className="absolute top-12 right-4 z-[100] bg-white rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
 
@@ -678,7 +675,7 @@ const NoteEditor = () => {
           </div>
         )}
 
-        {/* === SCROLLABLE CONTENT AREA === */}
+        {/* SCROLLABLE CONTENT AREA */}
         <div className="flex-1 overflow-y-auto">
           {/* Cover Image */}
           {note.coverImage && (
@@ -997,6 +994,7 @@ const NoteEditor = () => {
                 </div>
               </BubbleMenu>
             )}
+            
             <>
               <style>{`.ProseMirror p.is-empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; height: 0; display: block; } .ProseMirror p.is-empty { position: relative; }`}</style>
               <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f] pb-32" />

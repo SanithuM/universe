@@ -3,8 +3,9 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
 const Notification = require('../models/Notification');
+const { sendMeetingInviteEmail } = require('../utils/sendEmail');
 
-// 1. CREATE an Event (Study Plan OR Meeting)
+// CREATE an Event (Study Plan OR Meeting)
 router.post('/', verify, async (req, res) => {
   try {
     let participantsList = [req.user.id]; // Creator is always a participant
@@ -34,13 +35,13 @@ router.post('/', verify, async (req, res) => {
     // TRIGGER NOTIFICATIONS
     // If there are other participants, send them a notification
     if (participantsList.length > 1) {
-        // 1. Get creator details for the message
+        // Get creator details for the message
         const creator = await User.findById(req.user.id);
         
-        // 2. Identify who needs to be notified (everyone except the creator)
+        // Identify who needs to be notified (everyone except the creator)
         const recipients = participantsList.filter(pId => pId.toString() !== req.user.id);
         
-        // 3. Create the notification objects
+        // Create the notification objects for the Inbox
         const notifications = recipients.map(recipientId => ({
             recipient: recipientId,
             sender: req.user.id,
@@ -51,8 +52,58 @@ router.post('/', verify, async (req, res) => {
             isRead: false
         }));
 
-        // 4. Save to Database
+        // Save to Database
         await Notification.insertMany(notifications);
+
+        // FIRE LIVE SOCKET NOTIFICATIONS FOR TOASTS
+        const io = req.app.get('io');
+        const onlineUsers = req.app.get('onlineUsers');
+
+        if (io && onlineUsers) {
+            // Loop through the recipients to see if they are currently online
+            recipients.forEach(recipientId => {
+                const receiverSocketId = onlineUsers.get(recipientId.toString());
+                
+                if (receiverSocketId) {
+                    // Format the time nicely for the toast subtitle
+                    const meetingTime = new Date(savedEvent.startTime).toLocaleString([], { 
+                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    });
+
+                    // Shoot the toast directly to their screen!
+                    io.to(receiverSocketId).emit('receive_notification', {
+                        senderName: creator.username,
+                        senderPic: creator.profilePic || null,
+                        title: `Invited you to a meeting:`,
+                        subtitle: `${savedEvent.title} at ${meetingTime}`
+                    });
+                }
+            });
+        }
+
+        // Send email invites
+        // Format the time to look nice (e.g., "Mon, Mar 16, 10:00 AM")
+        const meetingTime = new Date(savedEvent.startTime).toLocaleString([], { 
+            weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+        });
+
+        // Loop through the recipients and fire off an email to each one
+        for (const recipientId of recipients) {
+            const inviteeInfo = await User.findById(recipientId);
+            
+            if (inviteeInfo && inviteeInfo.email) {
+                sendMeetingInviteEmail(
+                    inviteeInfo.email, 
+                    inviteeInfo.username, 
+                    {
+                        title: savedEvent.title,
+                        creatorName: creator.username,
+                        time: meetingTime,
+                        description: savedEvent.description
+                    }
+                );
+            }
+        }
     }
 
     // Populate participants so frontend gets names immediately
@@ -64,7 +115,7 @@ router.post('/', verify, async (req, res) => {
   }
 });
 
-// 2. GET All Events (Where I am a participant)
+// GET All Events (Where I am a participant)
 router.get('/', verify, async (req, res) => {
   try {
     // Find events where my ID is in the participants array
@@ -78,7 +129,7 @@ router.get('/', verify, async (req, res) => {
   }
 });
 
-// 3. DELETE Event (Only Creator can delete)
+// DELETE Event (Only Creator can delete)
 router.delete('/:id', verify, async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);

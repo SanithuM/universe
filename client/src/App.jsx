@@ -1,5 +1,11 @@
-import React from 'react';
+import { Toaster } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
+
+// Import Utils
+import { notifyLiveEvent } from './utils/toastHelpers';
+import api from './api/axios'; // Need api to fetch the logged-in user
 
 // Import Components
 import Navbar from './components/Navbar';
@@ -24,7 +30,10 @@ import Calender from './pages/Calendar';
 import NoteEditor from './pages/NoteEditor';
 import Inbox from './pages/Inbox';
 
-// 1. Create a "LandingPage" component to group all marketing sections
+// Initialize Socket.io client
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+
+// Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
   const navigate = useNavigate();
 
@@ -37,7 +46,7 @@ const LandingPage = () => {
       <Problem />
       <Solution />
       <PriorityEngine />
-      <DashboardPreview /> {/* This is the marketing preview, not the real app */}
+      <DashboardPreview /> 
       <HowItWorks />
       <Testimonials />
       <Footer />
@@ -45,10 +54,57 @@ const LandingPage = () => {
   );
 };
 
-// 2. Main App Component with Routing
+// Main App Component with Routing
 export default function UniVerseApp() {
+  const [user, setUser] = useState(null);
+
+  // SOCKET CONNECTION LOGIC
+  useEffect(() => {
+    // Fetch the logged-in user
+    const fetchUser = async () => {
+      try {
+        const res = await api.get('/auth/me');
+        setUser(res.data);
+        
+        // Tell the backend "I am online!"
+        const currentUserId = res.data._id || res.data.id;
+        if (currentUserId) {
+            socket.emit('addNewUser', currentUserId);
+        }
+      } catch (err) {
+        console.log("No user logged in yet (or token expired).");
+      }
+    };
+    
+    fetchUser();
+
+    // Listen for live notifications from the backend!
+    socket.on('receive_notification', (data) => {
+      // Trigger your beautiful custom toast
+      notifyLiveEvent(data.senderName, data.senderPic, data.title, data.subtitle);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => {
+      socket.off('receive_notification');
+    };
+  }, []);
+
   return (
     <Router>
+      {/* Toast Notifications */}
+      <Toaster 
+        position="bottom-right" 
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            fontSize: '14px',
+            borderRadius: '8px',
+          },
+        }}
+      />
       <Routes>
         {/* Route 1: The Public Landing Page (http://localhost:5173/) */}
         <Route path="/" element={<LandingPage />} />

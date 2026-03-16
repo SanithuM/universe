@@ -4,6 +4,7 @@ const Group = require('../models/Group');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
+const { sendTaskAssignmentEmail } = require('../utils/sendEmail');
 
 // Create Task and Notify Assigned user
 router.post('/', verify, async (req, res) => {
@@ -20,11 +21,13 @@ router.post('/', verify, async (req, res) => {
         });
         const savedTask = await newTask.save();
 
-        // Send Notification to the Assigned User (if not self-assigned)
+        // Send Notification & Email ONLY if assigned to someone else
         if (assignedToId !== req.user.id) {
             const assigner = await User.findById(req.user.id);
             const group = await Group.findById(groupId);
+            const assignee = await User.findById(assignedToId);
 
+            // In-App Notification
             await new Notification({
                 recipient: assignedToId,
                 sender: req.user.id,
@@ -33,6 +36,26 @@ router.post('/', verify, async (req, res) => {
                 message: `${assigner.username} assigned you the task "${title}" in group "${group.name}".`,
                 link: `/groups/${groupId}`
             }).save();
+
+            // Email Notification
+            if (assignee && assignee.email) {
+                
+                const formattedDate = savedTask.dueDate 
+                    ? new Date(savedTask.dueDate).toLocaleDateString() 
+                    : 'No due date';
+
+                sendTaskAssignmentEmail(
+                    assignee.email,
+                    assignee.username,
+                    {
+                        taskName: savedTask.title,
+                        assignerName: assigner.username,
+                        groupName: group.name,
+                        dueDate: formattedDate,
+                        priority: savedTask.priority || 'Normal'
+                    }
+                );
+            }
         }
 
         // Populate user details for the frontend
@@ -70,22 +93,23 @@ router.put('/:taskId', verify, async (req, res) => {
             const completerName = task.assignedTo.username;
             const groupName = task.group.name;
 
-            // Filter out the person who completed the task
-            const recipient = task.group.members.filter(
+            
+            const recipients = task.group.members.filter(
                 memberId => memberId.toString() !== req.user.id
             );
 
-            // Create notification for all members
-            const notifications = recipients.map(recipientId => ({
-                recipient: recipientId,
-                sender: req.user.id,
-                type: 'group',
-                title: '✅ Task Completed',
-                message: `${completerName} finished the task "${task.title}" in ${groupName}.`,
-                link: `/groups/${task.group._id}`
-            }));
+            if (recipients.length > 0) {
+                const notifications = recipients.map(recipientId => ({
+                    recipient: recipientId,
+                    sender: req.user.id,
+                    type: 'group',
+                    title: '✅ Task Completed',
+                    message: `${completerName} finished the task "${task.title}" in ${groupName}.`,
+                    link: `/groups/${task.group._id}`
+                }));
 
-            await Notification.insertMany(notifications);
+                await Notification.insertMany(notifications);
+            }
         }
 
         res.json(task);

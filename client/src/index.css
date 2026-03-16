@@ -250,3 +250,46 @@ li[data-type="taskItem"][data-checked="true"] div {
   text-decoration: line-through;
   color: #9ca3af;
 }
+
+/* Give a remote user a caret */
+.collaboration-carets__caret {
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-right-width: 0px;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+  display: inline-block;
+  height: 1.2em; /* Ensure consistency with line height */
+  vertical-align: bottom; /* Make sharp base alignment like Google Docs */
+}
+
+/* Render the username right above the caret */
+.collaboration-carets__label {
+  border-radius: 4px 4px 4px 0;
+  color: white; /* Always white text for optimal contrast like Google Docs */
+  font-size: 11px; /* Slightly smaller for precision, matching GDocs */
+  font-style: normal;
+  font-weight: 500;
+  left: -2px; /* Align precisely flush with the caret border left */
+  line-height: normal;
+  padding: 0.15rem 0.35rem; /* Rectangular padding like Docs */
+  position: absolute;
+  top: -1.75em;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.15); /* very subtle drop-shadow */
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* beautiful pop-in effect */
+}
+
+@keyframes popIn {
+	0% { opacity: 0; transform: translateY(4px); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Ensure editor container is positioned for absolute cursor elements */
+.ProseMirror {
+  position: relative;
+}

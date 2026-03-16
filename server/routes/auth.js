@@ -3,9 +3,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
-const sendWelcomeEmail = require('../utils/sendEmail');
+const { sendWelcomeEmail } = require('../utils/sendEmail');
 
-// 1. REGISTER
+// REGISTER
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
         const newUser = new User({
             username,
             email,
-            password: hashedPassword, // FIX: Saving as 'password' to be consistent
+            password: hashedPassword, // Saving as 'password' to be consistent
         });
         const savedUser = await newUser.save();
 
@@ -53,7 +53,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN
+// LOGIN
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -65,7 +65,6 @@ router.post('/login', async (req, res) => {
         }
 
         // Validate Password
-        // FIX: Comparing against 'user.password' (not passwordHash)
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
@@ -93,7 +92,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// 3. UPDATE USER DETAILS
+// UPDATE USER DETAILS
 router.put('/update', verify, async (req, res) => {
   try {
     const updates = {};
@@ -116,7 +115,7 @@ router.put('/update', verify, async (req, res) => {
   }
 });
 
-// 4. CHANGE PASSWORD
+// CHANGE PASSWORD
 router.put('/change-password', verify, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
@@ -132,7 +131,7 @@ router.put('/change-password', verify, async (req, res) => {
             return res.status(400).json({ error: "This account does not have a password set" });
         }
 
-        // Force strings (Fixes "Illegal arguments: number")
+        // Force strings
         const currentPassStr = String(currentPassword);
         const newPassStr = String(newPassword);
 
@@ -156,7 +155,7 @@ router.put('/change-password', verify, async (req, res) => {
     }
 });
 
-// 5. DELETE ACCOUNT
+// DELETE ACCOUNT
 router.delete('/delete', verify, async (req, res) => {
     try {
         await User.findByIdAndDelete(req.user.id);
@@ -166,7 +165,7 @@ router.delete('/delete', verify, async (req, res) => {
     }
 });
 
-// 6. Get Current user (Profile)
+// Get Current user (Profile)
 router.get('/me', verify, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');

@@ -4,7 +4,7 @@ const Note = require('../models/Note');
 const verify = require('../middleware/verifyToken');
 const User = require('../models/User');
 
-// 1. CREATE a new, empty Note
+// CREATE a new, empty Note
 router.post('/', verify, async (req, res) => {
   try {
     const newNote = new Note({
@@ -18,13 +18,13 @@ router.post('/', verify, async (req, res) => {
   }
 });
 
-// 2. GET All Notes for current user (for Sidebar)
+// GET All Notes for current user (for Sidebar)
 router.get('/', verify, async (req, res) => {
   try {
     const stringId = req.user.id;
     const objectId = new mongoose.Types.ObjectId(stringId);
 
-    // 🔥 FIXED: Changed sharedWith to sharedWith.user
+    
     const notes = await Note.find({
       $or: [
         { userId: stringId },
@@ -48,7 +48,7 @@ router.get('/search', verify, async (req, res) => {
     const stringId = req.user.id;
     const objectId = new mongoose.Types.ObjectId(stringId);
 
-    // 🔥 FIXED: Now includes shared notes in your search!
+    // Now includes shared notes in user search
     let filter = {
       $or: [
         { userId: stringId },
@@ -94,13 +94,13 @@ router.get('/search', verify, async (req, res) => {
   }
 });
 
-// 3. GET a single Note by ID
+// GET a single Note by ID
 router.get('/:id', verify, async (req, res) => {
   try {
     const stringId = req.user.id;
     const objectId = new mongoose.Types.ObjectId(stringId);
 
-    // 🔥 FIXED: Changed sharedWith to sharedWith.user
+    
     const note = await Note.findOne({
       _id: req.params.id,
       $or: [
@@ -120,13 +120,13 @@ router.get('/:id', verify, async (req, res) => {
   }
 });
 
-// 4. UPDATE a Note
+// UPDATE a Note
 router.put('/:id', verify, async (req, res) => {
   try {
     const stringId = req.user.id;
     const objectId = new mongoose.Types.ObjectId(stringId);
 
-    // 🔥 FIXED: Changed sharedWith to sharedWith.user
+    
     const updatedNote = await Note.findOneAndUpdate(
       {
         _id: req.params.id,
@@ -147,7 +147,7 @@ router.put('/:id', verify, async (req, res) => {
   }
 });
 
-// 5. DELETE a Note
+// DELETE a Note
 router.delete('/:id', verify, async (req, res) => {
   try {
     const note = await Note.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
@@ -179,7 +179,7 @@ router.post('/:id/share', verify, async (req, res) => {
       return res.status(400).json({ message: "You already own this note." });
     }
 
-    // 🔥 FIXED: Use .some() instead of .includes() for array of objects
+    // Use .some() instead of .includes() for array of objects
     const isAlreadyShared = note.sharedWith.some(
       (shareItem) => shareItem.user.toString() === userToShareWith._id.toString()
     );
@@ -190,6 +190,41 @@ router.post('/:id/share', verify, async (req, res) => {
 
     note.sharedWith.push({ user: userToShareWith._id, access: 'editor' });
     await note.save();
+
+
+    // Get the switchboard and socket instance we set up in index.js
+    const io = req.app.get('io');
+    const onlineUsers = req.app.get('onlineUsers');
+
+    // 🐞 DEBUG LOG 1: Let's see who is actually in the switchboard
+    console.log("1. Current Switchboard:", Array.from(onlineUsers.entries()));
+    console.log("2. Trying to send to User ID:", userToShareWith._id.toString());
+    
+    // Safety check just in case Socket.io hasn't booted yet
+    if (io && onlineUsers) {
+      // Check if the invited user is currently online
+      const receiverSocketId = onlineUsers.get(userToShareWith._id.toString());
+
+      // 🐞 DEBUG LOG 2: Did we find their socket?
+      console.log("3. Found their Socket ID:", receiverSocketId);
+      
+      if (receiverSocketId) {
+        // Fetch the sender's info so the toast looks pretty
+        const sender = await User.findById(req.user.id);
+
+        console.log("4. 🚀 FIRING SOCKET EVENT NOW!"); // 🐞 DEBUG LOG 3
+
+        // Shoot the toast directly to their screen!
+        io.to(receiverSocketId).emit('receive_notification', {
+          senderName: sender ? sender.username : "Someone",
+          senderPic: sender ? sender.profilePic : null,
+          title: `Shared a note with you:`,
+          subtitle: note.title || "Untitled Document"
+        });
+      } else {
+         console.log("❌ User is not currently online (or ID mismatch).");
+      }
+    }
 
     res.status(200).json({
       message: "Note shared successfully!",

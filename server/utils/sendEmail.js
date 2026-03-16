@@ -1,34 +1,35 @@
 const nodemailer = require('nodemailer');
 
+// 1. REUSABLE TRANSPORTER HELPER
+const getTransporter = async () => {
+    if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        return nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+            secure: (process.env.EMAIL_SECURE === 'true') || false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+    } else {
+        const testAccount = await nodemailer.createTestAccount();
+        return nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false,
+            auth: {
+                user: testAccount.user,
+                pass: testAccount.pass,
+            },
+        });
+    }
+};
+
+// WELCOME EMAIL
 const sendWelcomeEmail = async (userEmail, userName) => {
     try {
-        let transporter;
-
-        // Prefer real SMTP settings from environment variables
-        if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-            transporter = nodemailer.createTransport({
-                host: process.env.EMAIL_HOST,
-                port: parseInt(process.env.EMAIL_PORT, 10) || 587,
-                secure: (process.env.EMAIL_SECURE === 'true') || false,
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS,
-                },
-            });
-        } else {
-            // Fallback to Ethereal test account if no SMTP is configured
-            const testAccount = await nodemailer.createTestAccount();
-            transporter = nodemailer.createTransport({
-                host: 'smtp.ethereal.email',
-                port: 587,
-                secure: false,
-                auth: {
-                    user: testAccount.user,
-                    pass: testAccount.pass,
-                },
-            });
-        }
-
+        const transporter = await getTransporter();
         const mailOptions = {
             from: `"The UniVerse Team" <${process.env.EMAIL_USER || 'no-reply@universe.local'}>`,
             to: userEmail,
@@ -146,14 +147,140 @@ const sendWelcomeEmail = async (userEmail, userName) => {
 
         const info = await transporter.sendMail(mailOptions);
         console.log(`Welcome email sent to ${userEmail}`);
-
-        // If using Ethereal/test account, log preview URL
         const previewUrl = nodemailer.getTestMessageUrl(info);
         if (previewUrl) console.log(`Preview URL: ${previewUrl}`);
-
     } catch (error) {
         console.error(`Error sending welcome email:`, error);
     }
 };
 
-module.exports = sendWelcomeEmail;
+// MEETING INVITE EMAIL
+const sendMeetingInviteEmail = async (userEmail, userName, eventDetails) => {
+    try {
+        const transporter = await getTransporter();
+        
+        const mailOptions = {
+            from: `"UniVerse Notifications" <${process.env.EMAIL_USER || 'no-reply@universe.local'}>`,
+            to: userEmail,
+            subject: `New Invite: ${eventDetails.title} with ${eventDetails.creatorName}`,
+            html: `
+                <!doctype html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width,initial-scale=1" />
+                </head>
+                <body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:36px 0;">
+                        <tr>
+                            <td align="center">
+                                <table role="presentation" width="600" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 6px 22px rgba(2,6,23,0.08);">
+                                    <tr>
+                                        <td style="background:linear-gradient(90deg,#4f46e5 0%,#06b6d4 100%);padding:26px;text-align:center;color:#ffffff;">
+                                            <h1 style="margin:0;font-size:20px;font-weight:700;">📅 New Meeting Invite</h1>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:26px;">
+                                            <h2 style="font-size:18px;margin:0 0 10px;">Hi ${userName},</h2>
+                                            <p style="margin:0 0 16px;color:#475569;line-height:1.45;"><strong>${eventDetails.creatorName}</strong> has invited you to a new event on UniVerse!</p>
+
+                                            <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px;">
+                                                <h3 style="margin-top: 0; color: #0f172a;">${eventDetails.title}</h3>
+                                                <p style="margin: 5px 0; color: #475569;"><strong>When:</strong> ${eventDetails.time}</p>
+                                                ${eventDetails.description ? `<p style="margin: 5px 0; color: #475569;"><strong>Details:</strong> ${eventDetails.description}</p>` : ''}
+                                            </div>
+
+                                            <div style="text-align:center;margin:24px 0 10px;">
+                                                <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/calendar" style="background:#4f46e5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;font-weight:700;">View in Calendar</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Invite email sent to ${userEmail}`);
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        if (previewUrl) console.log(`Invite Preview URL: ${previewUrl}`);
+    } catch (error) {
+        console.error(`Error sending invite email:`, error);
+    }
+};
+
+// 🔥 THE NEW TASK ASSIGNMENT EMAIL 🔥
+const sendTaskAssignmentEmail = async (userEmail, userName, taskDetails) => {
+    try {
+        const transporter = await getTransporter();
+        
+        const mailOptions = {
+            from: `"UniVerse Notifications" <${process.env.EMAIL_USER || 'no-reply@universe.local'}>`,
+            to: userEmail,
+            subject: `New Task Assigned: ${taskDetails.taskName}`,
+            html: `
+                <!doctype html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width,initial-scale=1" />
+                </head>
+                <body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:36px 0;">
+                        <tr>
+                            <td align="center">
+                                <table role="presentation" width="600" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 6px 22px rgba(2,6,23,0.08);">
+                                    <tr>
+                                        <td style="background:linear-gradient(90deg,#4f46e5 0%,#06b6d4 100%);padding:26px;text-align:center;color:#ffffff;">
+                                            <h1 style="margin:0;font-size:20px;font-weight:700;">✅ New Task Assigned</h1>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:26px;">
+                                            <h2 style="font-size:18px;margin:0 0 10px;">Hi ${userName},</h2>
+                                            <p style="margin:0 0 16px;color:#475569;line-height:1.45;"><strong>${taskDetails.assignerName}</strong> has assigned a new task to you in <strong>${taskDetails.groupName}</strong>.</p>
+
+                                            <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px;">
+                                                <h3 style="margin-top: 0; color: #0f172a;">${taskDetails.taskName}</h3>
+                                                ${taskDetails.dueDate ? `<p style="margin: 5px 0; color: #475569;"><strong>🎯 Due Date:</strong> ${taskDetails.dueDate}</p>` : ''}
+                                                ${taskDetails.priority ? `<p style="margin: 5px 0; color: #475569;"><strong>⚡ Priority:</strong> ${taskDetails.priority}</p>` : ''}
+                                            </div>
+
+                                            <div style="text-align:center;margin:24px 0 10px;">
+                                                <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/app" style="background:#4f46e5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;font-weight:700;">View Task in UniVerse</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Task assignment email sent to ${userEmail}`);
+        
+        // Log preview URL if using Ethereal testing account
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        if (previewUrl) console.log(`Task Email Preview URL: ${previewUrl}`);
+    } catch (error) {
+        console.error(`Error sending task assignment email:`, error);
+    }
+ 
+
+};
+
+// 4. EXPORT BOTH FUNCTIONS
+module.exports = { 
+    sendWelcomeEmail, 
+    sendMeetingInviteEmail, 
+    sendTaskAssignmentEmail
+};
