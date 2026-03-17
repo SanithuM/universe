@@ -60,7 +60,8 @@ router.post('/join', verify, async (req, res) => {
 // Get my groups
 router.get('/', verify, async (req, res) => {
     try {
-        const groups = await Group.find({ members: req.user.id });
+        const groups = await Group.find({ members: req.user.id })
+            .populate('members', 'username email profilePic');
         res.status(200).json(groups);
     } catch (err) {
         res.status(500).json({ error: err.message });

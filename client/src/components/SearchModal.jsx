@@ -101,10 +101,10 @@ const SearchModal = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-9999g-black/20 backdrop-blur-[2px] flex items-start justify-center pt-[15vh] px-4 font-sans animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-[2px] flex items-start justify-center pt-[15vh] px-4 font-sans animate-in fade-in duration-200">
 
       {/* Modal Box */}
-      <div className="bg-[#FBFAF9] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] ring-1 ring-black/5">
+      <div className="bg-[#FBFAF9] dark:bg-[#202020] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] ring-1 ring-black/5">
 
         {/* Search Header & Filters */}
         <div className="flex flex-col border-b border-gray-200/60 pb-2">
@@ -127,7 +127,7 @@ const SearchModal = ({ isOpen, onClose }) => {
             {/* Sort Dropdown */}
             <div className="relative">
               <Listbox value={sortOrder} onChange={setSortOrder}>
-                <Listbox.Button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 transition-colors">
+                <Listbox.Button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 dark:hover:bg-gray-200 hover:bg-gray-200/50 transition-colors">
                   <ArrowUpDown size={14} />
                   <span>{sortOptions.find(o => o.id === sortOrder)?.name || 'Sort'}</span>
                   <ChevronDown size={12} className="opacity-50" />
@@ -156,16 +156,16 @@ const SearchModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Visual-only Filters */}
-            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 transition-colors">
+            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 dark:hover:bg-gray-200 transition-colors">
               <Type size={14} />
               <span>Title only</span>
             </button>
-            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 transition-colors">
+            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 dark:hover:bg-gray-200 transition-colors">
               <User size={14} />
               <span>Created by</span>
               <ChevronDown size={12} className="opacity-50" />
             </button>
-            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 transition-colors">
+            <button className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-500 hover:bg-gray-200/50 dark:hover:bg-gray-200 transition-colors">
               <FileText size={14} /> {/* Using FileText as proxy for 'In' context */}
               <span>In</span>
               <ChevronDown size={12} className="opacity-50" />
@@ -181,7 +181,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                     setCalendarMonth(new Date(d.getFullYear(), d.getMonth(), 1));
                   }
                 }}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-sm transition-colors ${filterDate ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:bg-gray-200/50'}`}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-sm transition-colors ${filterDate ? 'text-blue-600 bg-blue-50' : 'text-gray-500 dark:hover:bg-gray-200 hover:bg-gray-200/50'}`}
               >
                 <Calendar size={14} />
                 <span>{filterDate ? format(new Date(filterDate), 'MMM d') : 'Date'}</span>
@@ -335,13 +335,13 @@ const SearchModal = ({ isOpen, onClose }) => {
                           <div
                             key={note._id}
                             onClick={() => handleNavigate(note._id)}
-                            className="group flex items-center justify-between px-3 py-2 rounded-md hover:bg-[#EFEFEE] cursor-pointer transition-colors"
+                            className="group flex items-center justify-between px-3 py-2 rounded-md hover:bg-[#EFEFEE] dark:hover:bg-[#3C3D3D] cursor-pointer transition-colors"
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div className="text-gray-400">
                                 {note.icon ? note.icon : <FileText size={18} strokeWidth={1.5} />}
                               </div>
-                              <span className="text-[14px] text-gray-700 font-medium truncate group-hover:text-gray-900">
+                              <span className="text-[14px] text-gray-700 dark:text-gray-100 font-medium truncate group-hover:text-gray-900">
                                 {note.title || "Untitled"}
                               </span>
                             </div>
@@ -366,7 +366,7 @@ const SearchModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Footer */}
-          <div className="bg-[#FBFAF9] px-4 py-2 border-t border-gray-200/60 flex justify-between items-center text-[11px] text-gray-500">
+          <div className="bg-[#FBFAF9] dark:bg-[#202020] px-4 py-2 border-t border-gray-200/60 flex justify-between items-center text-[11px] text-gray-500">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 <ArrowUpDown size={12} className="text-gray-400" />

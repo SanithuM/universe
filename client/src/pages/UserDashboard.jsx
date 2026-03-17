@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  PieChart, Pie, Cell 
-} from 'recharts';
-import { CheckCircle, Clock, TrendingUp, Target } from 'lucide-react';
 import api from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import Settings from './Settings';
@@ -19,7 +14,7 @@ export default function UserDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch Tasks from Backend
+  // 1. Fetch Tasks from Backend
   const fetchTasks = async () => {
     try {
       const res = await api.get('/assignments');
@@ -50,7 +45,7 @@ export default function UserDashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Mark Task as Done/In-Progress
+  // 3. Mark Task as Done/In-Progress
   const handleStatusChange = async (taskId, currentStatus) => {
     const newStatus = currentStatus === 'Done' ? 'To-Do' : 'Done';
     try {
@@ -61,7 +56,7 @@ export default function UserDashboard() {
     }
   };
 
-  // Delete Task
+  // 4. Delete Task
   const handleDelete = async (taskId) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       try {
@@ -73,40 +68,8 @@ export default function UserDashboard() {
     }
   };
 
-  // DYNAMIC DATA CALCULATION FOR CHARTS
-  const completedTasksCount = assignments.filter(t => t.status === 'Done').length;
-  const pendingTasksCount = assignments.filter(t => t.status !== 'Done').length;
-  
-  const taskStatusData = [
-    { name: 'Completed', value: completedTasksCount },
-    { name: 'To-Do', value: pendingTasksCount },
-  ];
-
-  const COLORS = ['#2383e2', '#f59e0b']; // Blue for Completed, Amber for To-Do
-
-  // Calculate Tasks Due by Day of the Week
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const weeklyData = [
-    { name: 'Mon', tasks: 0 }, { name: 'Tue', tasks: 0 }, { name: 'Wed', tasks: 0 },
-    { name: 'Thu', tasks: 0 }, { name: 'Fri', tasks: 0 }, { name: 'Sat', tasks: 0 }, { name: 'Sun', tasks: 0 }
-  ];
-
-  let totalScore = 0;
-  assignments.forEach(task => {
-    if (task.status !== 'Done' && task.dueDate) {
-      const date = new Date(task.dueDate);
-      const dayName = daysOfWeek[date.getDay()];
-      const dayIndex = weeklyData.findIndex(d => d.name === dayName);
-      if(dayIndex !== -1) weeklyData[dayIndex].tasks += 1;
-    }
-    // Aggregate priority score to get an average "Focus Score"
-    if (task.priorityScore) totalScore += task.priorityScore;
-  });
-
-  const averageFocusScore = assignments.length > 0 ? Math.min(Math.round((totalScore / assignments.length) * 10), 100) : 0;
-
   return (
-    <div className="flex h-screen w-full bg-white text-[#37352f] font-sans selection:bg-[#cce9ff]">
+    <div className="flex h-screen w-full bg-white dark:bg-[#191919] text-[#37352f] dark:text-gray-100 font-sans selection:bg-[#cce9ff]">
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -117,7 +80,7 @@ export default function UserDashboard() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Bar */}
-        <header className="h-11 flex items-center justify-between px-3 shrink-0 hover:bg-gray-50 transition-colors">
+        <header className="h-11 flex items-center justify-between px-3 flex-shrink-0 hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             {/* Mobile: toggle sidebar */}
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded md:hidden">
@@ -147,7 +110,7 @@ export default function UserDashboard() {
             {!loading && <SmartNudge assignments={assignments} />}
 
             {/* Title */}
-            <div className="flex justify-between items-center mb-8 mt-4">
+            <div className="flex justify-between items-center mb-8">
               <h1 className="text-2xl md:text-4xl font-bold text-[#37352f]">
                 Academic Priorities
               </h1>
@@ -160,102 +123,7 @@ export default function UserDashboard() {
             </div>
 
             {/* Loading State */}
-            {loading && <div className="text-gray-400 italic mb-8">Calculating priorities...</div>}
-
-            {/* NEW DASHBOARD CHARTS SECTION */}
-            {!loading && assignments.length > 0 && (
-              <div className="mb-12 flex flex-col gap-6">
-                
-                {/* Top Stat Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Target size={20} /></div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</p>
-                      <p className="text-xl font-bold text-gray-900">{assignments.length}</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-green-50 text-green-600 rounded-lg"><CheckCircle size={20} /></div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Done</p>
-                      <p className="text-xl font-bold text-gray-900">{completedTasksCount}</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-orange-50 text-orange-600 rounded-lg"><Clock size={20} /></div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pending</p>
-                      <p className="text-xl font-bold text-gray-900">{pendingTasksCount}</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-purple-50 text-purple-600 rounded-lg"><TrendingUp size={20} /></div>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Focus</p>
-                      <p className="text-xl font-bold text-gray-900">{averageFocusScore}%</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Charts Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
-                  {/* Bar Chart (Pending Tasks Due by Day) */}
-                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm lg:col-span-2">
-                    <h3 className="text-sm font-bold text-gray-800 mb-6 uppercase tracking-wider">Pending Tasks Due This Week</h3>
-                    <div className="h-[250px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} dy={10} />
-                          <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
-                          <RechartsTooltip cursor={{ fill: '#f9fafb' }} contentStyle={{ borderRadius: '8px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                          <Bar dataKey="tasks" fill="#2383e2" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Donut Chart (Task Status) */}
-                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col">
-                    <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase tracking-wider">Task Status</h3>
-                    <div className="flex-1 flex items-center justify-center min-h-[200px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={taskStatusData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
-                            paddingAngle={5}
-                            dataKey="value"
-                          >
-                            {taskStatusData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                    
-                    {/* Custom Legend */}
-                    <div className="flex justify-center gap-4 mt-2">
-                      {taskStatusData.map((entry, index) => (
-                        <div key={entry.name} className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }}></div>
-                          <span className="text-xs font-medium text-gray-600">{entry.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            )}
-            {/* END CHARTS SECTION */}
+            {loading && <div className="text-gray-400 italic">Calculating priorities...</div>}
 
             {/* Real Database Grid */}
             {assignments.length > 0 ? (

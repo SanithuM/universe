@@ -29,6 +29,7 @@ import Settings from './pages/Settings';
 import Calender from './pages/Calendar';
 import NoteEditor from './pages/NoteEditor';
 import Inbox from './pages/Inbox';
+import Analytics from './pages/Analytics';
 
 // Initialize Socket.io client
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
@@ -36,6 +37,13 @@ const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 // Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check local storage immediately on app load
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased">
@@ -138,6 +146,9 @@ export default function UniVerseApp() {
 
         {/* Route 11: Inbox Page (http://localhost:5173/inbox) */}
         <Route path="/inbox" element={<Inbox />} />
+
+        {/* Route 12: Analytics Page (http://localhost:5173/analytics) */}
+        <Route path="/analytics" element={<Analytics />} />
 
       </Routes>
     </Router>

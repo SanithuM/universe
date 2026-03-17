@@ -13,7 +13,7 @@ const Inbox = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   // Mark sidebar active for Inbox if needed, but Sidebar likely handles it via URL
-  // We can pass `active` prop if Sidebar supports it, or rely on location.pathname
+  
 
   // Fetch Notifications
   const fetchNotifications = async () => {
@@ -88,19 +88,19 @@ const Inbox = () => {
     : notifications;
 
   return (
-    <div className="flex h-screen w-full bg-white text-[#37352f] font-sans">
+    <div className="flex h-screen w-full bg-white text-[#37352f] font-sans dark:bg-[#191919] dark:text-gray-100">
       <Sidebar isOpen={isSidebarOpen} />
 
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-white">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-white dark:bg-[#191919] dark:text-gray-100">
 
         {/* Header */}
         {/* Header - Matches NoteEditor style */}
-        <header className="flex items-center justify-between px-4 h-12 sticky top-0 bg-white/80 backdrop-blur-sm z-10 border-b border-gray-100">
+        <header className="flex items-center justify-between px-4 h-12 sticky top-0 bg-white/80 backdrop-blur-sm z-10 border-b border-gray-100 dark:bg-[#191919] dark:text-gray-100">
           <div className="flex items-center gap-2">
-            <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded text-gray-500 md:hidden">
+            <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded text-gray-500  md:hidden">
               {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
-            <div className="flex items-center gap-2 font-medium text-gray-700">
+            <div className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-100">
               <Mail size={18} />
               <span>Inbox</span>
             </div>
@@ -109,7 +109,7 @@ const Inbox = () => {
           <div className="flex items-center gap-1">
             <button
               onClick={markAllRead}
-              className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded transition-colors"
+              className="text-xs text-gray-500 dark:text-gray-300 hover:text-gray-900 flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded transition-colors"
               title="Mark all as read"
             >
               <CheckCheck size={14} />
@@ -119,23 +119,23 @@ const Inbox = () => {
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 max-w-5xl mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 max-w-5xl mx-auto w-full dark:bg-[#191919] dark:text-gray-100">
 
           {/* Page Title & Tabs */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#37352f] mb-6">Inbox</h1>
+            <div className="mb-8 dark:text-gray-100">
+            <h1 className="text-3xl font-bold text-[#37352f] dark:text-gray-100 mb-6">Inbox</h1>
 
             <div className="flex gap-1 border-b border-gray-200">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 text-sm font-medium transition-colors relative ${filter === 'all' ? 'text-black' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors relative ${filter === 'all' ? 'text-black dark:text-gray-200' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800'}`}
               >
                 All Updates
-                {filter === 'all' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-black"></div>}
+                {filter === 'all' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-black dark:bg-gray-300"></div>}
               </button>
               <button
                 onClick={() => setFilter('unread')}
-                className={`px-4 py-2 text-sm font-medium transition-colors relative ${filter === 'unread' ? 'text-black' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors relative ${filter === 'unread' ? 'text-black dark:text-gray-200' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800'}`}
               >
                 Unread
                 {notifications.filter(n => !n.isRead).length > 0 && (
@@ -143,7 +143,7 @@ const Inbox = () => {
                     {notifications.filter(n => !n.isRead).length}
                   </span>
                 )}
-                {filter === 'unread' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-black"></div>}
+                {filter === 'unread' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-black dark:bg-gray-300"></div>}
               </button>
             </div>
           </div>
@@ -158,14 +158,14 @@ const Inbox = () => {
               </div>
               <p className="text-sm">You're all caught up!</p>
             </div>
-          ) : (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            ) : (
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:bg-[#191919] dark:text-gray-100">
               <div className="divide-y divide-gray-100">
                 {filteredList.map(item => (
                   <div
                     key={item._id}
                     onClick={() => markAsRead(item._id)}
-                    className={`group flex gap-4 p-4 sm:px-6 hover:bg-[#F9F9F8] transition-colors cursor-pointer relative`}
+                    className={`group flex gap-4 p-4 sm:px-6 hover:bg-[#F9F9F8] dark:hover:bg-[#3C3D3D] transition-colors cursor-pointer relative dark:bg-[#191919] dark:text-gray-100`}
                   >
                     {/* Unread Indicator - Vertical Bar */}
                     {!item.isRead && (
@@ -186,7 +186,7 @@ const Inbox = () => {
                     {/* Main Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="flex justify-between items-baseline mb-1">
-                        <h4 className={`text-[15px] truncate mr-2 ${item.isRead ? 'font-medium text-gray-700' : 'font-bold text-[#37352f]'}`}>
+                        <h4 className={`text-[15px] truncate mr-2 ${item.isRead ? 'font-medium text-gray-700 dark:text-gray-400' : 'font-bold text-[#37352f]'}`}>
                           {item.title}
                         </h4>
                         <span className="flex items-center gap-1 text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0 font-medium tracking-wide layer-text">

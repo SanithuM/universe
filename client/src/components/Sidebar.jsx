@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    Search, Inbox, Settings, Plus, FileText, Users, Brain,
+    Search, Inbox, Settings, Plus, FileText, Users, Brain, ChartArea,
     Calendar as CalendarIcon, LogOut, MoreHorizontal, Star, Trash, Edit2, Share2
 } from 'lucide-react';
 import api from '../api/axios';
@@ -13,9 +13,9 @@ const SidebarItem = ({ icon, label, active, count }) => {
     const isEmoji = typeof icon === 'string';
     return (
         <div className={`
-      group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm w-full
-      ${active ? 'bg-[#EFEFEF] text-[#37352f] font-medium' : 'text-[#5F5E5B] hover:bg-[#EFEFEF]'}
-    `}>
+            group flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer transition-colors select-none text-sm w-full
+            ${active ? 'bg-[#EFEFEF] dark:bg-[#2C2C2C] text-[#37352f] dark:text-gray-100 font-medium' : 'text-[#5F5E5B] dark:text-gray-100 hover:bg-[#EFEFEF] dark:hover:bg-[#2C2C2C]'}
+        `}>
             <div className={`flex items-center justify-center w-5 h-5 shrink-0 ${isEmoji ? 'text-lg leading-none' : 'text-gray-500'}`}>
                 {icon}
             </div>
@@ -216,7 +216,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                             e.stopPropagation();
                             setActiveMenuId(isMenuOpen ? null : note._id);
                         }}
-                        className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#2C2C2C] rounded text-gray-400 hover:text-gray-600"
                     >
                         <MoreHorizontal size={14} />
                     </button>
@@ -225,12 +225,12 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     {isMenuOpen && (
                         <div
                             ref={menuRef}
-                            className="absolute right-0 top-6 w-48 bg-white border border-gray-100 rounded-lg shadow-xl z-50 p-1 flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right"
+                            className="absolute right-0 top-6 w-48 bg-white dark:bg-[#202020] border border-gray-100 dark:border-[#3C3D3D] rounded-lg shadow-xl z-50 p-1 flex flex-col animate-in fade-in zoom-in-95 duration-100 origin-top-right"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 onClick={(e) => handleToggleFavorite(e, note)}
-                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] hover:bg-gray-100 rounded-md flex items-center gap-2.5 transition-colors"
+                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3C3D3D] rounded-md flex items-center gap-2.5 transition-colors"
                             >
                                 <Star size={15} className={`transition-colors ${note.isFavorite ? "text-yellow-400 fill-yellow-400" : "text-gray-400 group-hover/btn:text-gray-600"}`} />
                                 {note.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
@@ -238,7 +238,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
 
                             <button
                                 onClick={(e) => handleRenameNote(e, note)}
-                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] hover:bg-gray-100 rounded-md flex items-center gap-2.5 transition-colors"
+                                className="group/btn w-full px-2 py-1.5 text-[13px] text-left font-medium text-[#37352F] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3C3D3D] rounded-md flex items-center gap-2.5 transition-colors"
                             >
                                 <Edit2 size={15} className="text-gray-400 group-hover/btn:text-gray-600" />
                                 Rename
@@ -267,10 +267,10 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
     // Wrapped in a React Fragment to separate sidebar from Modals
     return (
         <>
-            <aside className={`${isOpen ? 'w-60' : 'w-0'} bg-[#F7F7F5] border-r border-[#E9E9E7] shrink-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
+            <aside className={`${isOpen ? 'w-60' : 'w-0'} bg-[#F7F7F5] dark:bg-[#202020] border-r border-[#E9E9E7] dark:border-gray-400 shrink-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full`}>
 
                 {/* Header */}
-                <div className="p-3 hover:bg-[#EFEFEF] cursor-pointer transition-colors flex items-center gap-2 m-1 rounded-md">
+                <div className="p-3 hover:bg-[#EFEFEF] dark:hover:bg-[#2C2C2C] cursor-pointer transition-colors flex items-center gap-2 m-1 rounded-md">
                     <div className="w-5 h-5 rounded overflow-hidden flex items-center justify-center text-xs font-bold shrink-0 relative">
                         {user?.profilePic ? (
                             <img src={user.profilePic} alt={user.username} className="w-full h-full object-cover" />
@@ -295,6 +295,10 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                         <SidebarItem icon={<Inbox size={18} />} label="Inbox" count={unreadCount} />
                     </div>
 
+                    <div onClick={() => navigate('/analytics')}>
+                        <SidebarItem icon={<ChartArea size={18} />} label="Analytics" active={location.pathname === '/analytics'} />
+                    </div>
+
                     <div onClick={() => onOpenSettings ? onOpenSettings() : navigate('/settings')}>
                         <SidebarItem icon={<Settings size={18} />} label="Settings" active={location.pathname === '/settings'} />
                     </div>
@@ -306,7 +310,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     </div>
 
                     {/* FAVORITES SECTION */}
-                    <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97]">Favorites</div>
+                    <div className="mt-6 mb-1 px-3 text-xs font-semibold text-[#9B9A97] dark:text-gray-600">Favorites</div>
                     {favoriteNotes.length === 0 && (
                         <div className="px-3 text-xs text-gray-400 italic mb-2">No favorites yet</div>
                     )}
@@ -315,7 +319,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     {/* SHARED SECTION */}
                     {sharedNotes.length > 0 && (
                         <>
-                            <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97]">
+                            <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97] dark:text-gray-600">
                                 <div className="flex items-center gap-1.5">
                                     <Share2 size={12} />
                                     <span>Shared</span>
@@ -326,9 +330,9 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                     )}
 
                     {/* PRIVATE SECTION */}
-                    <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97]">
+                    <div className="mt-6 mb-1 px-3 flex items-center justify-between text-xs font-semibold text-[#9B9A97] dark:text-gray-600">
                         <span>Private</span>
-                        <button onClick={handleCreateNote} className="hover:bg-gray-200 p-0.5 rounded transition-colors">
+                        <button onClick={handleCreateNote} className="hover:bg-gray-200 dark:hover:bg-[#2C2C2C] p-0.5 rounded transition-colors">
                             <Plus size={14} />
                         </button>
                     </div>
