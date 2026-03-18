@@ -90,12 +90,12 @@ const Groups = () => {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#191919]">
           <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">🤝 Collaborative Spaces</h1>
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">🤝 Collaborative Spaces</h1>
                 <p className="text-gray-500">Manage projects with your friends.</p>
               </div>
             </div>
@@ -115,10 +115,10 @@ const Groups = () => {
 
               <div
                 onClick={() => setShowJoin(true)}
-                className="p-6 bg-white border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition flex items-center justify-between"
+                className="p-6 bg-white dark:bg-[#191919] border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-[#3C3D3D] transition flex items-center justify-between"
               >
                 <div>
-                  <h3 className="text-xl font-bold text-gray-700">Join Existing Team</h3>
+                  <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200">Join Existing Team</h3>
                   <p className="text-gray-500 text-sm mt-1">Have a code? Enter it here.</p>
                 </div>
                 <span className="text-4xl text-gray-300">→</span>
@@ -126,26 +126,26 @@ const Groups = () => {
             </div>
 
             {/* Groups Grid */}
-            <h2 className="text-xl font-bold text-gray-800 mb-4">My Teams</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-500 mb-4">My Teams</h2>
             {loading ? (
               <div>Loading spaces...</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {groups.map((group) => (
-                  <div key={group._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                  <div key={group._id} className="bg-white dark:bg-[#202020] p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md transition">
                     <div className="flex justify-between items-start mb-4">
                       <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                         {group.name.charAt(0)}
                       </div>
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono">
+                      <span className="bg-gray-100 dark:bg-[#3C3D3D] text-gray-600 dark:text-gray-100 text-xs px-2 py-1 rounded font-mono">
                         {group.inviteCode}
                       </span>
                     </div>
-                    <h3 className="font-bold text-lg mb-1">{group.name}</h3>
+                    <h3 className="font-bold text-lg mb-1 dark:text-gray-100">{group.name}</h3>
                     <p className="text-sm text-gray-500 mb-4">{group.members.length} Members</p>
                     <button
                       onClick={() => navigate(`/groups/${group._id}`)}
-                      className="w-full py-2 text-indigo-600 bg-indigo-50 rounded-lg text-sm font-semibold hover:bg-indigo-100"
+                      className="w-full py-2 text-indigo-600 dark:text-gray-200 bg-indigo-50 dark:bg-[#3C3D3D] rounded-lg text-sm font-semibold hover:bg-indigo-100"
                     >
                       Open Space
                     </button>

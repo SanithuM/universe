@@ -280,7 +280,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                             </div>
                         )}
                     </div>
-                    <span className="text-sm font-medium truncate">
+                    <span className="text-sm font-medium truncate dark:text-gray-100">
                         {user ? `${user.username}'s Workspace` : 'UniVerse Workspace'}
                     </span>
                 </div>

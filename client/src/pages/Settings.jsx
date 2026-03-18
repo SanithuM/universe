@@ -282,8 +282,8 @@ const Settings = ({ onClose }) => {
             onClick={() => setActiveTab(id)}
             className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors mb-0.5
                 ${activeTab === id
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                    ? 'bg-gray-100 dark:bg-[#3C3C3C] text-gray-900 dark:text-gray-200'
+                    : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-[#3C3D3D] hover:text-gray-900 dark:hover:text-gray-300'}`}
         >
             <Icon size={16} />
             {label}

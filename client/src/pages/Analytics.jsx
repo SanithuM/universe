@@ -46,6 +46,9 @@ export default function Analytics() {
 
   const COLORS = ['#2383e2', '#f59e0b']; // Blue for Completed, Amber for To-Do
 
+  // detect dark mode (tailwind 'dark' class on root)
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  
   // Calculate Tasks Due by Day of the Week
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weeklyData = [
@@ -67,13 +70,13 @@ export default function Analytics() {
   const averageFocusScore = assignments.length > 0 ? Math.min(Math.round((totalScore / assignments.length) * 10), 100) : 0;
 
   return (
-    <div className="flex h-screen w-full bg-white text-[#37352f] font-sans selection:bg-[#cce9ff]">
+    <div className="flex h-screen w-full bg-white dark:bg-[#191919] text-[#37352f] dark:text-gray-100 font-sans selection:bg-[#cce9ff]">
       <Sidebar isOpen={isSidebarOpen} />
 
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Bar */}
-        <header className="h-11 flex items-center justify-between px-3 flex-shrink-0 hover:bg-gray-50 transition-colors">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+        <header className="h-11 flex items-center justify-between px-3 flex-shrink-0 hover:bg-gray-50  dark:hover:bg-[#3c3d3d] transition-colors">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-100">
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded md:hidden">
               {isSidebarOpen ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -89,12 +92,12 @@ export default function Analytics() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#191919]">
           <div className="max-w-[1000px] mx-auto px-4 md:px-12 pb-32 pt-12">
             
             <div className="mb-8 mt-4">
-              <h1 className="text-2xl md:text-4xl font-bold text-[#37352f]">Progress & Analytics</h1>
-              <p className="text-gray-500 mt-2">Track your academic velocity and focus levels.</p>
+              <h1 className="text-2xl md:text-4xl font-bold text-[#37352f] dark:text-gray-100">Progress & Analytics</h1>
+              <p className="text-gray-500 dark:text-gray-300 mt-2">Track your academic velocity and focus levels.</p>
             </div>
 
             {loading ? (
@@ -104,32 +107,32 @@ export default function Analytics() {
                 
                 {/* Top Stat Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Target size={20} /></div>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-5 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm flex items-center gap-4">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-300 text-blue-600 rounded-lg"><Target size={20} /></div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Tasks</p>
-                      <p className="text-xl font-bold text-gray-900">{assignments.length}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Tasks</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-gray-300">{assignments.length}</p>
                     </div>
                   </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-green-50 text-green-600 rounded-lg"><CheckCircle size={20} /></div>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-5 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm flex items-center gap-4">
+                    <div className="p-3 bg-green-50 dark:bg-green-300 text-green-600 rounded-lg"><CheckCircle size={20} /></div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
-                      <p className="text-xl font-bold text-gray-900">{completedTasksCount}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Completed</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-gray-300">{completedTasksCount}</p>
                     </div>
                   </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-orange-50 text-orange-600 rounded-lg"><Clock size={20} /></div>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-5 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm flex items-center gap-4">
+                    <div className="p-3 bg-orange-50 dark:bg-orange-300 text-orange-600 rounded-lg"><Clock size={20} /></div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pending</p>
-                      <p className="text-xl font-bold text-gray-900">{pendingTasksCount}</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Pending</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-gray-300">{pendingTasksCount}</p>
                     </div>
                   </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-purple-50 text-purple-600 rounded-lg"><TrendingUp size={20} /></div>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-5 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm flex items-center gap-4">
+                    <div className="p-3 bg-purple-50 dark:bg-purple-300 text-purple-600 rounded-lg"><TrendingUp size={20} /></div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Focus Score</p>
-                      <p className="text-xl font-bold text-gray-900">{averageFocusScore}%</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Focus Score</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-gray-300">{averageFocusScore}%</p>
                     </div>
                   </div>
                 </div>
@@ -138,8 +141,8 @@ export default function Analytics() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
                   
                   {/* Bar Chart */}
-                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm lg:col-span-2">
-                    <h3 className="text-sm font-bold text-gray-800 mb-6 uppercase tracking-wider">Pending Tasks Due This Week</h3>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-6 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm lg:col-span-2">
+                    <h3 className="text-sm font-bold text-gray-800 dark:text-gray-300 mb-6 uppercase tracking-wider">Pending Tasks Due This Week</h3>
                     <div className="h-[250px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -154,8 +157,8 @@ export default function Analytics() {
                   </div>
 
                   {/* Donut Chart */}
-                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col">
-                    <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase tracking-wider">Task Status</h3>
+                  <div className="bg-white dark:bg-[#2c2c2c] p-6 rounded-xl border border-gray-100 dark:border-[#3c3d3d] shadow-sm flex flex-col">
+                    <h3 className="text-sm font-bold text-gray-800 dark:text-gray-300 mb-2 uppercase tracking-wider">Task Status</h3>
                     <div className="flex-1 flex items-center justify-center min-h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -167,6 +170,8 @@ export default function Analytics() {
                             outerRadius={80}
                             paddingAngle={5}
                             dataKey="value"
+                            stroke={isDark ? '#2c2c2c' : '#fff'}
+                            strokeWidth={1}
                           >
                             {taskStatusData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

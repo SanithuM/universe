@@ -25,8 +25,8 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all relative">
-        <h2 className="text-lg font-medium leading-6 text-gray-900 mb-6">New Assignment</h2>
+      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-[#191919] p-6 text-left align-middle shadow-xl transition-all relative">
+        <h2 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300 mb-6">New Assignment</h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Title Input */}
@@ -36,7 +36,7 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
               required
               type="text"
               placeholder="Assignment Title"
-              className="w-full text-xl font-semibold border-b border-gray-200 focus:border-blue-500 outline-none pb-2 placeholder-gray-300 transition-colors"
+              className="w-full text-xl font-semibold border-b border-gray-200 focus:border-blue-500 outline-none pb-2 placeholder-gray-300 dark:placeholder-[#3d3c3c] transition-colors"
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
             />
@@ -49,7 +49,7 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
               required
               type="text"
               placeholder="e.g. Computer Science"
-              className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-400"
+              className="w-full bg-gray-50 dark:bg-[#2a2a2a] rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder-gray-400"
               value={formData.courseName}
               onChange={e => setFormData({ ...formData, courseName: e.target.value })}
             />
@@ -61,7 +61,7 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
               <input
                 required
                 type="date"
-                className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700"
+                className="w-full bg-gray-50 dark:bg-[#2a2a2a] rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700 dark:text-gray-400"
                 value={formData.dueDate}
                 onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
               />
@@ -72,7 +72,7 @@ const AddTaskForm = ({ onTaskAdded, onCancel }) => {
                 required
                 type="number"
                 min="1" max="100"
-                className="w-full bg-gray-50 rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700"
+                className="w-full bg-gray-50 dark:bg-[#2a2a2a] rounded px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500 transition-all text-gray-700 dark:text-gray-400"
                 value={formData.academicWeight}
                 onChange={e => setFormData({ ...formData, academicWeight: e.target.value })}
               />

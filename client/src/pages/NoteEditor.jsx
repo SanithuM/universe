@@ -379,14 +379,14 @@ const NoteEditor = () => {
       <Sidebar isOpen={isSidebarOpen} onAddTask={() => navigate('/app')} />
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* HEADER */}
-        <header className="flex items-center justify-between px-4 h-11 sticky top-0 bg-white z-10 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+        <header className="flex items-center justify-between px-4 h-11 sticky top-0 bg-white dark:bg-[#191919] z-10 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-100">
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-1 hover:bg-gray-200 rounded mr-2 md:hidden">
               {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
             <span className="truncate max-w-[200px] text-sm">{note.title || "Untitled"}</span>
             <span className="hidden sm:inline">/</span>
-            <span className="text-gray-400 hidden sm:inline">Private</span>
+            <span className="text-gray-400 dark:text-gray-100 hidden sm:inline">Private</span>
           </div>
 
           <div className="flex items-center gap-2 text-gray-500">
@@ -427,7 +427,7 @@ const NoteEditor = () => {
             <div className="relative">
               <button
                 onClick={() => setIsShareOpen(!isShareOpen)}
-                className={`px-3 py-1 rounded text-sm transition-colors ${isShareOpen ? 'bg-gray-100 text-black' : 'hover:bg-gray-100'}`}
+                className={`px-3 py-1 rounded text-sm transition-colors ${isShareOpen ? 'bg-gray-100 text-black dark:bg-[#3d3c3c] dark:text-gray-100' : 'hover:bg-gray-100 dark:hover:bg-[#3d3c3c]'}`}
               >
                 Share
               </button>
@@ -435,10 +435,10 @@ const NoteEditor = () => {
               {isShareOpen && (
                 <div
                   ref={menuRef}
-                  className="absolute top-10 right-0 w-[380px] bg-white rounded-lg shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] z-100 overflow-hidden flex flex-col text-[#37352f] animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute top-10 right-0 w-[380px] bg-white dark:bg-[#191919] rounded-lg shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] z-100 overflow-hidden flex flex-col text-[#37352f] dark:text-gray-100 animate-in fade-in zoom-in-95 duration-100"
                 >
                   <div className="flex px-4 border-b border-gray-100">
-                    <button className="px-2 py-3 text-sm font-medium border-b-2 border-black text-black">Share</button>
+                    <button className="px-2 py-3 text-sm font-medium border-b-2 border-black text-black dark:border-gray-100 dark:text-gray-100">Share</button>
                   </div>
 
                   <div className="p-4">
@@ -470,13 +470,13 @@ const NoteEditor = () => {
                               )}
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-900">
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {note.userId.username} <span className="text-gray-400 font-normal ml-1">(Owner)</span>
                               </span>
-                              <span className="text-xs text-gray-500">{note.userId.email}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{note.userId.email}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-400 cursor-default">
+                          <div className="flex items-center gap-1 text-sm text-gray-400 dark:text-gray-400 cursor-default">
                             Full access
                           </div>
                         </div>
@@ -496,8 +496,8 @@ const NoteEditor = () => {
                                 )}
                               </div>
                               <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-900">{sharedUser.username}</span>
-                                <span className="text-xs text-gray-500">{sharedUser.email}</span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{sharedUser.username}</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">{sharedUser.email}</span>
                               </div>
                             </div>
 
@@ -546,11 +546,11 @@ const NoteEditor = () => {
                       <h4 className="text-xs font-semibold text-gray-500 mb-2">General access</h4>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-gray-100 rounded-md">
-                            <Lock size={16} className="text-gray-500" />
+                          <div className="p-1.5 bg-gray-100 dark:bg-[#2c2c2c] rounded-md">
+                            <Lock size={16} className="text-gray-500 dark:text-gray-100" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm text-gray-700">Only people invited</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-100">Only people invited</span>
                           </div>
                         </div>
                         <ChevronDown size={14} className="text-gray-400 cursor-pointer" />
@@ -558,13 +558,13 @@ const NoteEditor = () => {
                     </div>
                   </div>
 
-                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                  <div className="px-4 py-3 bg-gray-50 dark:bg-[#191919] border-t border-gray-100 flex items-center justify-between">
                     <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
                       <HelpCircle size={14} /> Learn about sharing
                     </button>
                     <button
                       onClick={handleCopyLink}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-100 bg-white dark:bg-[#2c2c2c] border border-gray-300 dark:border-[#2c2c2c] rounded-md hover:bg-gray-50 dark:hover:bg-[#3d3c3c] transition-colors"
                     >
                       <LinkIcon size={14} />
                       {isCopied ? "Copied!" : "Copy link"}
