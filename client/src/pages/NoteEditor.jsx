@@ -167,16 +167,22 @@ const NoteEditor = () => {
       try {
         const res = await api.get(`/notes/${id}`);
         setNote(res.data);
-        if (editor && res.data.content && editor.isEmpty) {
-          editor.commands.setContent(res.data.content);
+        if (editor) {
+          editor.commands.setContent(res.data.content || '');
         }
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch note", err);
         navigate('/app');
+      } finally {
+        setLoading(false);
       }
     };
-    if (id && editor) fetchNote();
+    if (id) fetchNote();
+
+    if (editor && id) {
+      editor.commands.clearContent();
+    }
   }, [id, editor, navigate]);
 
   // UI Listeners
@@ -575,12 +581,12 @@ const NoteEditor = () => {
             </div>
             {/* END SHARE BUTTON */}
 
-            <button onClick={toggleFavorite} className={`hover:bg-gray-100 p-1 rounded transition-colors ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}>
+            <button onClick={toggleFavorite} className={`hover:bg-gray-100 dark:hover:bg-[#3d3c3c] p-1 rounded transition-colors ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}>
               <Star size={18} />
             </button>
             <button
               onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-              className={`hover:bg-gray-100 p-1 rounded transition-colors ${showOptionsMenu ? 'bg-gray-100 text-black' : ''}`}
+              className={`hover:bg-gray-100 dark:hover:bg-[#3d3c3c] p-1 rounded transition-colors ${showOptionsMenu ? 'bg-gray-100 text-black' : ''}`}
             >
               <MoreHorizontal size={18} />
             </button>
@@ -589,7 +595,7 @@ const NoteEditor = () => {
 
         {/* OPTIONS MENU */}
         {showOptionsMenu && (
-          <div className="absolute top-12 right-4 z-100 bg-white rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <div className="absolute top-12 right-4 z-100 bg-white dark:bg-[#191919] rounded-xl shadow-[0_0_0_1px_rgba(15,15,15,0.05),0_8px_16px_rgba(15,15,15,0.1)] w-[260px] py-0.5 animate-in fade-in zoom-in-95 duration-100 origin-top-right flex flex-col text-[#37352f] dark:text-gray-100 overflow-hidden max-h-[85vh] overflow-y-auto custom-scrollbar">
 
             {/* Search */}
             <div className="px-3 pt-3 pb-2">
@@ -598,7 +604,7 @@ const NoteEditor = () => {
                 <input
                   type="text"
                   placeholder="Search actions..."
-                  className="w-full pl-8 pr-3 py-1 bg-white border border-gray-200 rounded text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-normal"
+                  className="w-full pl-8 pr-3 py-1 bg-white dark:bg-[#3d3c3c] border border-gray-200 dark:border-[#2c2c2c] rounded text-sm placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-normal"
                   autoFocus
                 />
               </div>
@@ -614,38 +620,38 @@ const NoteEditor = () => {
                 <button
                   key={font.id}
                   onClick={() => setFontFactory(font.id)}
-                  className={`flex flex-col items-center gap-1 p-1.5 rounded hover:bg-gray-100 transition-colors ${fontFactory === font.id ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`flex flex-col items-center gap-1 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${fontFactory === font.id ? 'text-blue-600' : 'text-gray-500 dark:text-gray-100 hover:text-gray-900 dark:hover:text-gray-100'}`}
                 >
                   <span className={`text-xl ${font.font}`}>{font.label}</span>
-                  <span className="text-[10px] text-gray-400 font-medium">{font.name}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-200 font-medium">{font.name}</span>
                 </button>
               ))}
             </div>
 
             {/* Actions Group 1 */}
             <div className="flex flex-col text-[14px]">
-              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <LinkIcon size={16} strokeWidth={1.5} className="text-gray-600" />
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <LinkIcon size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Copy link</span>
                 </div>
-                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Alt+L</span>
+                <span className="text-xs text-gray-400 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Alt+L</span>
               </button>
-              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <FilePlus size={16} strokeWidth={1.5} className="text-gray-600" />
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <FilePlus size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Duplicate</span>
                 </div>
-                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+D</span>
+                <span className="text-xs text-gray-400 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+D</span>
               </button>
-              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors group">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <CornerUpRight size={16} strokeWidth={1.5} className="text-gray-600" />
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors group">
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <CornerUpRight size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Move to</span>
                 </div>
-                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Shift+P</span>
+                <span className="text-xs text-gray-400 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+Shift+P</span>
               </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-red-600 hover:text-red-700">
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors text-red-600 hover:text-red-700">
                 <Trash2 size={16} strokeWidth={1.5} className="text-red-500" />
                 <span className="">Move to Trash</span>
               </button>
@@ -655,26 +661,26 @@ const NoteEditor = () => {
 
             {/* Page Settings */}
             <div className="flex flex-col text-[14px]">
-              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsSmallText(!isSmallText)}>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Type size={16} strokeWidth={1.5} className="text-gray-600" />
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors cursor-pointer" onClick={() => setIsSmallText(!isSmallText)}>
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <Type size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Small text</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isSmallText ? 'bg-blue-500' : 'bg-gray-200'}`}>
                   <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isSmallText ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
-              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsFullWidth(!isFullWidth)}>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <MoveHorizontal size={16} strokeWidth={1.5} className="text-gray-600" />
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors cursor-pointer" onClick={() => setIsFullWidth(!isFullWidth)}>
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <MoveHorizontal size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Full width</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isFullWidth ? 'bg-blue-500' : 'bg-gray-200'}`}>
                   <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isFullWidth ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
-              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
-                <Sliders size={16} strokeWidth={1.5} className="text-gray-600" />
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors text-gray-700 dark:text-gray-300">
+                <Sliders size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                 <span className="">Customize page</span>
               </button>
             </div>
@@ -683,22 +689,22 @@ const NoteEditor = () => {
 
             {/* Advanced & Import/Export */}
             <div className="flex flex-col text-[14px]">
-              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setIsLocked(!isLocked)}>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Lock size={16} strokeWidth={1.5} className="text-gray-600" />
+              <div className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors cursor-pointer" onClick={() => setIsLocked(!isLocked)}>
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <Lock size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Lock page</span>
                 </div>
                 <div className={`w-8 h-4.5 rounded-full relative transition-colors border border-transparent ${isLocked ? 'bg-blue-500' : 'bg-gray-200'}`}>
                   <div className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform ${isLocked ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
                 </div>
               </div>
-              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
-                <MessageSquarePlus size={16} strokeWidth={1.5} className="text-gray-600" />
+              <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors text-gray-700 dark:text-gray-300">
+                <MessageSquarePlus size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                 <span className="">Suggest edits</span>
               </button>
-              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
+              <button className="flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors text-gray-700 dark:text-gray-300">
                 <div className="flex items-center gap-3">
-                  <Languages size={16} strokeWidth={1.5} className="text-gray-600" />
+                  <Languages size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                   <span className="">Translate</span>
                 </div>
                 <ChevronDown size={14} className="text-gray-400 -rotate-90" />
@@ -707,11 +713,11 @@ const NoteEditor = () => {
               <div className="w-full border-t border-gray-300 my-1 mx-2" />
 
               <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
-                <FileDown size={16} strokeWidth={1.5} className="text-gray-600" />
+                <FileDown size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                 <span className="">Import</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 hover:bg-gray-100 transition-colors text-gray-700">
-                <Upload size={16} strokeWidth={1.5} className="text-gray-600" />
+                <Upload size={16} strokeWidth={1.5} className="text-gray-600 dark:text-gray-400" />
                 <span className="">Export</span>
               </button>
             </div>
@@ -738,7 +744,7 @@ const NoteEditor = () => {
               <img src={note.coverImage} alt="Cover" className="w-full h-full object-cover" />
               <button
                 onClick={() => setShowCoverMenu(true)}
-                className="absolute bottom-2 right-2 bg-white/80 hover:bg-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-2 right-2 dark:text-gray-100 bg-white/80 dark:bg-[#0b0b0b] hover:bg-white dark:hover:bg-[#3d3c3c] px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 Change cover
               </button>
@@ -747,8 +753,8 @@ const NoteEditor = () => {
 
           {/* Cover Menu Popover */}
           {showCoverMenu && (
-            <div className="absolute top-20 right-10 z-50 bg-white rounded-xl shadow-2xl border border-gray-200 w-[500px] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-[#F7F7F5]">
+            <div className="absolute top-20 right-10 z-50 bg-white dark:bg-[#0b0b0b] rounded-xl shadow-2xl border border-gray-200 dark:border-[#2c2c2c] w-[500px] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-[#F7F7F5] dark:bg-[#0f0f0f] dark:border-[#2c2c2c]">
                 <div className="flex items-center gap-1">
                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Cover Image</span>
                 </div>
@@ -760,25 +766,25 @@ const NoteEditor = () => {
               <div className="flex border-b border-gray-100">
                 <button
                   onClick={() => setActiveTab('upload')}
-                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'upload' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'upload' ? 'border-black text-black dark:border-gray-100 dark:text-gray-100' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                 >
                   Upload
                 </button>
                 <button
                   onClick={() => setActiveTab('link')}
-                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'link' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'link' ? 'border-black text-black dark:border-gray-100 dark:text-gray-100' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                 >
                   Link
                 </button>
                 <button
                   onClick={removeCover}
-                  className="ml-auto px-4 py-2 text-sm text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  className="ml-auto px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
                 >
                   Remove
                 </button>
               </div>
 
-              <div className="p-4 bg-white">
+              <div className="p-4 bg-white dark:bg-[#0b0b0b]">
                 {activeTab === 'link' && (
                   <div className="flex flex-col gap-3">
                     <div className="flex gap-2">
@@ -787,7 +793,7 @@ const NoteEditor = () => {
                         value={coverInput}
                         onChange={(e) => setCoverInput(e.target.value)}
                         placeholder="Paste an image link..."
-                        className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors"
+                        className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500 transition-colors dark:border-[#3a3a3a] dark:bg-transparent dark:text-gray-100"
                         autoFocus
                       />
                       <button
@@ -802,18 +808,18 @@ const NoteEditor = () => {
                 )}
 
                 {activeTab === 'upload' && (
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-8 hover:bg-gray-50 transition-colors cursor-pointer relative">
+                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-[#2f2f2f] rounded-lg p-8 hover:bg-gray-50 dark:hover:bg-[#111111] transition-colors cursor-pointer relative">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleFileUpload}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                    <div className="bg-gray-100 p-3 rounded-full mb-3">
-                      <Upload size={20} className="text-gray-500" />
+                    <div className="bg-gray-100 dark:bg-[#161616] p-3 rounded-full mb-3">
+                      <Upload size={20} className="text-gray-500 dark:text-gray-300" />
                     </div>
-                    <p className="text-sm font-medium text-gray-600">Upload file</p>
-                    <p className="text-xs text-gray-400 mt-1">Images up to 5MB</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-100">Upload file</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">Images up to 5MB</p>
                   </div>
                 )}
               </div>
@@ -824,7 +830,7 @@ const NoteEditor = () => {
             {/* Icon */}
             {note.icon && (
               <div className={`text-[78px] mb-4 relative z-10 group w-fit ${note.coverImage ? '-mt-10' : 'mt-4'}`}>
-                <div className="cursor-pointer hover:bg-gray-100 rounded px-2 transition-colors" onClick={() => setShowIconMenu(true)}>
+                <div className="cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2f2f2f] rounded px-2 transition-colors" onClick={() => setShowIconMenu(true)}>
                   {note.icon}
                 </div>
               </div>
@@ -919,7 +925,7 @@ const NoteEditor = () => {
 
             {/* TipTap Editor Content */}
             {editor && (
-              <BubbleMenu editor={editor} options={{ duration: 100 }} className="flex items-center gap-1 bg-white shadow-xl border border-gray-200 rounded-lg px-2 py-1.5 animate-in fade-in zoom-in-95 duration-200">
+              <BubbleMenu editor={editor} options={{ duration: 100 }} className="flex items-center gap-1 bg-white dark:bg-[#202020] shadow-xl border border-gray-200 rounded-lg px-2 py-1.5 animate-in fade-in zoom-in-95 duration-200">
 
                 {/* IF IMAGE IS SELECTED */}
                 {editor.isActive('image') ? (
@@ -963,7 +969,7 @@ const NoteEditor = () => {
                     {/* Node Type Selector */}
                     <div className="relative flex items-center gap-1 pr-2 border-r border-gray-200 mr-1">
                       <button
-                        className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded min-w-20 justify-between"
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] rounded min-w-20 justify-between"
                         onClick={() => setShowTypeMenu(!showTypeMenu)}
                       >
                         <span className="truncate">
@@ -981,8 +987,8 @@ const NoteEditor = () => {
 
                       {/* Type Menu Dropdown */}
                       {showTypeMenu && (
-                        <div className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
-                          <div className="px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-50 bg-gray-50/50">Turn into</div>
+                        <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-[#202020] rounded-xl shadow-2xl border border-gray-200 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
+                          <div className="px-3 py-2 text-[11px] font-semibold text-gray-500 dark:text-gray-100 uppercase tracking-wider border-b border-gray-50 bg-gray-50/50 dark:bg-[#3d3c3c]">Turn into</div>
                           <div className="p-1.5 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto">
                             {[
                               { label: 'Text', icon: <Type size={14} />, isActive: () => editor.isActive('paragraph'), action: () => editor.chain().focus().setParagraph().run() },
@@ -1002,7 +1008,7 @@ const NoteEditor = () => {
                                   type.action();
                                   setShowTypeMenu(false);
                                 }}
-                                className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-left"
+                                className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#3d3c3c] rounded-md transition-colors text-left"
                               >
                                 <div className="text-gray-400">{type.icon}</div>
                                 <span className="flex-1">{type.label}</span>
@@ -1016,23 +1022,23 @@ const NoteEditor = () => {
 
                     {/* Formatting Group */}
                     <div className="flex items-center gap-0.5">
-                      <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('bold') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Bold size={15} /></button>
-                      <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('italic') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Italic size={15} /></button>
-                      <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('underline') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><UnderlineIcon size={15} /></button>
-                      <button onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('strike') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Strikethrough size={15} /></button>
-                      <button onClick={() => editor.chain().focus().toggleCode().run()} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('code') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><Code size={15} /></button>
+                      <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('bold') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><Bold size={15} /></button>
+                      <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('italic') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><Italic size={15} /></button>
+                      <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('underline') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><UnderlineIcon size={15} /></button>
+                      <button onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('strike') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><Strikethrough size={15} /></button>
+                      <button onClick={() => editor.chain().focus().toggleCode().run()} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('code') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><Code size={15} /></button>
                       <button onClick={() => {
                         const previousUrl = editor.getAttributes('link').href;
                         const url = window.prompt('URL', previousUrl);
                         if (url === null) return;
                         if (url === '') { editor.chain().focus().extendMarkRange('link').unsetLink().run(); return; }
                         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-                      }} className={`p-1 rounded hover:bg-gray-100 transition-colors ${editor.isActive('link') ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}><LinkIcon size={15} /></button>
+                      }} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors ${editor.isActive('link') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 dark:text-gray-100'}`}><LinkIcon size={15} /></button>
 
                       {/* Image Upload Button */}
                       <div className="relative flex items-center border-r border-gray-200 pr-1 mr-1">
                         <label
-                          className="cursor-pointer p-1 rounded hover:bg-gray-100 transition-colors text-gray-600 flex items-center justify-center"
+                          className="cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors text-gray-600 dark:text-gray-100 flex items-center justify-center"
                           title="Insert Image"
                         >
                           <ImageIcon size={15} />
@@ -1047,25 +1053,25 @@ const NoteEditor = () => {
 
                       {/* Color Picker Container */}
                       <div className="relative">
-                        <button onClick={() => setShowColorMenu(!showColorMenu)} className={`p-1 rounded hover:bg-gray-100 transition-colors flex items-center gap-0.5 ${showColorMenu ? 'bg-gray-100 text-black' : 'text-gray-600'}`}>
+                        <button onClick={() => setShowColorMenu(!showColorMenu)} className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3d3c3c] transition-colors flex items-center gap-0.5 ${showColorMenu ? 'bg-gray-100 dark:bg-[#3d3c3c] text-black dark:text-white' : 'text-gray-600 dark:text-gray-100'}`}>
                           <span className="text-sm font-serif font-bold">A</span>
                           <ChevronDown size={10} className="opacity-50" />
                         </button>
                         {showColorMenu && (
-                          <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-3 max-h-[400px] overflow-y-auto">
+                          <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-[#202020] rounded-xl shadow-2xl border border-gray-200 p-3 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-3 max-h-[400px] overflow-y-auto">
                             <div>
-                              <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Text color</div>
+                              <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-100 uppercase tracking-wider mb-2">Text color</div>
                               <div className="grid grid-cols-5 gap-1.5">
                                 {colors.map((c) => (
-                                  <button key={`text-${c.name}`} onClick={() => { editor.chain().focus().setColor(c.color).run(); setShowColorMenu(false); }} className="w-7 h-7 mx-auto rounded-md border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-base font-serif font-bold" style={{ color: c.color }} title={c.name}>A</button>
+                                  <button key={`text-${c.name}`} onClick={() => { editor.chain().focus().setColor(c.color).run(); setShowColorMenu(false); }} className="w-7 h-7 mx-auto rounded-md border border-gray-200 dark:border-[#3d3c3c] bg-white dark:bg-[#2c2c2c] hover:bg-gray-50 flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-base font-serif font-bold" style={{ color: c.color }} title={c.name}>A</button>
                                 ))}
                               </div>
                             </div>
                             <div>
-                              <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Background color</div>
+                              <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-100 uppercase tracking-wider mb-2">Background color</div>
                               <div className="grid grid-cols-5 gap-1.5">
                                 {colors.map((c) => (
-                                  <button key={`bg-${c.name}`} onClick={() => { if (c.bg) { editor.chain().focus().toggleHighlight({ color: c.bg }).run(); } else { editor.chain().focus().unsetHighlight().run(); } setShowColorMenu(false); }} className={`w-7 h-7 mx-auto rounded-md border border-gray-200 flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`} style={{ backgroundColor: c.bg || 'transparent' }} title={`${c.name} Background`}>{!c.bg && <div className="w-full h-px bg-red-400 rotate-45 transform scale-110"></div>}</button>
+                                  <button key={`bg-${c.name}`} onClick={() => { if (c.bg) { editor.chain().focus().toggleHighlight({ color: c.bg }).run(); } else { editor.chain().focus().unsetHighlight().run(); } setShowColorMenu(false); }} className={`w-7 h-7 mx-auto rounded-md border border-gray-200 dark:border-[#3d3c3c] flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`} style={{ backgroundColor: c.bg || 'transparent' }} title={`${c.name} Background`}>{!c.bg && <div className="w-full h-px bg-red-400 dark:bg-red-600 rotate-45 transform scale-110"></div>}</button>
                                 ))}
                               </div>
                             </div>
