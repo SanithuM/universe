@@ -124,7 +124,7 @@ const NoteEditor = () => {
     editable: canEdit,
     extensions: [
       StarterKit,
-      History, // Standard history is back!
+      History,
       Placeholder.configure({
         placeholder: ({ editor, node }) => {
           if (!editor) return '';

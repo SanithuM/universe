@@ -2,7 +2,7 @@ const router = require('express').Router();
 const Assignment = require('../models/Assignment');
 const verify = require('../middleware/verifyToken');
 
-// 1. CREATE Assignment
+// CREATE Assignment
 router.post('/', verify, async (req, res) => {
   try {
     const newAssignment = new Assignment({
@@ -20,7 +20,7 @@ router.post('/', verify, async (req, res) => {
   }
 });
 
-// 2. GET All Assignments (Sorted by Priority Engine)
+// GET All Assignments (Sorted by Priority Engine)
 router.get('/', verify, async (req, res) => {
   try {
     // Fetch assignments from DB
@@ -45,7 +45,7 @@ router.get('/', verify, async (req, res) => {
       return taskObj;
     });
 
-    // C. Sort by Score (Highest First)
+    // Sort by Score (Highest First)
     scoredAssignments.sort((a, b) => b.priorityScore - a.priorityScore);
 
     res.status(200).json(scoredAssignments);
@@ -55,7 +55,7 @@ router.get('/', verify, async (req, res) => {
   }
 });
 
-// 3. UPDATE Assignment
+// UPDATE Assignment
 router.put('/:id', verify, async (req, res) => {
   try {
     // Check if the assignment belongs to this user before updating
@@ -73,7 +73,7 @@ router.put('/:id', verify, async (req, res) => {
   }
 });
 
-// 4. DELETE Assignment
+// DELETE Assignment
 router.delete('/:id', verify, async (req, res) => {
   try {
     const assignment = await Assignment.findOneAndDelete({ _id: req.params.id, userId: req.user.id });

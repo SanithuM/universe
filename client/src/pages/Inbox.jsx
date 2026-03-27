@@ -12,7 +12,6 @@ const Inbox = () => {
   const [filter, setFilter] = useState('all'); // 'all' or 'unread'
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  // Mark sidebar active for Inbox if needed, but Sidebar likely handles it via URL
   
 
   // Fetch Notifications

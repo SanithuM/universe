@@ -22,19 +22,19 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           <DashboardCard
-            image="https://images.unsplash.com/photo-1587614382346-4ec70e388b28?q=80&w=800&auto=format&fit=crop"
+            image="src/assets/priorities.png"
             title="Main Dashboard"
             description="All your tasks, grades, and schedules in one glance."
             color="blue"
           />
           <DashboardCard
-            image="https://images.unsplash.com/photo-1596495577886-d920f6a60f0f?q=80&w=800&auto=format&fit=crop"
+            image="src/assets/calendar.png"
             title="Calendar View"
             description="Drag-and-drop planning for your semester."
             color="purple"
           />
           <DashboardCard
-            image="https://images.unsplash.com/photo-1581090700227-8c57f726ad0c?q=80&w=800&auto=format&fit=crop"
+            image="src/assets/Analytics.png"
             title="Analytics Hub"
             description="Track your GPA and study habits over time."
             color="indigo"

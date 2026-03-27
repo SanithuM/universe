@@ -17,7 +17,6 @@ import DashboardPreview from './components/Dashboard';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
-import NotionHome from './components/Test';
 
 // Import Pages
 import UserDashboard from './pages/UserDashboard';
@@ -54,7 +53,7 @@ const LandingPage = () => {
       <Problem />
       <Solution />
       <PriorityEngine />
-      <DashboardPreview /> 
+      <DashboardPreview />
       <HowItWorks />
       <Testimonials />
       <Footer />
@@ -73,17 +72,17 @@ export default function UniVerseApp() {
       try {
         const res = await api.get('/auth/me');
         setUser(res.data);
-        
+
         // Tell the backend "I am online!"
         const currentUserId = res.data._id || res.data.id;
         if (currentUserId) {
-            socket.emit('addNewUser', currentUserId);
+          socket.emit('addNewUser', currentUserId);
         }
       } catch (err) {
         console.log("No user logged in yet (or token expired).");
       }
     };
-    
+
     fetchUser();
 
     // Listen for live notifications from the backend!
@@ -101,8 +100,8 @@ export default function UniVerseApp() {
   return (
     <Router>
       {/* Toast Notifications */}
-      <Toaster 
-        position="bottom-right" 
+      <Toaster
+        position="bottom-right"
         toastOptions={{
           duration: 3000,
           style: {
@@ -120,34 +119,31 @@ export default function UniVerseApp() {
         {/* Route 2: The Real App Dashboard (http://localhost:5173/app) */}
         <Route path="/app" element={<UserDashboard />} />
 
-        {/* Route 3: Your Notion Demo (http://localhost:5173/notion-demo) */}
-        <Route path="/notion-demo" element={<NotionHome />} />
-
-        {/* Route 4: Login Page (http://localhost:5173/login) */}
+        {/* Route 3: Login Page (http://localhost:5173/login) */}
         <Route path="/login" element={<Login />} />
 
-        {/* Route 5: Register Page (http://localhost:5173/register) */}
+        {/* Route 4: Register Page (http://localhost:5173/register) */}
         <Route path="/register" element={<Register />} />
 
-        {/* Route 6: Groups Page (http://localhost:5173/groups) */}
+        {/* Route 5: Groups Page (http://localhost:5173/groups) */}
         <Route path="/groups" element={<Groups />} />
 
-        {/* Route 7: Specific Group Room (http://localhost:5173/groups/:id) */}
+        {/* Route 6: Specific Group Room (http://localhost:5173/groups/:id) */}
         <Route path="/groups/:id" element={<GroupRoom />} />
 
-        {/* Route 8: Settings Page (http://localhost:5173/settings) */}
+        {/* Route 7: Settings Page (http://localhost:5173/settings) */}
         <Route path="/settings" element={<Settings />} />
 
-        {/* Route 9: Calendar Page (http://localhost:5173/calendar) */}
+        {/* Route 8: Calendar Page (http://localhost:5173/calendar) */}
         <Route path="/calendar" element={<Calender />} />
 
-        {/* Route 10: Note Editor Page (http://localhost:5173/notes/:id) */}
+        {/* Route 9: Note Editor Page (http://localhost:5173/notes/:id) */}
         <Route path="/notes/:id" element={<NoteEditor />} />
 
-        {/* Route 11: Inbox Page (http://localhost:5173/inbox) */}
+        {/* Route 10: Inbox Page (http://localhost:5173/inbox) */}
         <Route path="/inbox" element={<Inbox />} />
 
-        {/* Route 12: Analytics Page (http://localhost:5173/analytics) */}
+        {/* Route 11: Analytics Page (http://localhost:5173/analytics) */}
         <Route path="/analytics" element={<Analytics />} />
 
       </Routes>
