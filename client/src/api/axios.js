@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://universe-backend-wufi.onrender.com',
+    baseURL: 'https://universe-backend-wufi.onrender.com/api',
 });
 
 // Automatically add the Token to every request if it exists
