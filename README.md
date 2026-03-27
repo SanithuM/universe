@@ -1,4 +1,4 @@
-# UniVerse 🚀
+# UniVerse 🪐
 
 ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
 ![React](https://img.shields.io/badge/React-18-blue)
@@ -6,6 +6,8 @@
 ![Vite](https://img.shields.io/badge/Vite-Fast-yellow)
 
 > **Note:** This project is currently **under active development**. Features and UI are subject to change as we iterate on the design and functionality.
+
+![UniVerse Dashboard Screenshot](./client/public/dashboard.png)
 
 ## 📖 About The Project
 
