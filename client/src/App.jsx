@@ -31,7 +31,10 @@ import Inbox from './pages/Inbox';
 import Analytics from './pages/Analytics';
 
 // Initialize Socket.io client
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+  transports: ['websocket'],
+  withCredentials: true,
+});
 
 // Create a "LandingPage" component to group all marketing sections
 const LandingPage = () => {
