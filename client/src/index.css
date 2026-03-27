@@ -337,19 +337,3 @@ li[data-type="taskItem"][data-checked="true"] div {
 .ProseMirror {
   position: relative;
 }
-
-/* Highlight / mark tweaks: prefer inline styles and keep readable colors in dark mode */
-.ProseMirror mark {
-	background-color: transparent;
-	color: inherit;
-	padding: 0 0.12rem;
-	border-radius: 4px;
-}
-.ProseMirror mark[style] {
-	/* allow inline background-color from TipTap highlight to show */
-	background-color: initial !important;
-}
-.dark .ProseMirror mark {
-	/* prefer inherited color so setColor() inline style can take effect */
-	color: inherit !important;
-}
