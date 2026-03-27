@@ -119,6 +119,22 @@ const NoteEditor = () => {
     { name: 'Red', color: '#E03E3E', bg: '#FBE4E4' },
   ];
 
+  // helper: convert hex like #RRGGBB to rgba(r,g,b,a)
+  const hexToRgba = (hex, alpha = 1) => {
+    if (!hex) return hex;
+    const clean = hex.replace('#','');
+    if (clean.length === 3) {
+      const r = parseInt(clean[0] + clean[0], 16);
+      const g = parseInt(clean[1] + clean[1], 16);
+      const b = parseInt(clean[2] + clean[2], 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    const r = parseInt(clean.substr(0,2), 16);
+    const g = parseInt(clean.substr(2,2), 16);
+    const b = parseInt(clean.substr(4,2), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   // INITIALIZE ROCK-SOLID TIPTAP EDITOR
   const editor = useEditor({
     editable: canEdit,
@@ -737,7 +753,7 @@ const NoteEditor = () => {
         )}
 
         {/* SCROLLABLE CONTENT AREA */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Cover Image */}
           {note.coverImage && (
             <div className="h-[30vh] w-full relative group">
@@ -920,7 +936,7 @@ const NoteEditor = () => {
               onChange={handleTitleChange}
               disabled={!canEdit}
               placeholder="New page"
-              className={`text-3xl md:text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] mb-6 ${!canEdit && 'bg-transparent'}`}
+              className={`text-3xl md:text-5xl font-bold w-full outline-none placeholder:text-gray-200 text-[#37352f] dark:text-gray-100 mb-6 ${!canEdit && 'bg-transparent'}`}
             />
 
             {/* TipTap Editor Content */}
@@ -989,7 +1005,7 @@ const NoteEditor = () => {
                       {showTypeMenu && (
                         <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-[#202020] rounded-xl shadow-2xl border border-gray-200 w-[200px] z-50 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden">
                           <div className="px-3 py-2 text-[11px] font-semibold text-gray-500 dark:text-gray-100 uppercase tracking-wider border-b border-gray-50 bg-gray-50/50 dark:bg-[#3d3c3c]">Turn into</div>
-                          <div className="p-1.5 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto">
+                          <div className="p-1.5 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto custom-scrollbar">
                             {[
                               { label: 'Text', icon: <Type size={14} />, isActive: () => editor.isActive('paragraph'), action: () => editor.chain().focus().setParagraph().run() },
                               { label: 'Heading 1', icon: <Heading1 size={14} />, isActive: () => editor.isActive('heading', { level: 1 }), action: () => editor.chain().focus().toggleHeading({ level: 1 }).run() },
@@ -1071,7 +1087,34 @@ const NoteEditor = () => {
                               <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-100 uppercase tracking-wider mb-2">Background color</div>
                               <div className="grid grid-cols-5 gap-1.5">
                                 {colors.map((c) => (
-                                  <button key={`bg-${c.name}`} onClick={() => { if (c.bg) { editor.chain().focus().toggleHighlight({ color: c.bg }).run(); } else { editor.chain().focus().unsetHighlight().run(); } setShowColorMenu(false); }} className={`w-7 h-7 mx-auto rounded-md border border-gray-200 dark:border-[#3d3c3c] flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`} style={{ backgroundColor: c.bg || 'transparent' }} title={`${c.name} Background`}>{!c.bg && <div className="w-full h-px bg-red-400 dark:bg-red-600 rotate-45 transform scale-110"></div>}</button>
+                                  <button
+                                    key={`bg-${c.name}`}
+                                    onClick={() => {
+                                      const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+                                      if (c.bg) {
+                                        const chosenBg = isDark ? hexToRgba(c.bg, 0.12) : c.bg;
+                                        // apply highlight and text color in a single chain to avoid conflicts
+                                        if (isDark) {
+                                          editor.chain().focus().toggleHighlight({ color: chosenBg }).setColor('#ffffff').run();
+                                        } else {
+                                          editor.chain().focus().toggleHighlight({ color: chosenBg }).run();
+                                        }
+                                      } else {
+                                        // remove highlight and any color we set earlier
+                                        if (editor && editor.commands && typeof editor.commands.unsetColor === 'function') {
+                                          editor.chain().focus().unsetHighlight().unsetColor().run();
+                                        } else {
+                                          editor.chain().focus().unsetHighlight().run();
+                                        }
+                                      }
+                                      setShowColorMenu(false);
+                                    }}
+                                    className={`w-7 h-7 mx-auto rounded-md border border-gray-200 dark:border-[#3d3c3c] flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${!c.bg ? 'bg-white' : ''}`}
+                                    style={{ backgroundColor: c.bg || 'transparent' }}
+                                    title={`${c.name} Background`}
+                                  >
+                                    {!c.bg && <div className="w-full h-px bg-red-400 dark:bg-red-600 rotate-45 transform scale-110"></div>}
+                                  </button>
                                 ))}
                               </div>
                             </div>
@@ -1113,8 +1156,15 @@ const NoteEditor = () => {
             )}
 
           <>
-            <style>{`.ProseMirror p.is-empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; height: 0; display: block; } .ProseMirror p.is-empty { position: relative; }`}</style>
-            <EditorContent editor={editor} className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f] pb-32" />
+            <style>{`
+              .ProseMirror p.is-empty::before { content: attr(data-placeholder); color: #9ca3af; pointer-events: none; height: 0; display: block; }
+              .dark .ProseMirror p.is-empty::before { color: #9ca3af; }
+              .ProseMirror p.is-empty { position: relative; }
+            `}</style>
+            <EditorContent
+              editor={editor}
+              className="prose max-w-none focus:outline-none prose-p:my-1 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 leading-normal text-[#37352f] dark:text-gray-100 pb-32 bg-white dark:bg-[#202020]"
+            />
           </>
         </div>
     </div>

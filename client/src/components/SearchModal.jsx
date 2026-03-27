@@ -320,7 +320,7 @@ const SearchModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Results List */}
-          <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent custom-scrollbar">
             {results.length > 0 ? (
               <div className="pb-2">
                 {groupsOrder.map(group => {

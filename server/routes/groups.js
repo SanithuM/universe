@@ -19,10 +19,11 @@ router.post('/create', verify, async (req, res) => {
         const code = generateCode();
 
         const newGroup = new Group({
-            name: req.body.name,
-            inviteCode: code,
-            creator: req.user.id,
-            members: [req.user.id] // Creator is the first member
+                name: req.body.name,
+                inviteCode: code,
+                creator: req.user.id,
+                members: [req.user.id], // Creator is the first member
+                profilePic: req.body.profilePic || ''
         });
 
         const savedGroup = await newGroup.save();
@@ -81,6 +82,29 @@ router.get('/:id', verify, async (req, res) => {
         if (!isMember) return res.status(403).json({ message: "Access Denied" });
 
         res.status(200).json(group);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update group (only creator can update name/profilePic)
+router.put('/:id', verify, async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only the creator may update
+        if (group.creator.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Only the group creator can update this group.' });
+        }
+
+        // Apply updates if provided
+        if (req.body.name) group.name = req.body.name;
+        if (typeof req.body.profilePic !== 'undefined') group.profilePic = req.body.profilePic;
+
+        await group.save();
+
+        res.json(group);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -158,6 +182,27 @@ router.put('/:id/tasks/:taskId', verify, async (req, res) => {
 
         await group.save();
         res.status(200).json(group);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Delete a group (only creator can delete)
+router.delete('/:id', verify, async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only the creator may delete the group
+        if (group.creator.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Only the group creator can delete this group.' });
+        }
+
+        await Group.findByIdAndDelete(req.params.id);
+
+        // Optionally, notify members or cleanup related resources here
+
+        res.json({ message: 'Group deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

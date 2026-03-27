@@ -216,7 +216,7 @@ const Calendar = () => {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6 custom-scrollbar">
             <div className="space-y-2">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider pl-1 dark:text-gray-400">Calendars</p>
               <SidebarItem color="bg-blue-500" label="Study" active />
@@ -285,7 +285,7 @@ const Calendar = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             {!selectedEvent ? (
               <div className="flex flex-col items-center justify-center h-64 text-center px-6">
                 <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3 dark:bg-[#2C2C2C]">

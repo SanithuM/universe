@@ -82,7 +82,7 @@ const GroupTasks = ({ groupId, members }) => {
       </div>
 
       {/* Task List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-[200px] max-h-[400px]">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-[200px] max-h-[400px] custom-scrollbar">
         {loading ? (
             <div className="text-center py-4 text-gray-400 text-sm">Loading tasks...</div>
         ) : tasks.length === 0 ? (

@@ -32,6 +32,12 @@ const groupSchema = new Schema({
     assignedTo: { type: String, default: 'Unassigned' }, // User's name
     createdAt: { type: Date, default: Date.now }
   }]
+  ,
+  // Optional profile image for the group (stored as Cloudinary secure URL)
+  profilePic: {
+    type: String,
+    default: ''
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Group', groupSchema);

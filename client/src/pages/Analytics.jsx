@@ -92,7 +92,7 @@ export default function Analytics() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#191919]">
+        <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#191919] custom-scrollbar">
           <div className="max-w-[1000px] mx-auto px-4 md:px-12 pb-32 pt-12">
             
             <div className="mb-8 mt-4">

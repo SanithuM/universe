@@ -86,6 +86,26 @@
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Make the custom scrollbar adapt to dark mode */
+.custom-scrollbar {
+	/* Firefox */
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.12);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.18);
+}
+
+.dark .custom-scrollbar {
+	/* Firefox */
+	scrollbar-color: rgba(255,255,255,0.12) transparent;
+}
+
 /* Remove default focus outline/box-shadow from TipTap editor */
 .ProseMirror:focus {
 	outline: none;
@@ -291,7 +311,45 @@ li[data-type="taskItem"][data-checked="true"] div {
 	100% { opacity: 1; transform: translateY(0); }
 }
 
+/* Small shake animation for invalid drop */
+@keyframes shake {
+	0% { transform: translateX(0); }
+	25% { transform: translateX(-6px); }
+	50% { transform: translateX(6px); }
+	75% { transform: translateX(-4px); }
+	100% { transform: translateX(0); }
+}
+.animate-shake {
+	animation: shake 360ms ease-in-out;
+}
+
+/* Gentle pulse used for drag-over icon */
+@keyframes pulse-scale {
+	0% { transform: scale(1); opacity: 0.95; }
+	50% { transform: scale(1.06); opacity: 1; }
+	100% { transform: scale(1); opacity: 0.95; }
+}
+.icon-pulse {
+	animation: pulse-scale 900ms ease-in-out infinite;
+}
+
 /* Ensure editor container is positioned for absolute cursor elements */
 .ProseMirror {
   position: relative;
+}
+
+/* Highlight / mark tweaks: prefer inline styles and keep readable colors in dark mode */
+.ProseMirror mark {
+	background-color: transparent;
+	color: inherit;
+	padding: 0 0.12rem;
+	border-radius: 4px;
+}
+.ProseMirror mark[style] {
+	/* allow inline background-color from TipTap highlight to show */
+	background-color: initial !important;
+}
+.dark .ProseMirror mark {
+	/* prefer inherited color so setColor() inline style can take effect */
+	color: inherit !important;
 }

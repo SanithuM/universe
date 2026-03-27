@@ -103,7 +103,7 @@ export default function UserDashboard() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="max-w-[900px] mx-auto px-4 md:px-12 pb-32 pt-12">
 
             {/* SMART NUDGE */}

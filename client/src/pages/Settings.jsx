@@ -329,7 +329,7 @@ const Settings = ({ onClose }) => {
 
                 {/* Left Sidebar */}
                 {isSidebarOpen && (
-                    <div className="w-64 bg-[#F7F7F5] dark:bg-[#202020] border-r border-[#EBEBEB] dark:border-[#333333] flex flex-col overflow-y-auto p-3 md:relative md:block fixed top-0 left-0 bottom-0 z-40">
+                    <div className="w-64 bg-[#F7F7F5] dark:bg-[#202020] border-r border-[#EBEBEB] dark:border-[#333333] flex flex-col overflow-y-auto p-3 md:relative md:block fixed top-0 left-0 bottom-0 z-40 custom-scrollbar">
 
                         <div className="md:hidden p-2 flex justify-end">
                             <button onClick={() => setSidebarOpen(false)} className="text-sm text-gray-500">Close</button>
@@ -376,7 +376,7 @@ const Settings = ({ onClose }) => {
                 )}
 
                 {/* Right Content Area */}
-                <div className="flex-1 overflow-y-auto min-w-0">
+                <div className="flex-1 overflow-y-auto min-w-0 custom-scrollbar">
                     <div className="max-w-[640px] mx-auto py-12 px-4 md:px-12">
 
                         {message.text && (

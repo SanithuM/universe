@@ -286,7 +286,7 @@ export default function Sidebar({ isOpen, onAddTask, onOpenSettings }) {
                 </div>
 
                 {/* Menu */}
-                <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+                <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 custom-scrollbar">
                     <div onClick={() => setIsSearchOpen(true)}>
                         <SidebarItem icon={<Search size={18} />} label="Search" />
                     </div>
