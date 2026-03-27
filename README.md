@@ -9,6 +9,8 @@
 
 ![UniVerse Dashboard Screenshot](./client/public/dashboard.png)
 
+![UniVerse Calendar Screenshot](./client/public/calendar.png)
+
 ## 📖 About The Project
 
 UniVerse is a full-stack, intelligent digital workspace engineered to eliminate academic workload anxiety. Moving beyond standard to-do lists, UniVerse utilizes a proprietary **Weighted Shortest Job First (WSJF)** algorithm to automatically calculate task urgency and impact, generating a dynamic 'Focus Score' that tells students exactly what to study next. 
