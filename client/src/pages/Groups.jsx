@@ -213,7 +213,7 @@ const Groups = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => navigate(`/groups/${group._id}`)}
-                        className="flex-1 py-2 text-indigo-600 dark:text-gray-200 bg-indigo-50 dark:bg-[#3C3D3D] rounded-lg text-sm font-semibold hover:bg-indigo-100"
+                        className="flex-1 py-2 text-indigo-600 dark:text-gray-200 bg-indigo-50 dark:bg-[#3C3D3D] rounded-lg text-sm font-semibold hover:bg-indigo-100 dark:hover:bg-gray-500"
                       >
                         Open Space
                       </button>
@@ -231,22 +231,22 @@ const Groups = () => {
             {/* MODAL: Create Group */}
             {showCreate && (
               <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                  <h3 className="text-xl font-bold mb-4">Name your Team</h3>
+                <div className="bg-white dark:bg-[#202020] rounded-xl p-6 w-full max-w-md">
+                  <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Name your Team</h3>
                   <form onSubmit={handleCreate}>
-                    <label className="text-sm text-gray-600 block mb-2">Team Name</label>
+                    <label className="text-sm text-gray-600 dark:text-gray-100 block mb-2">Team Name</label>
                     <input
                       autoFocus
                       type="text"
                       placeholder="e.g. Project Alpha"
-                      className="w-full p-3 border rounded-lg mb-4"
+                      className="w-full p-3 border rounded-lg mb-4 dark:bg-[#3C3D3D] dark:border-gray-600 dark:text-gray-100"
                       value={newGroupName}
                       onChange={e => setNewGroupName(e.target.value)}
                       required
                     />
 
                     <div className="mb-4">
-                      <label className="text-sm text-gray-600 block mb-2">Team Image</label>
+                      <label className="text-sm text-gray-600 dark:text-gray-100 block mb-2">Team Image</label>
 
                       <div
                         onDragEnter={(e) => { e.preventDefault(); setIsDraggingNew(true); }}
@@ -272,7 +272,7 @@ const Groups = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16V8a4 4 0 014-4h2a4 4 0 014 4v8M7 16h10M7 16l1.5 1.5M17 16l-1.5 1.5" />
                             </svg>
                             <div className="text-sm text-gray-500">Drag & drop an image or</div>
-                            <label htmlFor="create-image-input" className="mt-1 inline-flex items-center px-3 py-2 bg-white border rounded-md text-sm cursor-pointer hover:bg-gray-50">
+                            <label htmlFor="create-image-input" className="mt-1 inline-flex items-center px-3 py-2 bg-white dark:bg-[#3c3d3d] dark:text-gray-100 border rounded-md text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-[#2c2c2c]">
                               Choose file
                             </label>
                           </div>
@@ -285,7 +285,7 @@ const Groups = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setShowCreate(false)} className="flex-1 py-2 bg-gray-100 rounded-lg">Cancel</button>
+                      <button type="button" onClick={() => setShowCreate(false)} className="flex-1 py-2 bg-gray-100 dark:bg-[#2c2c2c] dark:text-gray-200 rounded-lg">Cancel</button>
                       <button type="submit" className="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-bold">Create</button>
                     </div>
                   </form>
@@ -296,22 +296,22 @@ const Groups = () => {
             {/* MODAL: Join Group */}
             {showJoin && (
               <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                  <h3 className="text-xl font-bold mb-4">Enter Invite Code</h3>
+                <div className="bg-white dark:bg-[#202020] rounded-xl p-6 w-full max-w-md">
+                  <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Enter Invite Code</h3>
                   {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                   <form onSubmit={handleJoin}>
                     <input
                       autoFocus
                       type="text"
                       placeholder="e.g. X7K9P2"
-                      className="w-full p-3 border rounded-lg mb-4 font-mono uppercase tracking-widest text-center text-xl"
+                      className="w-full p-3 border rounded-lg mb-4 font-mono uppercase tracking-widest text-center text-xl dark:bg-[#3C3D3D] dark:border-gray-600 dark:text-gray-100"
                       maxLength={6}
                       value={joinCode}
                       onChange={e => setJoinCode(e.target.value.toUpperCase())}
                       required
                     />
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => setShowJoin(false)} className="flex-1 py-2 bg-gray-100 rounded-lg">Cancel</button>
+                      <button type="button" onClick={() => setShowJoin(false)} className="flex-1 py-2 bg-gray-100 dark:bg-[#2c2c2c] dark:text-gray-200 rounded-lg">Cancel</button>
                       <button type="submit" className="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-bold">Join Team</button>
                     </div>
                   </form>

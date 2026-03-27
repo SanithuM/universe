@@ -135,27 +135,27 @@ const GroupRoom = () => {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500 font-medium">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f0f0f] text-gray-500 dark:text-gray-300 font-medium">
             Loading Team Data...
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans text-[#37352f]">
+        <div className="min-h-screen bg-white dark:bg-[#191919] flex flex-col md:flex-row font-sans text-[#37352f] dark:text-gray-100">
 
             {/* SIDEBAR: Info & Members */}
-            <aside className="w-full md:w-64 bg-gray-50 border-r border-gray-200 p-6 shrink-0to md:h-screen overflow-y-auto custom-scrollbar">
-                <button onClick={() => navigate('/groups')} className="text-sm text-gray-500 hover:text-black mb-6 flex items-center gap-2 transition-colors">
+            <aside className="w-full md:w-64 bg-gray-50 dark:bg-[#202020] border-r border-gray-200 dark:border-gray-700 p-6 shrink-0 md:h-screen overflow-y-auto custom-scrollbar">
+                <button onClick={() => navigate('/groups')} className="text-sm text-gray-500 hover:text-black dark:hover:text-gray-200 mb-6 flex items-center gap-2 transition-colors">
                     ← Back to Lobby
                 </button>
 
                 <div className="mb-8 border-b border-gray-100 pb-4">
                     <div className="flex items-center justify-between gap-4">
-                        <h1 className="text-2xl font-bold text-gray-800 wrap-break-word leading-tight mb-0">{group.name}</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 wrap-break-word leading-tight mb-0">{group.name}</h1>
                     </div>
                     
-                    <div className="mt-4">
-                        <div className="bg-white border border-gray-200 p-3 rounded-lg text-center shadow-sm">
+                        <div className="mt-4">
+                        <div className="bg-white dark:bg-[#202020] border border-gray-200 dark:border-gray-700 p-3 rounded-lg text-center shadow-sm">
                             <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Invite Code</p>
                             <p className="text-xl font-mono font-bold text-blue-600 tracking-wide select-all cursor-pointer" title="Click to copy" onClick={() => {navigator.clipboard.writeText(group.inviteCode); toast.success("Code Copied!")}}>
                                 {group.inviteCode}
@@ -165,7 +165,7 @@ const GroupRoom = () => {
                 </div>
 
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-4">
                         Team Members ({group.members.length})
                     </h3>
                     <ul className="space-y-1">
@@ -174,11 +174,11 @@ const GroupRoom = () => {
                             const isCreator = group.creator === member._id || group.creator?._id === member._id;
 
                             return (
-                                <li key={member._id} className="flex items-center justify-between p-2 -mx-2 rounded-lg hover:bg-gray-50 transition-colors group/member">
+                                <li key={member._id} className="flex items-center justify-between p-2 -mx-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition-colors group/member">
                                     
                                     {/* Left Side: Avatar and Name */}
-                                    <div className="flex items-center gap-3 text-sm text-gray-700">
-                                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-100 flex items-center justify-center font-bold text-gray-500 shadow-sm">
+                                    <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200">
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2c2c2c] shrink-0 overflow-hidden border border-gray-100 dark:border-gray-700 flex items-center justify-center font-bold text-gray-500 dark:text-gray-300 shadow-sm">
                                             {member.profilePic ? (
                                                 <img src={member.profilePic} alt={member.username} className="w-full h-full object-cover" />
                                             ) : (
@@ -202,7 +202,7 @@ const GroupRoom = () => {
                                     {currentUser?._id === (group.creator?._id || group.creator) && !isCreator && (
                                         <button
                                             onClick={() => handleRemoveMember(member._id, member.username)}
-                                            className="text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded opacity-0 group-hover/member:opacity-100 transition-all duration-200"
+                                            className="text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 px-2 py-1 rounded opacity-0 group-hover/member:opacity-100 transition-all duration-200"
                                         >
                                             Remove
                                         </button>
@@ -215,20 +215,20 @@ const GroupRoom = () => {
             </aside>
 
             {/* MAIN: Workspace */}
-            <main className="flex-1 p-8 bg-white overflow-y-auto custom-scrollbar">
+            <main className="flex-1 p-8 bg-white dark:bg-[#191919] overflow-y-auto custom-scrollbar">
                 <div className="max-w-5xl mx-auto h-full flex flex-col">
                     
                     {/* Header Section */}
                     <div className="mb-8 border-b border-gray-100 pb-4">
                         <div className="flex items-center justify-between gap-4">
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900 mb-2">Workspace</h2>
-                                <p className="text-gray-500">Manage tasks and collaborate with your team.</p>
+                                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Workspace</h2>
+                                <p className="text-gray-500 dark:text-gray-400">Manage tasks and collaborate with your team.</p>
                             </div>
 
                             {currentUser?._id === (group.creator?._id || group.creator) && (
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setShowEditModal(true)} title="Edit Team" className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2">
+                                    <button onClick={() => setShowEditModal(true)} title="Edit Team" className="text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-[#3d3c3c] px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2C2C2C] flex items-center gap-2">
                                         <Edit2 size={16} />
                                         <span className="hidden sm:inline">Edit</span>
                                     </button>
@@ -253,11 +253,11 @@ const GroupRoom = () => {
                 {/* DELETE CONFIRMATION MODAL */}
                 {showDeleteConfirm && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                            <h3 className="text-lg font-bold mb-2">Delete Team</h3>
-                            <p className="text-sm text-gray-600 mb-4">Are you sure you want to permanently delete the team "{group.name}"? This action cannot be undone and will remove access for all members.</p>
+                        <div className="bg-white dark:bg-[#202020] rounded-xl p-6 w-full max-w-md">
+                            <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Delete Team</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Are you sure you want to permanently delete the team "{group.name}"? This action cannot be undone and will remove access for all members.</p>
                             <div className="flex gap-2 justify-end">
-                                <button onClick={() => setShowDeleteConfirm(false)} className="py-2 px-4 bg-gray-100 rounded-lg">Cancel</button>
+                                <button onClick={() => setShowDeleteConfirm(false)} className="py-2 px-4 bg-gray-100 dark:bg-[#2c2c2c] dark:text-gray-200 rounded-lg">Cancel</button>
                                 <button onClick={handleDeleteGroup} className="py-2 px-4 bg-red-600 text-white rounded-lg font-bold">Delete</button>
                             </div>
                         </div>
@@ -266,30 +266,30 @@ const GroupRoom = () => {
                 {/* EDIT GROUP MODAL */}
                 {showEditModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                            <h3 className="text-lg font-bold mb-2">Edit Team</h3>
-                            <p className="text-sm text-gray-600 mb-4">Update the team's name or profile image.</p>
+                        <div className="bg-white dark:bg-[#202020] rounded-xl p-6 w-full max-w-md">
+                            <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Edit Team</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Update the team's name or profile image.</p>
 
-                            <label className="text-sm text-gray-600 block mb-2">Team Name</label>
-                            <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 border rounded-lg mb-4" />
+                            <label className="text-sm text-gray-600 dark:text-gray-100 block mb-2">Team Name</label>
+                            <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-3 border rounded-lg mb-4 dark:bg-[#3C3D3D] dark:border-gray-600 dark:text-gray-100" />
 
                             <div className="mb-4">
-                                <label className="text-sm text-gray-600 block mb-2">Team Image</label>
+                                <label className="text-sm text-gray-600 dark:text-gray-100 block mb-2">Team Image</label>
 
                                 <div
                                     onDragEnter={(e) => { e.preventDefault(); setIsDraggingEdit(true); }}
                                     onDragOver={(e) => e.preventDefault()}
                                     onDragLeave={() => setIsDraggingEdit(false)}
                                     onDrop={(e) => { e.preventDefault(); setIsDraggingEdit(false); const f = e.dataTransfer?.files?.[0]; if (f) handleEditDrop(f); }}
-                                    className={`border-2 border-dashed rounded-lg p-4 text-center ${isDraggingEdit ? 'border-indigo-300 bg-indigo-50/30' : 'border-gray-200'} ${isInvalidEdit ? 'animate-shake border-red-300 bg-red-50/30' : ''}`}
+                                    className={`border-2 border-dashed rounded-lg p-4 text-center ${isDraggingEdit ? 'border-indigo-300 bg-indigo-50/30 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-600'} ${isInvalidEdit ? 'animate-shake border-red-300 bg-red-50/30' : ''} bg-white dark:bg-[#1F1F1F]`}
                                 >
                                     {editImageUrl ? (
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
                                                 <img src={editImageUrl} alt="Group" className="w-16 h-16 rounded-md object-cover border" />
                                                 <div className="text-left">
-                                                    <div className="font-medium">Selected Image</div>
-                                                    <div className="text-xs text-gray-500">Click "Choose file" to replace</div>
+                                                    <div className="font-medium text-gray-900 dark:text-gray-100">Selected Image</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Click "Choose file" to replace</div>
                                                 </div>
                                             </div>
                                             <button type="button" onClick={() => setEditImageUrl('')} className="text-sm text-red-500">Remove</button>
@@ -299,8 +299,8 @@ const GroupRoom = () => {
                                             <svg xmlns="http://www.w3.org/2000/svg" className={`h-10 w-10 text-gray-300 ${isDraggingEdit ? 'icon-pulse text-indigo-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16V8a4 4 0 014-4h2a4 4 0 014 4v8M7 16h10M7 16l1.5 1.5M17 16l-1.5 1.5" />
                                             </svg>
-                                            <div className="text-sm text-gray-500">Drag & drop an image or</div>
-                                            <label htmlFor="edit-image-input" className="mt-1 inline-flex items-center px-3 py-2 bg-white border rounded-md text-sm cursor-pointer hover:bg-gray-50">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">Drag & drop an image or</div>
+                                            <label htmlFor="edit-image-input" className="mt-1 inline-flex items-center px-3 py-2 bg-white dark:bg-[#3c3d3d] dark:text-gray-100 border rounded-md text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-[#2c2c2c]">
                                                 Choose file
                                             </label>
                                         </div>
@@ -308,12 +308,12 @@ const GroupRoom = () => {
 
                                     <input id="edit-image-input" type="file" accept="image/*" onChange={handleEditImageChange} className="sr-only" />
 
-                                    {uploadingImage && <p className="text-xs text-gray-500 mt-2">Uploading...</p>}
+                                    {uploadingImage && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Uploading...</p>}
                                 </div>
                             </div>
 
                             <div className="flex gap-2 justify-end mt-4">
-                                <button onClick={() => setShowEditModal(false)} className="py-2 px-4 bg-gray-100 rounded-lg">Cancel</button>
+                                <button onClick={() => setShowEditModal(false)} className="py-2 px-4 bg-gray-100 dark:bg-[#2c2c2c] dark:text-gray-200 rounded-lg">Cancel</button>
                                 <button onClick={handleSaveEdit} className="py-2 px-4 bg-indigo-600 text-white rounded-lg font-bold">Save</button>
                             </div>
                         </div>
