@@ -31,7 +31,12 @@ import Inbox from './pages/Inbox';
 import Analytics from './pages/Analytics';
 
 // Initialize Socket.io client
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+const socketUrl = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace('/api', '') 
+  : 'http://localhost:5000';
+
+// Initialize Socket.io client
+const socket = io(socketUrl, {
   transports: ['websocket'],
   withCredentials: true,
 });
