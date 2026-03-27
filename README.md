@@ -19,6 +19,16 @@ Paired with a powerful, Notion-style collaborative rich-text editor, UniVerse pr
 
 The goal is to solve the "tool overload" problem students face by providing a unified operating system for education.
 
+## 🌐 Deployment
+
+[![Website Live](https://img.shields.io/badge/Live_Demo-Click_Here-blue?style=for-the-badge&logo=render)](https://universe-nvhg.onrender.com)
+
+UniVerse is deployed and running! Click the badge above to visit the live production environment. 
+
+**Frontend Hosting:** [Render]
+**Backend API:** [Render]
+**Database:** MongoDB Atlas
+
 ## ✨ Key Features
 
 * 🧠 **Algorithmic Prioritization:** Automated task sorting using a custom WSJF engine to calculate real-time Focus Scores.
@@ -42,8 +52,8 @@ To run this project locally, follow these steps:
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/notion-clone.git
-    cd notion-clone
+    git clone https://github.com/SanithuM/universe.git
+    cd universe
     ```
 
 2.  **Install dependencies**
@@ -59,9 +69,6 @@ To run this project locally, follow these steps:
 4.  **Open in Browser**
     Visit `http://localhost:5173` to view the app.
 
-## 📸 Screenshots
-
-*(Screenshots to be added soon)*
 
 
 ## 📄 License
