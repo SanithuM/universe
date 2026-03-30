@@ -60,7 +60,7 @@ export default function Navbar({ onPricingClick }) {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="hidden md:inline-block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              className="hidden md:inline-block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors transform transition-transform duration-200 ease-out hover:scale-105 hover:-translate-y-0.5"
             >
               Sign in
             </button>

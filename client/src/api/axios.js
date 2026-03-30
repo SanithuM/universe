@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// Use Vite environment variable `VITE_API_URL` when provided.
+// Fallback to local development server.
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const api = axios.create({
-    baseURL: 'https://universe-backend-wufi.onrender.com/api',
+    baseURL
 });
 
 // Automatically add the Token to every request if it exists

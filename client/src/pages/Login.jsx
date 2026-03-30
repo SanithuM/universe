@@ -1,58 +1,68 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
-import { ArrowRight } from 'lucide-react';
+import api from '../api/axios'; 
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
+        
         try {
-            // 1. Send credentials to backend
             const res = await api.post('/auth/login', { email, password });
-
-            // 2. Save the token securely
             localStorage.setItem('token', res.data.token);
-
-            // 3. Redirect to the Dashboard
             navigate('/app');
-
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
         }
     };
 
-        return (
-                <div className="min-h-screen bg-white flex flex-col font-sans text-[#37352f]">
+    return (
+        <div className="min-h-screen bg-[#f4f6f8] flex items-center justify-center p-4 sm:p-8 font-sans">
+            
+            
+            <div className="w-full max-w-[1200px] bg-white rounded-2xl shadow-xl overflow-hidden flex min-h-[550px] max-h-[90vh]">
+                
+                <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-10 flex flex-col justify-between relative overflow-y-auto">
+                    
+                    <div>
+                        <Link to="/" className="flex items-center gap-2 mb-6">
+                            <img src={logo} alt="UniVerse logo" className="w-8 h-8 rounded" />
+                            <span className="font-bold text-xl tracking-tight text-gray-900">UniVerse</span>
+                        </Link>
 
-                    {/* Header (Logo Top Left) */}
-                    <div className="px-6 py-4 flex items-center gap-2">
-                        <img src={logo} alt="UniVerse logo" className="w-8 h-8 rounded object-cover" />
-                        <span className="font-semibold text-lg tracking-tight">UniVerse</span>
-                    </div>
+                        <div className="max-w-md">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
+                            <p className="text-sm text-gray-500 mb-6">
+                                Please enter your email and password to access the UniVerse Dashboard.
+                            </p>
 
-                    <div className="flex-1 flex flex-col items-center justify-start p-4 mt-6">
-
-                        {/* Headlines */}
-                        <div className="text-center mb-8 w-full max-w-4xl">
-                                <h1 className="text-2xl md:text-4xl font-bold mb-4 tracking-tight text-black">Welcome back to UniVerse.</h1>
-                                <p className="text-2xl md:text-3xl text-gray-500 font-medium">Sign in with your student email</p>
-                        </div>
-
-                        <div className="w-full max-w-[380px]">
-                            {error && <div className="p-3 mb-4 text-sm text-red-500 bg-red-50 rounded">{error}</div>}
+                            {error && (
+                                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-100 flex items-center gap-2 mb-4">
+                                    <span>⚠️</span> {error}
+                                </div>
+                            )}
 
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        Email <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="email"
-                                        className="w-full px-3 py-2.5 border border-gray-300 rounded shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                                        placeholder="eg. student@university.edu"
+                                        className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0075D8] focus:border-transparent transition-all text-sm"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
@@ -60,35 +70,79 @@ const Login = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Password</label>
-                                    <input
-                                        type="password"
-                                        className="w-full px-3 py-2.5 border border-gray-300 rounded shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        Password <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Enter your password"
+                                            className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0075D8] focus:border-transparent transition-all text-sm pr-10"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="flex justify-end mt-2">
+                                        <Link to="#" className="text-xs text-[#0075D8] hover:underline font-medium">
+                                            Forgot Password?
+                                        </Link>
+                                    </div>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-[#0075D8] hover:bg-[#005FB0] text-white font-medium py-2.5 rounded shadow-sm transition-colors text-sm flex items-center justify-center gap-2"
+                                    disabled={loading}
+                                    className="w-full mt-2 bg-[#0075D8] hover:bg-[#005FB0] text-white font-medium py-2.5 rounded-md shadow-sm transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
-                                    Sign In
-                                    <ArrowRight size={16} />
+                                    {loading ? 'Signing in...' : 'Login'}
+                                    {!loading && <ArrowRight size={16} />}
                                 </button>
-
-                                <div className="mt-6 text-center text-sm text-gray-500">
-                                    <p>Don't have an account?</p>
-                                    <Link to="/register" className="text-[#0075D8] hover:underline font-medium mt-1 inline-block">
-                                        Sign up here
-                                    </Link>
-                                </div>
                             </form>
+
+                            <div className="mt-5 text-center text-sm text-gray-500">
+                                Don't have an account?{' '}
+                                <Link to="/register" className="text-[#0075D8] hover:underline font-medium">
+                                    Sign Up
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
-        );
+
+                <div 
+                    className="hidden lg:flex w-1/2 relative items-center justify-center overflow-hidden"
+                    style={{
+                        backgroundColor: '#0a2c6e',
+                        backgroundImage: `
+                            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '40px 40px'
+                    }}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0075D8]/20 to-transparent mix-blend-overlay"></div>
+                    
+                    <div className="relative z-10 flex items-center gap-3 bg-black/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+                        <img src={logo} alt="UniVerse logo" className="w-12 h-12 rounded shadow-2xl" />
+                        <div className="flex flex-col">
+                            <span className="font-bold text-3xl tracking-tight text-white leading-none">UniVerse</span>
+                            <span className="text-blue-200 text-sm tracking-widest uppercase mt-1">Workspace</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
 };
 
 export default Login;

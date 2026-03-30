@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
 const { sendWelcomeEmail } = require('../utils/sendEmail');
+const crypto = require('crypto');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -20,36 +21,58 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Generate a random 32-character hex token
+        const crypto = require('crypto'); // Make sure this is imported at the top of your file!
+        const emailToken = crypto.randomBytes(32).toString('hex');
+
         // Create the new user
         const newUser = new User({
             username,
             email,
-            password: hashedPassword, // Saving as 'password' to be consistent
+            password: hashedPassword,
+            verificationToken: emailToken 
+            // Note: Make sure 'isVerified: false' is in your User model default!
         });
         const savedUser = await newUser.save();
 
-        // Send welcome email (non-blocking)
-        sendWelcomeEmail(newUser.email, newUser.username);
+        // create the verification link
+        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+        const verificationLink = `${clientUrl}/verify-email?token=${emailToken}`;
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: savedUser._id },
-            process.env.JWT_SECRET || 'fallback_secret_key',
-            { expiresIn: '1d' }
-        );
+        // Pass the verification link to welcome email template function
+        sendWelcomeEmail(savedUser.email, savedUser.username, verificationLink);
 
         res.status(201).json({
-            message: 'User registered successfully',
-            token,
-            user: {
-                id: savedUser._id,
-                username: savedUser.username,
-                email: savedUser.email,
-            }
+            message: 'Registration successful! Please check your email to verify your account.'
         });
 
     } catch (err) {
+        console.error("Registration Error:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Email Verification Endpoint
+router.post('/verify-email', async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        // find the user with this exact token
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired verification token" });
+        }
+
+        // verify the user and clear the token so it can't be used again
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully! You can now log in." });
+    } catch (err) {
+        console.error("Verification Error:", err);
+        res.status(500).json({ message: "Server error during email verification. Please try again later." });
     }
 });
 
@@ -62,6 +85,11 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Check if email is verified
+        if (!user.isVerified) {
+            return res.status(403).json({ message: 'Please check your inbox and verify your email before logging in!' });
         }
 
         // Validate Password

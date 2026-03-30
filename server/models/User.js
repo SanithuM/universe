@@ -17,6 +17,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true 
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: {
+        type: String,
+    },
     profilePic: {
         type: String,
         default: '' // Default to empty string if no profile picture is provided

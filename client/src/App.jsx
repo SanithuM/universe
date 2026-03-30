@@ -29,6 +29,7 @@ import Calender from './pages/Calendar';
 import NoteEditor from './pages/NoteEditor';
 import Inbox from './pages/Inbox';
 import Analytics from './pages/Analytics';
+import VerifyEmail from './pages/VerifyEmail';
 
 // Initialize Socket.io client
 const socketUrl = import.meta.env.VITE_API_URL 
@@ -153,6 +154,9 @@ export default function UniVerseApp() {
 
         {/* Route 11: Analytics Page (http://localhost:5173/analytics) */}
         <Route path="/analytics" element={<Analytics />} />
+
+        {/* Route 12: Email Verification Page (http://localhost:5173/verify-email?token=...) */}
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
       </Routes>
     </Router>

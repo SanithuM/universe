@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-// 1. REUSABLE TRANSPORTER HELPER
+// REUSABLE TRANSPORTER HELPER
 const getTransporter = async () => {
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         return nodemailer.createTransport({
@@ -27,13 +27,13 @@ const getTransporter = async () => {
 };
 
 // WELCOME EMAIL
-const sendWelcomeEmail = async (userEmail, userName) => {
+const sendWelcomeEmail = async (userEmail, userName, verificationLink) => {
     try {
         const transporter = await getTransporter();
         const mailOptions = {
             from: `"The UniVerse Team" <${process.env.EMAIL_USER || 'no-reply@universe.local'}>`,
             to: userEmail,
-            subject: "Welcome to UniVerse — Ready to prioritize your semester?",
+            subject: "Verify your UniVerse Account",
             html: `
                 <!doctype html>
                 <html>
@@ -57,7 +57,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                                     <tr>
                                         <td style="padding:26px;">
                                             <h2 style="font-size:18px;margin:0 0 10px;">Hi ${userName},</h2>
-                                            <p style="margin:0 0 16px;color:#475569;line-height:1.45;">Thanks for joining <strong>UniVerse</strong> — your Academic Priority Engine. Here are a few quick steps to get you started and see value immediately.</p>
+                                            <p style="margin:0 0 16px;color:#475569;line-height:1.45;">Thanks for joining <strong>UniVerse</strong> — your Academic Priority Engine. <strong>Please verify your email address</strong> to activate your account and explore your new workspace.</p>
 
                                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0 18px;">
                                                 <tr>
@@ -108,7 +108,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                                             </table>
 
                                             <div style="text-align:center;margin:18px 0;">
-                                                <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/dashboard" style="background:#4f46e5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;font-weight:700;">Open My Dashboard</a>
+                                                <a href="${verificationLink}" style="background:#4f46e5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;font-weight:700;">Verify Email Address</a>
                                             </div>
 
                                             <p style="margin:12px 0 0;color:#64748b;font-size:13px;">If you need help, reply to this email or visit our Help Center in the app.</p>
@@ -146,7 +146,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log(`Welcome email sent to ${userEmail}`);
+        console.log(`Welcome/Verification email sent to ${userEmail}`);
         const previewUrl = nodemailer.getTestMessageUrl(info);
         if (previewUrl) console.log(`Preview URL: ${previewUrl}`);
     } catch (error) {
@@ -214,7 +214,7 @@ const sendMeetingInviteEmail = async (userEmail, userName, eventDetails) => {
     }
 };
 
-// 🔥 THE NEW TASK ASSIGNMENT EMAIL 🔥
+// THE NEW TASK ASSIGNMENT EMAIL
 const sendTaskAssignmentEmail = async (userEmail, userName, taskDetails) => {
     try {
         const transporter = await getTransporter();
