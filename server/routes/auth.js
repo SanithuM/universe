@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            verificationToken: emailToken 
+            verificationToken: emailToken
             // Note: Make sure 'isVerified: false' is in your User model default!
         });
         const savedUser = await newUser.save();
@@ -45,6 +45,37 @@ router.post('/register', async (req, res) => {
         res.status(201).json({
             message: 'Registration successful! Please check your email to verify your account.'
         });
+
+        // Create a default welcome note for the new user
+        try {
+            const welcomeNoteContent = `
+                # Welcome to UniVerse, ${savedUser.username}! 🚀
+
+                We're excited to have you here. UniVerse is designed to help you crush your semester using data-driven prioritization. 
+
+                ### Key Features to Explore:
+                * **WSJF Priority Engine:** Add your assignments and let the algorithm tell you exactly what to work on first.
+                * **Group Rooms:** Create a space, invite your friends, and collaborate on tasks in real-time.
+                * **Rich-Text Editor:** You're using it right now! It supports Markdown, task lists, and deep formatting.
+                * **Academic Dashboard:** Check your "Focus Card" daily to stay on track.
+
+                **Pro-Tip:** You can edit this note to test the editor, or simply delete it when you're ready to start fresh!
+                    `;
+
+            const welcomeNote = new Note({
+                title: "Welcome to UniVerse! 👋",
+                content: welcomeNoteContent,
+                userId: savedUser._id, // Links the note to the new user
+                isFavorite: true       // Pin it so they see it first
+            });
+
+            await welcomeNote.save();
+            console.log(`Welcome note created for ${savedUser.username}`);
+
+        } catch (noteError) {
+            // log the error but don't fail the registration if the note fails
+            console.error("Failed to create welcome note:", noteError);
+        }
 
     } catch (err) {
         console.error("Registration Error:", err);
@@ -123,25 +154,25 @@ router.post('/login', async (req, res) => {
 
 // UPDATE USER DETAILS
 router.put('/update', verify, async (req, res) => {
-  try {
-    const updates = {};
+    try {
+        const updates = {};
 
-    // Only update fields if they are sent and NOT empty
-    if (req.body.username) updates.username = req.body.username;
-    if (req.body.profilePic) updates.profilePic = req.body.profilePic;
+        // Only update fields if they are sent and NOT empty
+        if (req.body.username) updates.username = req.body.username;
+        if (req.body.profilePic) updates.profilePic = req.body.profilePic;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updates },
-      { new: true }
-    ).select('-password');
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updates },
+            { new: true }
+        ).select('-password');
 
-    res.json(updatedUser);
-  } catch (err) {
-    // Log the actual error to your terminal so you can see what's wrong
-    console.error("Update Error:", err); 
-    res.status(500).json({ error: err.message });
-  }
+        res.json(updatedUser);
+    } catch (err) {
+        // Log the actual error to your terminal so you can see what's wrong
+        console.error("Update Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // CHANGE PASSWORD
@@ -196,12 +227,12 @@ router.delete('/delete', verify, async (req, res) => {
 
 // Get Current user (Profile)
 router.get('/me', verify, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;
