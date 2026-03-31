@@ -249,7 +249,7 @@ router.post('/google', async (req, res) => {
         });
 
         // Extract the user's secure data from Google
-        const payload = ticket.getPayLoad();
+        const payload = ticket.getPayload();
         const { email, name, sub: googleId, } = payload;
 
         // Check if this user already exists in our database
