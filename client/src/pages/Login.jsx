@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios'; 
+import api from '../api/axios';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        
+
         try {
             const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
@@ -28,14 +29,33 @@ const Login = () => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        setError('');
+        try {
+            // Send the Google token to backend route
+            const res = await api.post('/auth/google', {
+                token: credentialResponse.credential
+            });
+
+            // Save JWT and enter the app
+            localStorage.setItem('token', res.data.token);
+            navigate('/app');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Google Login failed');
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="min-h-screen bg-[#f4f6f8] flex items-center justify-center p-4 sm:p-8 font-sans">
-            
-            
+
+
             <div className="w-full max-w-[1200px] bg-white rounded-2xl shadow-xl overflow-hidden flex min-h-[550px] max-h-[90vh]">
-                
+
                 <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-10 flex flex-col justify-between relative overflow-y-auto">
-                    
+
                     <div>
                         <Link to="/" className="flex items-center gap-2 mb-6">
                             <img src={logo} alt="UniVerse logo" className="w-8 h-8 rounded" />
@@ -55,6 +75,7 @@ const Login = () => {
                             )}
 
                             <form onSubmit={handleLogin} className="space-y-4">
+                                
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
                                         Email <span className="text-red-500">*</span>
@@ -90,7 +111,7 @@ const Login = () => {
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
-                                    
+
                                     <div className="flex justify-end mt-2">
                                         <Link to="#" className="text-xs text-[#0075D8] hover:underline font-medium">
                                             Forgot Password?
@@ -106,6 +127,27 @@ const Login = () => {
                                     {loading ? 'Signing in...' : 'Login'}
                                     {!loading && <ArrowRight size={16} />}
                                 </button>
+
+                                {/* THE "OR" DIVIDER */}
+                                <div className="relative flex items-center justify-center mb-6">
+                                    <div className="border-t border-gray-200 w-full"></div>
+                                    <span className="bg-white px-4 text-xs font-semibold text-gray-400 uppercase tracking-widest absolute">
+                                        Or continue with email
+                                    </span>
+                                </div>
+
+                                {/* THE GOOGLE BUTTON */}
+                                <div className="mb-6 flex justify-center">
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() => setError('Google Login Failed. Please try again.')}
+                                        theme="outline"
+                                        size="large"
+                                        width="380px" // Matches your form width
+                                        text="continue_with"
+                                    />
+                                </div>
+                                
                             </form>
 
                             <div className="mt-5 text-center text-sm text-gray-500">
@@ -118,7 +160,7 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div 
+                <div
                     className="hidden lg:flex w-1/2 relative items-center justify-center overflow-hidden"
                     style={{
                         backgroundColor: '#0a2c6e',
@@ -130,7 +172,7 @@ const Login = () => {
                     }}
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#0075D8]/20 to-transparent mix-blend-overlay"></div>
-                    
+
                     <div className="relative z-10 flex items-center gap-3 bg-black/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
                         <img src={logo} alt="UniVerse logo" className="w-12 h-12 rounded shadow-2xl" />
                         <div className="flex flex-col">

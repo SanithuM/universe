@@ -5,6 +5,8 @@ const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
 const { sendWelcomeEmail } = require('../utils/sendEmail');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -232,6 +234,69 @@ router.get('/me', verify, async (req, res) => {
         res.json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Google SSO token swap
+router.post('/google', async (req, res) => {
+    try {
+        const { token } = req.body; // The Google Token sent from React
+
+        // Verify the token with Google's servers
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        // Extract the user's secure data from Google
+        const payload = ticket.getPayLoad();
+        const { email, name, sub: googleId, } = payload;
+
+        // Check if this user already exists in our database
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // If not, create a new user with the Google info
+            const randomPassword = crypto.randomBytes(32).toString('hex'); // Generate a random password for this user
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+            user = new User({
+                username: name, // use the name from Google as the username
+                email,
+                password: hashedPassword,
+                isVerified: true, // Google accounts are already verified
+            });
+            await user.save();
+        } else {
+            // If the user exists but isn't verified (should be rare with Google SSO), verify them
+            if (!user.isVerified) {
+                user.isVerified = true;
+                await user.save();
+            }
+        }
+
+        // Generate the standard UniVerse JWT
+        const jwtToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET || 'fallback_secret_key',
+            { expiresIn: '1d' }
+        );
+
+        // Sent the user into the app
+        res.status(200).json({
+            message: 'Google Login successful',
+            token: jwtToken,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            }
+        });
+
+    } catch (err) {
+        console.error("Google SSO Error:", err);
+        res.status(401).json({ message: "Invalid Google Token" });
     }
 });
 
