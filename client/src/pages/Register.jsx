@@ -35,7 +35,7 @@ const Register = () => {
       <div className="w-full max-w-[1200px] bg-white rounded-2xl shadow-xl overflow-hidden flex min-h-[550px] max-h-[90vh]">
         
         {/* LEFT COLUMN: Form Section */}
-        <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-10 overflow-y-auto flex flex-col justify-between relative">
+        <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-10 overflow-y-visible min-h-0 flex flex-col justify-between relative">
           
           {/* Header & Logo */}
           <div>

@@ -38,7 +38,14 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: true
         }
+    },
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpire: {
+        type: Date,
     }
+
 }, {timestamps: true}); // Automatically adds 'createdAt' and 'updatedAt'
 
 module.exports = mongoose.model('User', userSchema);

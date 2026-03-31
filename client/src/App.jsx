@@ -17,6 +17,8 @@ import DashboardPreview from './components/Dashboard';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
+import ResetPassword from './components/ResetPassword';
+import ForgotPassword from './components/ForgotPassword';
 
 // Import Pages
 import UserDashboard from './pages/UserDashboard';
@@ -157,6 +159,12 @@ export default function UniVerseApp() {
 
         {/* Route 12: Email Verification Page (http://localhost:5173/verify-email?token=...) */}
         <Route path="/verify-email" element={<VerifyEmail />} />
+
+        {/* Route 13: Forgot Password Page (http://localhost:5173/forgot-password) */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Route 14: Reset Password Page with dynamic token (http://localhost:5173/reset-password/:token) */}
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       </Routes>
     </Router>

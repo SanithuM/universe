@@ -7,6 +7,7 @@ const { sendWelcomeEmail } = require('../utils/sendEmail');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const Note = require('../models/Note'); // To create a welcome note for new users
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -151,6 +152,43 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Frogot Password (Request Reset)
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).json({ message: "There is no user with that email" });
+        }
+
+        // Generate and hash the token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+        await user.save();
+
+        // Create the URL
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+        // Call the streamlined utility function!
+        await sendEmail({
+            to: user.email,
+            subject: 'Reset Your UniVerse Password',
+            template: 'forgotPassword',
+            data: { resetUrl } // Pass the dynamic URL into the HTML template
+        });
+
+        res.status(200).json({ message: 'Email sent successfully' });
+
+    } catch (err) {
+        console.error("Forgot Password Error:", err);
+        // Clean up the DB if the email fails to send
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+        res.status(500).json({ message: 'Email could not be sent' });
     }
 });
 

@@ -54,7 +54,7 @@ const Login = () => {
 
             <div className="w-full max-w-[1200px] bg-white rounded-2xl shadow-xl overflow-hidden flex min-h-[550px] max-h-[90vh]">
 
-                <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-10 flex flex-col justify-between relative overflow-y-auto">
+                <div className="w-full lg:w-1/2 p-8 sm:p-10 lg:p-10 flex flex-col justify-center relative overflow-y-visible min-h-0">
 
                     <div>
                         <Link to="/" className="flex items-center gap-2 mb-6">
@@ -113,7 +113,7 @@ const Login = () => {
                                     </div>
 
                                     <div className="flex justify-end mt-2">
-                                        <Link to="#" className="text-xs text-[#0075D8] hover:underline font-medium">
+                                        <Link to="/forgot-password" className="text-xs text-[#0075D8] hover:underline font-medium">
                                             Forgot Password?
                                         </Link>
                                     </div>
@@ -132,19 +132,20 @@ const Login = () => {
                                 <div className="relative flex items-center justify-center mb-6">
                                     <div className="border-t border-gray-200 w-full"></div>
                                     <span className="bg-white px-4 text-xs font-semibold text-gray-400 uppercase tracking-widest absolute">
-                                        Or continue with email
+                                        Or
                                     </span>
                                 </div>
 
                                 {/* THE GOOGLE BUTTON */}
-                                <div className="mb-6 flex justify-center">
+                                <div className="mb-6 flex justify-center w-full">
                                     <GoogleLogin
                                         onSuccess={handleGoogleSuccess}
                                         onError={() => setError('Google Login Failed. Please try again.')}
                                         theme="outline"
                                         size="large"
-                                        width="380px" // Matches your form width
+                                        width="380px"
                                         text="continue_with"
+                                        className="w-full mt-2 bg-[#0075D8] hover:bg-[#005FB0] text-white font-medium py-2.5 rounded-md shadow-sm transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                     />
                                 </div>
                                 
