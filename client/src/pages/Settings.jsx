@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import TwoFactorSetup from '../components/TwoFactorSetup';
 import {
     User,
     Settings as SettingsIcon,
@@ -27,7 +28,7 @@ const Settings = ({ onClose }) => {
     };
 
     // Initialize with empty strings to avoid "uncontrolled input" warnings
-    const [user, setUser] = useState({ username: '', email: '', profilePic: '' });
+    const [user, setUser] = useState({ _id: '', username: '', email: '', profilePic: '', isTwoFactorEnabled: false });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('my-account');
     const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -157,16 +158,18 @@ const Settings = ({ onClose }) => {
         }
     }, [activeTab, user.email]);
 
-    // Fetch Current User Data (THE FIX IS HERE)
+    // Fetch Current User Data
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 // Fetch the current data so inputs aren't empty
                 const res = await api.get('/auth/me');
                 setUser({
+                    _id: res.data._id || '',
                     username: res.data.username || '',
                     email: res.data.email || '',
-                    profilePic: res.data.profilePic || ''
+                    profilePic: res.data.profilePic || '',
+                    isTwoFactorEnabled: res.data.isTwoFactorEnabled || false
                 });
                 setLoading(false);
             } catch (err) {
@@ -468,6 +471,16 @@ const Settings = ({ onClose }) => {
                                         </button>
                                     </div>
                                 </section>
+
+                                {/* Two-Factor Authentication */}
+                                <section className="pt-8 border-t border-gray-200">
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Two-Factor Authentication</h3>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        Add an extra layer of security to your account.
+                                    </p>
+                                    <TwoFactorSetup userId={user._id} isEnabled={user.isTwoFactorEnabled} onEnabled={() => setUser(prev => ({ ...prev, isTwoFactorEnabled: true }))} />
+                                </section>
+
 
                                 {/* Danger Zone */}
                                 <section className="pt-8 border-t border-gray-200">

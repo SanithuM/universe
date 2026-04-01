@@ -3,11 +3,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verify = require('../middleware/verifyToken');
-const { sendWelcomeEmail } = require('../utils/sendEmail');
+const { sendWelcomeEmail, sendForgotPasswordEmail } = require('../utils/sendEmail');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const Note = require('../models/Note'); // To create a welcome note for new users
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -52,18 +54,16 @@ router.post('/register', async (req, res) => {
         // Create a default welcome note for the new user
         try {
             const welcomeNoteContent = `
-                # Welcome to UniVerse, ${savedUser.username}! 🚀
-
-                We're excited to have you here. UniVerse is designed to help you crush your semester using data-driven prioritization. 
-
-                ### Key Features to Explore:
-                * **WSJF Priority Engine:** Add your assignments and let the algorithm tell you exactly what to work on first.
-                * **Group Rooms:** Create a space, invite your friends, and collaborate on tasks in real-time.
-                * **Rich-Text Editor:** You're using it right now! It supports Markdown, task lists, and deep formatting.
-                * **Academic Dashboard:** Check your "Focus Card" daily to stay on track.
-
-                **Pro-Tip:** You can edit this note to test the editor, or simply delete it when you're ready to start fresh!
-                    `;
+<p>We're excited to have you here. UniVerse is designed to help you crush your semester using data-driven prioritization.</p>
+<h3>Key Features to Explore:</h3>
+<ul>
+    <li><strong>WSJF Priority Engine:</strong> Add your assignments and let the algorithm tell you exactly what to work on first.</li>
+    <li><strong>Group Rooms:</strong> Create a space, invite your friends, and collaborate on tasks in real-time.</li>
+    <li><strong>Rich-Text Editor:</strong> You're using it right now! It supports Markdown, task lists, and deep formatting.</li>
+    <li><strong>Academic Dashboard:</strong> Check your "Focus Card" daily to stay on track.</li>
+</ul>
+<p><strong>Pro-Tip:</strong> You can edit this note to test the editor, or simply delete it when you're ready to start fresh!</p>
+    `;
 
             const welcomeNote = new Note({
                 title: "Welcome to UniVerse! 👋",
@@ -157,8 +157,9 @@ router.post('/login', async (req, res) => {
 
 // Frogot Password (Request Reset)
 router.post('/forgot-password', async (req, res) => {
+    let user; // Declare user in the outer scope so backend can access it in the catch block
     try {
-        const user = await User.findOne({ email: req.body.email });
+        user = await User.findOne({ email: req.body.email });
         if (!user) {
             return res.status(404).json({ message: "There is no user with that email" });
         }
@@ -172,13 +173,8 @@ router.post('/forgot-password', async (req, res) => {
         // Create the URL
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
-        // Call the streamlined utility function!
-        await sendEmail({
-            to: user.email,
-            subject: 'Reset Your UniVerse Password',
-            template: 'forgotPassword',
-            data: { resetUrl } // Pass the dynamic URL into the HTML template
-        });
+        // Call the streamlined utility function
+        await sendForgotPasswordEmail(user.email, user.username, resetUrl);
 
         res.status(200).json({ message: 'Email sent successfully' });
 
@@ -191,6 +187,102 @@ router.post('/forgot-password', async (req, res) => {
         res.status(500).json({ message: 'Email could not be sent' });
     }
 });
+
+// RESET PASSWORD
+router.put('/reset-password/:token', async (req, res) => {
+    try {
+        // Re-hash the token from the URL to match what is saved in the database
+        const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+        // Find the user with that exact token AND ensure it hasn't expired (10 min limit)
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired reset token" });
+        }
+
+        // Hash the new password securely
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+        
+        // Clear out the reset token fields so they can't be used again
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Password updated successfully!" });
+
+    } catch (err) {
+        console.error("Reset Password Error:", err);
+        res.status(500).json({ message: "Server error during password reset" });
+    }
+});
+
+// GENERATE 2FA SECRET & QR CODE
+router.post('/2fa/generate', async (req, res) => {
+    try {
+        // Find the user
+        const user = await User.findById(req.body.userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Generate a secure secret specifically for this user
+        const secret = speakeasy.generateSecret({
+            name: `UniVerse (${user.email})` // This is what shows up in the Google Authenticator app!
+        });
+
+        // Convert the secret URL into a QR code image
+        const qrCodeDataUrl = await qrcode.toDataURL(secret.otpauth_url);
+
+        // Send both the QR code and the raw text secret back to React
+        // Not save the secret to the database yet. we wait until they prove it works.
+        res.status(200).json({
+            secret: secret.base32,
+            qrCode: qrCodeDataUrl
+        });
+    } catch (err) {
+        console.error("2FA Generation Error:", err);
+        res.status(500).json({ message: "Failed to generate 2FA secret" });
+    }
+});
+
+// VERIFY AND ENABLE 2FA
+// The user scans the code, types the 6 digits, and submits it here
+router.post('/2fa/verify', async (req, res) => {
+    try {
+        const { userId, secret, token } = req.body; 
+        // token = the 6 digit code from their phone
+        // secret = the base32 string that generated in the last step
+
+        const user = await User.findById(userId);
+
+        // Mathematically verify the 6-digit code against the secret
+        const isVerified = speakeasy.totp.verify({
+            secret: secret,
+            encoding: 'base32',
+            token: token,
+            window: 1 // Allows a 30-second buffer in case their phone clock is slightly off
+        });
+
+        if (isVerified) {
+            // It worked! Their phone is synced. Now the backend lock it into the database.
+            user.twoFactorSecret = secret;
+            user.isTwoFactorEnabled = true;
+            await user.save();
+
+            res.status(200).json({ message: "Two-Factor Authentication is now enabled!" });
+        } else {
+            res.status(400).json({ message: "Invalid authentication code. Please try again." });
+        }
+
+    } catch (err) {
+        console.error("2FA Verification Error:", err);
+        res.status(500).json({ message: "Server error during 2FA verification" });
+    }
+});
+
 
 // UPDATE USER DETAILS
 router.put('/update', verify, async (req, res) => {

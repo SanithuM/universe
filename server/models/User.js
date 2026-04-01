@@ -44,6 +44,13 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordExpire: {
         type: Date,
+    },
+    isTwoFactorEnabled: {
+        type: Boolean,
+        default: false
+    },
+    twoFactorSecret: {
+        type: String,
     }
 
 }, {timestamps: true}); // Automatically adds 'createdAt' and 'updatedAt'
