@@ -132,6 +132,15 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
+        // Check if 2FA is enabled for this user
+        if (user.isTwoFactorEnabled) {
+            return res.status(200).json({
+                requiresTwoFactor: true,
+                userId: user._id,
+                message: "Two-factor authentication required."
+            });
+        }
+
         // Generate JWT Token
         const token = jwt.sign(
             { id: user._id },
@@ -152,6 +161,50 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error("Login Error:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Verify 2FA for login
+router.post('/login/2fa', async (req, res) => {
+    try {
+        const { userId, token } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Verify the 6-digit code against their saved secret
+        const isVerified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: token,
+            window: 1 // 30 second buffer
+        });
+
+        if (!isVerified) {
+            return res.status(400).json({ message: "Invalid 2FA code" });
+        }
+
+        // Generate JWT Token
+        const jwtToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET || 'fallback_secret_key',
+            { expiresIn: '1d' }
+        );
+
+        res.status(200).json({ 
+            message: "Login successful",
+            token: jwtToken,
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                profilePic: user.profilePic
+            }
+        });
+
+    } catch (err) {
+        console.error("2FA Login Error:", err);
+        res.status(500).json({ message: "Server error during 2FA login" });
     }
 });
 
