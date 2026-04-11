@@ -36,7 +36,6 @@ router.post('/register', async (req, res) => {
             email,
             password: hashedPassword,
             verificationToken: emailToken
-            // Note: Make sure 'isVerified: false' is in your User model default!
         });
         const savedUser = await newUser.save();
 

@@ -1,11 +1,11 @@
 # UniVerse 🪐
 
-![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
+![Status: Live](https://img.shields.io/badge/Status-Live-brightgreen)
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-cyan)
 ![Vite](https://img.shields.io/badge/Vite-Fast-yellow)
 
-> **Note:** This project is currently **under active development**. Features and UI are subject to change as we iterate on the design and functionality.
+<!-- > **Note:** This project is currently **under active development**. Features and UI are subject to change as we iterate on the design and functionality. -->
 
 ![UniVerse Dashboard Screenshot](./client/public/dashboard.png)
 
