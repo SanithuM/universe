@@ -7,7 +7,7 @@ const getTransporter = async () => {
             port: parseInt(process.env.EMAIL_PORT, 10) || 587,
             secure: false,
             auth: {
-                user: process.env.BREVO_SMTP_USER,
+                user: process.env.EMAIL_SENDER,
                 pass: process.env.BREVO_SMTP_KEY,
             },
         });
@@ -18,7 +18,7 @@ const sendWelcomeEmail = async (userEmail, userName, verificationLink) => {
     try {
         const transporter = await getTransporter();
         const mailOptions = {
-            from: `"The UniVerse Team" <${process.env.BREVO_SMTP_USER}>`,
+            from: `"The UniVerse Team" <${process.env.EMAIL_SENDER}>`,
             to: userEmail,
             subject: "Verify your UniVerse Account",
             html: `
@@ -146,7 +146,7 @@ const sendForgotPasswordEmail = async (userEmail, userName, resetLink) => {
     try {
         const transporter = await getTransporter(); // Assuming you have this helper function
         const mailOptions = {
-            from: `"The UniVerse Team" <${process.env.BREVO_SMTP_USER}>`,
+            from: `"The UniVerse Team" <${process.env.EMAIL_SENDER}>`,
             to: userEmail,
             subject: "Reset your UniVerse Password",
             html: `
@@ -237,7 +237,7 @@ const sendMeetingInviteEmail = async (userEmail, userName, eventDetails) => {
         const transporter = await getTransporter();
         
         const mailOptions = {
-            from: `"UniVerse Notifications" <${process.env.BREVO_SMTP_USER}>`,
+            from: `"UniVerse Notifications" <${process.env.EMAIL_SENDER}>`,
             to: userEmail,
             subject: `New Invite: ${eventDetails.title} with ${eventDetails.creatorName}`,
             html: `
@@ -297,7 +297,7 @@ const sendTaskAssignmentEmail = async (userEmail, userName, taskDetails) => {
         const transporter = await getTransporter();
         
         const mailOptions = {
-            from: `"UniVerse Notifications" <${process.env.BREVO_SMTP_USER}>`,
+            from: `"UniVerse Notifications" <${process.env.EMAIL_SENDER}>`,
             to: userEmail,
             subject: `New Task Assigned: ${taskDetails.taskName}`,
             html: `
