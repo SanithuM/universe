@@ -7,7 +7,7 @@ const getTransporter = async () => {
             port: parseInt(process.env.EMAIL_PORT, 10) || 587,
             secure: false,
             auth: {
-                user: process.env.EMAIL_SENDER,
+                user: process.env.BREVO_SMTP_USER,
                 pass: process.env.BREVO_SMTP_KEY,
             },
         });
@@ -144,7 +144,7 @@ const sendWelcomeEmail = async (userEmail, userName, verificationLink) => {
 // FORGOT PASSWORD EMAIL
 const sendForgotPasswordEmail = async (userEmail, userName, resetLink) => {
     try {
-        const transporter = await getTransporter(); // Assuming you have this helper function
+        const transporter = await getTransporter();
         const mailOptions = {
             from: `"The UniVerse Team" <${process.env.EMAIL_SENDER}>`,
             to: userEmail,
