@@ -236,7 +236,7 @@ function PriorityCard({ task, onStatusChange, onDelete }) {
           </svg>
           {isDone ? 'Completed' : daysRemaining < 0 ? 'Overdue' : `${daysRemaining} days`}
         </div>
-      </div> 
+      </div>
 
       {/* Row 2: Weight */}
       <div className="flex justify-between items-center mb-3 text-sm">
@@ -248,7 +248,8 @@ function PriorityCard({ task, onStatusChange, onDelete }) {
       <div className="flex justify-between items-center mb-3 text-sm">
         <span className="text-gray-500 dark:text-gray-400 font-medium">Priority Score</span>
         <span className={`font-bold ${daysRemaining < 3 && !isDone ? 'text-red-600' : 'text-gray-900 dark:text-gray-300'}`}>
-          {typeof task.priorityScore === 'number' ? task.priorityScore.toFixed(1) : task.priorityScore}
+          {/* If it's done, show the dash. Otherwise, show the formatted score. */}
+          {isDone ? '—' : (typeof task.priorityScore === 'number' ? task.priorityScore.toFixed(1) : task.priorityScore)}
         </span>
       </div>
 

@@ -28,6 +28,15 @@ router.get('/', verify, async (req, res) => {
 
     // The Priority Engine Algorithm
     const scoredAssignments = assignments.map((task) => {
+      // convert the Mongoose object to a plain JS object first
+      let taskObj = task.toObject();
+
+      // If the assignment is completed, give it a zero priority score
+      if (taskObj.isCompleted === true) {
+        taskObj.priorityScore = (0).toFixed(2);
+        return taskObj;
+      }
+
       // Calculate Days Remaining
       const now = new Date();
       const due = new Date(task.dueDate);
@@ -38,8 +47,6 @@ router.get('/', verify, async (req, res) => {
       if (daysRemaining <= 0) daysRemaining = 0.1; // Treated as "Due in moments"
 
       // Apply Formula: Weight / Days
-      // convert the Mongoose object to a plain JS object first
-      let taskObj = task.toObject();
       taskObj.priorityScore = (task.academicWeight / daysRemaining).toFixed(2);
 
       return taskObj;
