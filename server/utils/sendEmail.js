@@ -6,10 +6,10 @@ const getTransporter = async () => {
         return nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT, 10) || 587,
-            secure: (process.env.EMAIL_SECURE === 'true') || false,
+            secure: false,
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: process.env.BREVO_SMTP_USER,
+                pass: process.env.BREVO_SMTP_KEY,
             },
         });
     } else {
